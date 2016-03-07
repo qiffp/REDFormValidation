@@ -9,12 +9,12 @@
 #import "REDValidator.h"
 #import "REDValidationRule.h"
 
-@interface REDValidator () <REDValidatedComponentDelegate>
+@interface REDValidator () <REDValidationComponentDelegate>
 @end
 
 @implementation REDValidator {
 	__weak UIView *_view;
-	NSMutableArray<REDValidatedComponent *> *_validatedComponents;
+	NSMutableArray<REDValidationComponent *> *_validationComponents;
 }
 
 - (instancetype)initWithView:(UIView *)view
@@ -24,25 +24,25 @@
 		_shouldValidate = YES;
 		
 		_view = view;
-		_validatedComponents = [NSMutableArray array];
+		_validationComponents = [NSMutableArray array];
 	}
 	return self;
 }
 
 - (void)setRule:(id<REDValidationRuleProtocol>)rule forComponentWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event;
 {
-	REDValidatedComponent *validatedComponent = [[REDValidatedComponent alloc] initWithUIComponent:[_view viewWithTag:tag] validateOn:event];
-	validatedComponent.rule = rule;
-	validatedComponent.delegate = self;
-	[_validatedComponents addObject:validatedComponent];
+	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithUIComponent:[_view viewWithTag:tag] validateOn:event];
+	validationComponent.rule = rule;
+	validationComponent.delegate = self;
+	[_validationComponents addObject:validationComponent];
 }
 
-- (REDValidatedComponent *)validatedComponentWithTag:(NSInteger)tag
+- (REDValidationComponent *)validationComponentWithTag:(NSInteger)tag
 {
-	NSUInteger index = [_validatedComponents indexOfObjectPassingTest:^BOOL(REDValidatedComponent *obj, NSUInteger idx, BOOL *stop) {
+	NSUInteger index = [_validationComponents indexOfObjectPassingTest:^BOOL(REDValidationComponent *obj, NSUInteger idx, BOOL *stop) {
 		return obj.tag == tag;
 	}];
-	return index != NSNotFound ? _validatedComponents[index] : nil;
+	return index != NSNotFound ? _validationComponents[index] : nil;
 }
 
 - (BOOL)validate
@@ -59,16 +59,16 @@
 	return result;
 }
 
-#pragma mark - REDValidatedComponentDelegate
+#pragma mark - REDValidationComponentDelegate
 
-- (void)validatedComponent:(REDValidatedComponent *)validatedComponent willValidateUIComponent:(UIControl *)uiComponent
+- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIControl *)uiComponent
 {
 	if ([_delegate respondsToSelector:@selector(validator:willValidateComponent:)]) {
 		[_delegate validator:self willValidateComponent:uiComponent];
 	}
 }
 
-- (void)validatedComponent:(REDValidatedComponent *)validatedComponent didValidateUIComponent:(UIControl *)uiComponent result:(BOOL)result
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIControl *)uiComponent result:(BOOL)result
 {
 	[self validate];
 	

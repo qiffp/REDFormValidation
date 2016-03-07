@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "REDValidator.h"
-#import "REDValidatedComponent.h"
+#import "REDValidationComponent.h"
 #import "REDValidationRule.h"
 
 //! Project version number for FormValidation.

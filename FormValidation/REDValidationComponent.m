@@ -1,26 +1,26 @@
 //
-//  REDValidatedComponent.m
+//  REDValidationComponent.m
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-03-04.
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidatedComponent.h"
+#import "REDValidationComponent.h"
 
 #import "REDValidationRule.h"
 
-@interface REDValidatedComponent (UITextField) <UITextFieldDelegate>
+@interface REDValidationComponent (UITextField) <UITextFieldDelegate>
 @end
 
-@interface REDValidatedComponent (UITextView) <UITextViewDelegate>
+@interface REDValidationComponent (UITextView) <UITextViewDelegate>
 @end
 
-@interface REDValidatedComponent () <REDNetworkValidationRuleDelegate>
+@interface REDValidationComponent () <REDNetworkValidationRuleDelegate>
 @property (nonatomic, weak) id componentDelegate;
 @end
 
-@implementation REDValidatedComponent {
+@implementation REDValidationComponent {
 	struct {
 		unsigned int change:1;
 		unsigned int beginEditing:1;
@@ -83,7 +83,7 @@
 - (BOOL)validateWithCallbacks:(BOOL)callback
 {
 	if (callback) {
-		[_delegate validatedComponent:self willValidateUIComponent:_uiComponent];
+		[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
 	}
 	
 	BOOL result = [_rule validate:_uiComponent] & REDValidationResultSuccess;
@@ -91,7 +91,7 @@
 	_validated = YES;
 	
 	if (callback && [_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-		[_delegate validatedComponent:self didValidateUIComponent:_uiComponent result:result];
+		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:result];
 	}
 	
 	return result;
@@ -117,14 +117,14 @@
 {
 	_valid = result & REDValidationResultSuccess;
 	_validated = YES;
-	[_delegate validatedComponent:self didValidateUIComponent:_uiComponent result:result];
+	[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:result];
 }
 
 @end
 
 #pragma mark - Public Interface
 
-@implementation REDValidatedComponent (Public)
+@implementation REDValidationComponent (Public)
 
 - (BOOL)valid
 {
@@ -140,7 +140,7 @@
 
 #pragma mark - UITextFieldDelegate
 
-@implementation REDValidatedComponent (UITextField)
+@implementation REDValidationComponent (UITextField)
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
@@ -191,7 +191,7 @@
 
 #pragma mark - UITextViewDelegate
 
-@implementation REDValidatedComponent (UITextView)
+@implementation REDValidationComponent (UITextView)
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {

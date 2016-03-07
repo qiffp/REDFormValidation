@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "REDValidatedComponent.h"
+#import "REDValidationComponent.h"
 
 @class REDValidator;
 
@@ -30,7 +30,7 @@ typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
 
 - (void)setRule:(id<REDValidationRuleProtocol>)rule forComponentWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event;
 
-- (REDValidatedComponent *)validatedComponentWithTag:(NSInteger)tag;
+- (REDValidationComponent *)validationComponentWithTag:(NSInteger)tag;
 
 - (BOOL)validate;
 

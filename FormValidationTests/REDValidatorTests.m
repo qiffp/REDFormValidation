@@ -96,7 +96,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	[_testForm.tableView layoutSubviews];
 	
 	_testForm.validator.validationBlock = ^BOOL(REDValidator *validator) {
-		return [validator validatedComponentWithTag:kTestTextFieldTag].valid;
+		return [validator validationComponentWithTag:kTestTextFieldTag].valid;
 	};
 }
 

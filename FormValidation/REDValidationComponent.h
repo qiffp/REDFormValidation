@@ -1,5 +1,5 @@
 //
-//  REDValidatedComponent.h
+//  REDValidationComponent.h
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-03-04.
@@ -16,18 +16,18 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 	REDValidationEventAll = (1 << 3)
 };
 
-@class REDValidatedComponent;
+@class REDValidationComponent;
 
-@protocol REDValidatedComponentDelegate <NSObject>
-- (void)validatedComponent:(REDValidatedComponent *)validatedComponent willValidateUIComponent:(UIControl *)uiComponent;
-- (void)validatedComponent:(REDValidatedComponent *)validatedComponent didValidateUIComponent:(UIControl *)uiComponent result:(BOOL)result;
+@protocol REDValidationComponentDelegate <NSObject>
+- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIControl *)uiComponent;
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIControl *)uiComponent result:(BOOL)result;
 @end
 
-@interface REDValidatedComponent : NSObject
+@interface REDValidationComponent : NSObject
 
 @property (nonatomic, strong) id<REDValidationRuleProtocol> rule;
 @property (nonatomic, weak) UIControl *uiComponent;
-@property (nonatomic, weak) id<REDValidatedComponentDelegate> delegate;
+@property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
 @property (nonatomic, assign) NSInteger tag;
 @property (nonatomic, assign) BOOL validated;
 
@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 @end
 
-@interface REDValidatedComponent (Public)
+@interface REDValidationComponent (Public)
 
 @property (nonatomic, assign) BOOL valid;
 
