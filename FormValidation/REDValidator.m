@@ -9,12 +9,16 @@
 #import "REDValidator.h"
 #import "REDValidationRule.h"
 
-@interface REDValidator () <REDValidationComponentDelegate>
+static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsChangedContext;
+
+@interface REDValidator () <REDValidationComponentDelegate, UITableViewDelegate>
 @end
 
 @implementation REDValidator {
 	__weak UIView *_view;
+	__weak id<UITableViewDelegate> _tableViewDelegate;
 	NSMutableArray<REDValidationComponent *> *_validationComponents;
+	NSMutableArray<NSNumber *> *_validatedTags;
 }
 
 - (instancetype)initWithView:(UIView *)view
@@ -24,7 +28,13 @@
 		_shouldValidate = YES;
 		
 		_view = view;
+		if ([_view isKindOfClass:[UITableView class]]) {
+			_tableViewDelegate = ((UITableView *)_view).delegate;
+			((UITableView *)_view).delegate = self;
+		}
+		
 		_validationComponents = [NSMutableArray array];
+		_validatedTags = [NSMutableArray array];
 	}
 	return self;
 }
@@ -35,6 +45,7 @@
 	validationComponent.rule = rule;
 	validationComponent.delegate = self;
 	[_validationComponents addObject:validationComponent];
+	[_validatedTags addObject:@(tag)];
 }
 
 - (REDValidationComponent *)validationComponentWithTag:(NSInteger)tag
@@ -76,5 +87,51 @@
 		[_delegate validator:self didValidateComponent:uiComponent result:result];
 	}
 }
+
+#pragma mark - Delegate Funny Business
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+	return [super respondsToSelector:aSelector] || [_tableViewDelegate respondsToSelector:aSelector];
+}
+
+- (id)forwardingTargetForSelector:(SEL)aSelector
+{
+	if ([_tableViewDelegate respondsToSelector:aSelector]) {
+		return _tableViewDelegate;
+	}
+	
+	return [super forwardingTargetForSelector:aSelector];
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	[_validatedTags enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL *stop) {
+		UIView *view = [cell viewWithTag:[obj integerValue]];
+		if (view) {
+			_validationComponents[idx].uiComponent = view;
+			*stop = YES;
+		}
+	}];
+	
+	if ([_tableViewDelegate respondsToSelector:@selector(tableView:willDisplayCell:forRowAtIndexPath:)]) {
+		[_tableViewDelegate tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
+	}
+}
+
+// don't think this is necessary since _uiComponent is weak
+
+//- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath
+//{
+//	[_validatedTags enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL *stop) {
+//		UIView *view = [cell viewWithTag:[obj integerValue]];
+//		if (view) {
+//			_validationComponents[idx].uiComponent = nil;
+//			*stop = YES;
+//		}
+//	}];
+//}
 
 @end

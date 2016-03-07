@@ -10,14 +10,7 @@
 
 #import "REDValidationRule.h"
 
-@interface REDValidationComponent (UITextField) <UITextFieldDelegate>
-@end
-
-@interface REDValidationComponent (UITextView) <UITextViewDelegate>
-@end
-
-@interface REDValidationComponent () <REDNetworkValidationRuleDelegate>
-@property (nonatomic, weak) id componentDelegate;
+@interface REDValidationComponent () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
 @end
 
 @implementation REDValidationComponent {
@@ -28,6 +21,7 @@
 	} _validationEvents;
 	
 	BOOL _valid;
+	__weak id _componentDelegate;
 }
 
 - (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event
@@ -122,32 +116,31 @@
 	[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:result];
 }
 
-@end
+#pragma mark - Delegate Funny Business
 
-#pragma mark - Public Interface
-
-@implementation REDValidationComponent (Public)
-
-- (BOOL)valid
+- (BOOL)respondsToSelector:(SEL)aSelector
 {
-	return _validated ? _valid : [self validateUIComponent:_uiComponent withCallbacks:YES];
+	if ([super respondsToSelector:aSelector]) {
+		return YES;
+	} else if ([_componentDelegate respondsToSelector:aSelector]) {
+		return YES;
+	}
+	
+	return [super respondsToSelector:aSelector];
 }
 
-- (void)setValid:(BOOL)valid
+- (id)forwardingTargetForSelector:(SEL)aSelector
 {
-	_valid = valid;
+	if ([super respondsToSelector:aSelector]) {
+		return self;
+	} else if ([_componentDelegate respondsToSelector:aSelector]) {
+		return _componentDelegate;
+	}
+	
+	return [super forwardingTargetForSelector:aSelector];
 }
-
-@end
 
 #pragma mark - UITextFieldDelegate
-
-@implementation REDValidationComponent (UITextField)
-
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textFieldShouldBeginEditing:)] ? [_componentDelegate textFieldShouldBeginEditing:textField] : YES;
-}
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
@@ -157,11 +150,6 @@
 	if ([_componentDelegate respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
 		[_componentDelegate textFieldDidBeginEditing:textField];
 	}
-}
-
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textFieldShouldEndEditing:)] ? [_componentDelegate textFieldShouldEndEditing:textField] : YES;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
@@ -174,36 +162,7 @@
 	}
 }
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)] ? [_componentDelegate textField:textField shouldChangeCharactersInRange:range replacementString:string] : YES;
-}
-
-- (BOOL)textFieldShouldClear:(UITextField *)textField
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textFieldShouldClear:)] ? [_componentDelegate textFieldShouldClear:textField] : YES;
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textFieldShouldReturn:)] ? [_componentDelegate textFieldShouldReturn:textField] : YES;
-}
-
-@end
-
 #pragma mark - UITextViewDelegate
-
-@implementation REDValidationComponent (UITextView)
-
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textViewShouldBeginEditing:)] ? [_componentDelegate textViewShouldBeginEditing:textView] : YES;
-}
-
-- (BOOL)textViewShouldEndEditing:(UITextView *)textView
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textViewShouldEndEditing:)] ? [_componentDelegate textViewShouldEndEditing:textView] : YES;
-}
 
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
@@ -225,11 +184,6 @@
 	}
 }
 
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:)] ? [_componentDelegate textView:textView shouldChangeTextInRange:range replacementText:text] : YES;
-}
-
 - (void)textViewDidChange:(UITextView *)textView
 {
 	if (_validationEvents.change) {
@@ -239,22 +193,20 @@
 		[_componentDelegate textViewDidChange:textView];
 	}
 }
+@end
 
-- (void)textViewDidChangeSelection:(UITextView *)textView
+#pragma mark - Public Interface
+
+@implementation REDValidationComponent (Public)
+
+- (BOOL)valid
 {
-	if ([_componentDelegate respondsToSelector:@selector(textViewDidChangeSelection:)]) {
-		[_componentDelegate textViewDidChangeSelection:textView];
-	}
+	return _validated ? _valid : _uiComponent ? [self validateUIComponent:_uiComponent withCallbacks:YES] : NO;
 }
 
-- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
+- (void)setValid:(BOOL)valid
 {
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textView:shouldInteractWithURL:inRange:)] ? [_componentDelegate textView:textView shouldInteractWithURL:URL inRange:characterRange] : YES;
-}
-
-- (BOOL)textView:(UITextView *)textView shouldInteractWithTextAttachment:(NSTextAttachment *)textAttachment inRange:(NSRange)characterRange
-{
-	return _componentDelegate && [_componentDelegate respondsToSelector:@selector(textView:shouldInteractWithTextAttachment:inRange:)] ? [_componentDelegate textView:textView shouldInteractWithTextAttachment:textAttachment inRange:characterRange] : YES;
+	_valid = valid;
 }
 
 @end
