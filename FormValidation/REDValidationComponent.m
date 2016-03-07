@@ -28,9 +28,6 @@
 {
 	self = [super init];
 	if (self ) {
-		_uiComponent = uiComponent;
-		_tag = uiComponent.tag;
-		
 		if (event & REDValidationEventAll) {
 			_validationEvents.change = 1;
 			_validationEvents.beginEditing = 1;
@@ -41,22 +38,9 @@
 			_validationEvents.endEditing = event & REDValidationEventEndEditing;
 		}
 		
-		if ([_uiComponent isKindOfClass:[UITextField class]]) {
-			_componentDelegate = ((UITextField *)_uiComponent).delegate;
-			((UITextField *)uiComponent).delegate = self;
-			
-			if (_validationEvents.change) {
-				[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
-			}
-		} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
-			_componentDelegate = ((UITextView *)_uiComponent).delegate;
-			((UITextView *)uiComponent).delegate = self;
-		} else if ([_uiComponent isKindOfClass:[UIDatePicker class]] || [_uiComponent isKindOfClass:[UISegmentedControl class]] || [_uiComponent isKindOfClass:[UISlider class]] || [_uiComponent isKindOfClass:[UIStepper class]] || [_uiComponent isKindOfClass:[UISwitch class]]) {
-			if (_validationEvents.change) {
-				[(UIControl *)_uiComponent addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
-			}
-		}
-		
+		_uiComponent = uiComponent;
+		_tag = uiComponent.tag;
+		[self setupComponentDelegate];
 	}
 	return self;
 }
@@ -71,6 +55,40 @@
 	_rule = rule;
 	if ([_rule isKindOfClass:[REDNetworkValidationRule class]]) {
 		((REDNetworkValidationRule *)_rule).delegate = self;
+	}
+}
+
+- (void)setUiComponent:(UIView *)uiComponent
+{
+	_uiComponent = uiComponent;
+	[self setupComponentDelegate];
+}
+
+- (void)setupComponentDelegate
+{
+	if ([_uiComponent isKindOfClass:[UITextField class]]) {
+		UITextField *component = (UITextField *)_uiComponent;
+		if (component.delegate != self) {
+			_componentDelegate = component.delegate;
+			component.delegate = self;
+		}
+		
+		if (_validationEvents.change) {
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:component];
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:component];
+		}
+	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
+		UITextView *component = (UITextView *)_uiComponent;
+		if (component.delegate != self) {
+			_componentDelegate = component.delegate;
+			component.delegate = self;
+		}
+	} else if ([_uiComponent isKindOfClass:[UIDatePicker class]] || [_uiComponent isKindOfClass:[UISegmentedControl class]] || [_uiComponent isKindOfClass:[UISlider class]] || [_uiComponent isKindOfClass:[UIStepper class]] || [_uiComponent isKindOfClass:[UISwitch class]]) {
+		UIControl *component = (UIControl *)_uiComponent;
+		if (_validationEvents.change) {
+			[component removeTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+			[component addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+		}
 	}
 }
 
