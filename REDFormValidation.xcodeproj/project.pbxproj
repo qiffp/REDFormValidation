@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		22871D291C8CC9C80064E85D /* REDValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D281C8CC9C80064E85D /* REDValidatorTests.m */; };
+		22871D4B1C8D31BF0064E85D /* REDValidationRuleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */; };
 		22DFE2111C8A34F10003FCAB /* REDFormValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2101C8A34F10003FCAB /* REDFormValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		22DFE2181C8A34F10003FCAB /* REDFormValidation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22DFE20D1C8A34F10003FCAB /* REDFormValidation.framework */; };
 		22DFE24A1C8A35530003FCAB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2491C8A35530003FCAB /* main.m */; };
@@ -37,6 +38,7 @@
 
 /* Begin PBXFileReference section */
 		22871D281C8CC9C80064E85D /* REDValidatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidatorTests.m; sourceTree = "<group>"; };
+		22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationRuleTests.m; sourceTree = "<group>"; };
 		22DFE20D1C8A34F10003FCAB /* REDFormValidation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = REDFormValidation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		22DFE2101C8A34F10003FCAB /* REDFormValidation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = REDFormValidation.h; sourceTree = "<group>"; };
 		22DFE2121C8A34F10003FCAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 			children = (
 				22DFE21E1C8A34F10003FCAB /* Info.plist */,
 				22871D281C8CC9C80064E85D /* REDValidatorTests.m */,
+				22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */,
 			);
 			name = REDFormValidationTests;
 			path = FormValidationTests;
@@ -311,6 +314,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22871D4B1C8D31BF0064E85D /* REDValidationRuleTests.m in Sources */,
 				22871D291C8CC9C80064E85D /* REDValidatorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
