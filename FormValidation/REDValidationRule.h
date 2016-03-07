@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-typedef BOOL (^REDValidationBlock)(UIControl *component);
+typedef BOOL (^REDValidationBlock)(UIView *component);
 
 typedef void (^REDNetworkValidationResultBlock)(BOOL success, NSError *error);
-typedef NSURLSessionTask * (^REDNetworkValidationBlock)(UIControl *component, REDNetworkValidationResultBlock completion);
+typedef NSURLSessionTask * (^REDNetworkValidationBlock)(UIView *component, REDNetworkValidationResultBlock completion);
 
 typedef NS_ENUM(NSInteger, REDValidationResult) {
 	REDValidationResultUnknown = (1 << 0),
@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 };
 
 @protocol REDValidationRuleProtocol <NSObject>
-- (REDValidationResult)validate:(UIControl *)component;
+- (REDValidationResult)validate:(UIView *)component;
 - (void)cancel;
 @end
 

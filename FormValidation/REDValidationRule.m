@@ -28,7 +28,7 @@
 	return self;
 }
 
-- (REDValidationResult)validate:(UIControl *)component
+- (REDValidationResult)validate:(UIView *)component
 {
 	if (_block) {
 		return _block(component) ? REDValidationResultSuccess : REDValidationResultFailure;
@@ -65,7 +65,7 @@
 	return self;
 }
 
-- (REDValidationResult)validate:(UIControl *)component
+- (REDValidationResult)validate:(UIView *)component
 {
 	[self cancel];
 	

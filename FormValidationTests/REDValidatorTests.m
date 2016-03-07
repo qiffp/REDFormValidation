@@ -108,7 +108,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testPass
 {
-	[_testForm.validator setRule:[REDValidationRule ruleWithBlock:^BOOL(UIControl *component) {
+	[_testForm.validator setRule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return [component isKindOfClass:[UITextField class]];
 	}] forComponentWithTag:kTestTextFieldTag validateOn:REDValidationEventAll];
 	
@@ -117,7 +117,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testFail
 {
-	[_testForm.validator setRule:[REDValidationRule ruleWithBlock:^BOOL(UIControl *component) {
+	[_testForm.validator setRule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return [component isKindOfClass:[UISwitch class]];
 	}] forComponentWithTag:kTestTextFieldTag validateOn:REDValidationEventAll];
 	
@@ -127,7 +127,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 - (void)testNetworkPass
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	[_testForm.validator setRule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIControl *component, REDNetworkValidationResultBlock completion) {
+	[_testForm.validator setRule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIView *component, REDNetworkValidationResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(YES, nil);
 			
@@ -147,7 +147,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 - (void)testNetworkFail
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	[_testForm.validator setRule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIControl *component, REDNetworkValidationResultBlock completion) {
+	[_testForm.validator setRule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIView *component, REDNetworkValidationResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(NO, nil);
 			

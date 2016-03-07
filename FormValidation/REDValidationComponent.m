@@ -30,7 +30,7 @@
 	BOOL _valid;
 }
 
-- (instancetype)initWithUIComponent:(UIControl *)uiComponent validateOn:(REDValidationEvent)event
+- (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event
 {
 	self = [super init];
 	if (self ) {
@@ -59,7 +59,7 @@
 			((UITextView *)uiComponent).delegate = self;
 		} else if ([_uiComponent isKindOfClass:[UIDatePicker class]] || [_uiComponent isKindOfClass:[UISegmentedControl class]] || [_uiComponent isKindOfClass:[UISlider class]] || [_uiComponent isKindOfClass:[UIStepper class]] || [_uiComponent isKindOfClass:[UISwitch class]]) {
 			if (_validationEvents.change) {
-				[_uiComponent addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+				[(UIControl *)_uiComponent addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
 			}
 		}
 		
@@ -80,18 +80,20 @@
 	}
 }
 
-- (BOOL)validateWithCallbacks:(BOOL)callback
+- (BOOL)validateUIComponent:(UIView *)uiComponent withCallbacks:(BOOL)callback
 {
+	_uiComponent = uiComponent;
+	
 	if (callback) {
-		[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
+		[_delegate validationComponent:self willValidateUIComponent:uiComponent];
 	}
 	
-	BOOL result = [_rule validate:_uiComponent] & REDValidationResultSuccess;
+	BOOL result = [_rule validate:uiComponent] & REDValidationResultSuccess;
 	_valid = result;
 	_validated = YES;
 	
 	if (callback && [_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:result];
+		[_delegate validationComponent:self didValidateUIComponent:uiComponent result:result];
 	}
 	
 	return result;
@@ -99,16 +101,16 @@
 
 #pragma mark - Actions
 
-- (void)componentValueChanged:(UIControl *)component
+- (void)componentValueChanged:(UIView *)component
 {
-	[self validateWithCallbacks:YES];
+	[self validateUIComponent:component withCallbacks:YES];
 }
 
 #pragma mark - Notifications
 
 - (void)textDidChange:(NSNotification *)notification
 {
-	[self validateWithCallbacks:YES];
+	[self validateUIComponent:notification.object withCallbacks:YES];
 }
 
 #pragma mark - NetworkValidationRuleDelegate
@@ -128,7 +130,7 @@
 
 - (BOOL)valid
 {
-	return _validated ? _valid : [self validateWithCallbacks:YES];
+	return _validated ? _valid : [self validateUIComponent:_uiComponent withCallbacks:YES];
 }
 
 - (void)setValid:(BOOL)valid
@@ -150,7 +152,7 @@
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
 	if (_validationEvents.beginEditing) {
-		[self validateWithCallbacks:YES];
+		[self validateUIComponent:textField withCallbacks:YES];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
 		[_componentDelegate textFieldDidBeginEditing:textField];
@@ -165,7 +167,7 @@
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
 	if (_validationEvents.endEditing) {
-		[self validateWithCallbacks:YES];
+		[self validateUIComponent:textField withCallbacks:YES];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textFieldDidEndEditing:)]) {
 		[_componentDelegate textFieldDidEndEditing:textField];
@@ -206,7 +208,7 @@
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
 	if (_validationEvents.beginEditing) {
-		[self validateWithCallbacks:YES];
+		[self validateUIComponent:textView withCallbacks:YES];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textViewDidBeginEditing:)]) {
 		[_componentDelegate textViewDidBeginEditing:textView];
@@ -216,7 +218,7 @@
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
 	if (_validationEvents.endEditing) {
-		[self validateWithCallbacks:YES];
+		[self validateUIComponent:textView withCallbacks:YES];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textViewDidEndEditing:)]) {
 		[_componentDelegate textViewDidEndEditing:textView];
@@ -231,7 +233,7 @@
 - (void)textViewDidChange:(UITextView *)textView
 {
 	if (_validationEvents.change) {
-		[self validateWithCallbacks:YES];
+		[self validateUIComponent:textView withCallbacks:YES];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textViewDidChange:)]) {
 		[_componentDelegate textViewDidChange:textView];

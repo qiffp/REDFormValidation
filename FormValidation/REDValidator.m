@@ -61,14 +61,14 @@
 
 #pragma mark - REDValidationComponentDelegate
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIControl *)uiComponent
+- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIView *)uiComponent
 {
 	if ([_delegate respondsToSelector:@selector(validator:willValidateComponent:)]) {
 		[_delegate validator:self willValidateComponent:uiComponent];
 	}
 }
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIControl *)uiComponent result:(BOOL)result
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result
 {
 	[self validate];
 	

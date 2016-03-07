@@ -15,8 +15,8 @@ typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
 
 @protocol REDValidatorDelegate <NSObject>
 @optional
-- (void)validator:(REDValidator *)validator willValidateComponent:(UIControl *)component;
-- (void)validator:(REDValidator *)validator didValidateComponent:(UIControl *)component result:(BOOL)result;
+- (void)validator:(REDValidator *)validator willValidateComponent:(UIView *)component;
+- (void)validator:(REDValidator *)validator didValidateComponent:(UIView *)component result:(BOOL)result;
 - (void)validator:(REDValidator *)validator didValidateFormWithResult:(BOOL)result;
 @end
 

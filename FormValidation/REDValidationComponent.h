@@ -19,21 +19,21 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @class REDValidationComponent;
 
 @protocol REDValidationComponentDelegate <NSObject>
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIControl *)uiComponent;
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIControl *)uiComponent result:(BOOL)result;
+- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIView *)uiComponent;
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result;
 @end
 
 @interface REDValidationComponent : NSObject
 
 @property (nonatomic, strong) id<REDValidationRuleProtocol> rule;
-@property (nonatomic, weak) UIControl *uiComponent;
+@property (nonatomic, weak) UIView *uiComponent;
 @property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
 @property (nonatomic, assign) NSInteger tag;
 @property (nonatomic, assign) BOOL validated;
 
-- (instancetype)initWithUIComponent:(UIControl *)uiComponent validateOn:(REDValidationEvent)event;
+- (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event;
 
-- (BOOL)validateWithCallbacks:(BOOL)callback;
+- (BOOL)validateUIComponent:(UIView *)uiComponent withCallbacks:(BOOL)callback;
 
 @end
 
