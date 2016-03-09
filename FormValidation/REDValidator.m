@@ -8,6 +8,7 @@
 
 #import "REDValidator.h"
 #import "REDValidationRule.h"
+#import "REDValidationComponent.h"
 
 static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsChangedContext;
 
@@ -46,6 +47,11 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	validationComponent.delegate = self;
 	[_validationComponents addObject:validationComponent];
 	[_validatedTags addObject:@(tag)];
+}
+
+- (BOOL)componentWithTagIsValid:(NSInteger)tag
+{
+	return [self validationComponentWithTag:tag].valid;
 }
 
 - (REDValidationComponent *)validationComponentWithTag:(NSInteger)tag

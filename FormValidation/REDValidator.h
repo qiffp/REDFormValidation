@@ -7,11 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "REDValidationComponent.h"
 
 @class REDValidator;
+@protocol REDValidationRuleProtocol;
 
 typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
+
+typedef NS_ENUM(NSInteger, REDValidationEvent) {
+	REDValidationEventChange = (1 << 0),
+	REDValidationEventBeginEditing = (1 << 1),
+	REDValidationEventEndEditing = (1 << 2),
+	REDValidationEventAll = (1 << 3)
+};
 
 @protocol REDValidatorDelegate <NSObject>
 @optional
@@ -29,8 +36,7 @@ typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
 - (instancetype)initWithView:(UIView *)view;
 
 - (void)setRule:(id<REDValidationRuleProtocol>)rule forComponentWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event;
-
-- (REDValidationComponent *)validationComponentWithTag:(NSInteger)tag;
+- (BOOL)componentWithTagIsValid:(NSInteger)tag;
 
 - (BOOL)validate;
 

@@ -64,6 +64,11 @@
 	[self setupComponentDelegate];
 }
 
+- (BOOL)valid
+{
+	return _validated ? _valid : _uiComponent ? [self validateUIComponent:_uiComponent withCallbacks:YES] : NO;
+}
+
 - (void)setupComponentDelegate
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
@@ -211,20 +216,4 @@
 		[_componentDelegate textViewDidChange:textView];
 	}
 }
-@end
-
-#pragma mark - Public Interface
-
-@implementation REDValidationComponent (Public)
-
-- (BOOL)valid
-{
-	return _validated ? _valid : _uiComponent ? [self validateUIComponent:_uiComponent withCallbacks:YES] : NO;
-}
-
-- (void)setValid:(BOOL)valid
-{
-	_valid = valid;
-}
-
 @end

@@ -22,7 +22,7 @@
 		22DFE2641C8A37AE0003FCAB /* REDValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2621C8A37AE0003FCAB /* REDValidator.m */; };
 		22DFE2671C8A37C10003FCAB /* REDValidationRule.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2651C8A37C10003FCAB /* REDValidationRule.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		22DFE2681C8A37C10003FCAB /* REDValidationRule.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2661C8A37C10003FCAB /* REDValidationRule.m */; };
-		22DFE26B1C8A39D30003FCAB /* REDValidationComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2691C8A39D30003FCAB /* REDValidationComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22DFE26B1C8A39D30003FCAB /* REDValidationComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2691C8A39D30003FCAB /* REDValidationComponent.h */; };
 		22DFE26C1C8A39D30003FCAB /* REDValidationComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE26A1C8A39D30003FCAB /* REDValidationComponent.m */; };
 /* End PBXBuildFile section */
 

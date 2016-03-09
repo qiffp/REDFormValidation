@@ -7,14 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "REDValidationRule.h"
 
-typedef NS_ENUM(NSInteger, REDValidationEvent) {
-	REDValidationEventChange = (1 << 0),
-	REDValidationEventBeginEditing = (1 << 1),
-	REDValidationEventEndEditing = (1 << 2),
-	REDValidationEventAll = (1 << 3)
-};
+#import "REDValidator.h"
+#import "REDValidationRule.h"
 
 @class REDValidationComponent;
 
@@ -29,16 +24,11 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, weak) UIView *uiComponent;
 @property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
 @property (nonatomic, assign) NSInteger tag;
+@property (nonatomic, assign) BOOL valid;
 @property (nonatomic, assign) BOOL validated;
 
 - (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event;
 
 - (BOOL)validateUIComponent:(UIView *)uiComponent withCallbacks:(BOOL)callback;
-
-@end
-
-@interface REDValidationComponent (Public)
-
-@property (nonatomic, assign) BOOL valid;
 
 @end
