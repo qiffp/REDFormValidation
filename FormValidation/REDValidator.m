@@ -66,7 +66,13 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 {
 	BOOL result = YES;
 	if (_shouldValidate) {
-		result = _validationBlock ? _validationBlock(self) : NO;
+		if (_validationBlock) {
+			result = _validationBlock(self);
+		} else {
+			for (REDValidationComponent *component in _validationComponents) {
+				result &= component.valid;
+			}
+		}
 		
 		if ([_delegate respondsToSelector:@selector(validator:didValidateFormWithResult:)]) {
 			[_delegate validator:self didValidateFormWithResult:result];
