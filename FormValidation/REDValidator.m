@@ -18,8 +18,11 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 @implementation REDValidator {
 	__weak UIView *_view;
 	__weak id<UITableViewDelegate> _tableViewDelegate;
-	NSMutableArray<REDValidationComponent *> *_validationComponents;
-	NSMutableArray<NSNumber *> *_validatedTags;
+	
+	NSMutableDictionary<NSNumber *, REDValidationComponent *> *_validationComponents;
+	
+	REDTableViewValidationBlock _validationBlock;
+	BOOL _evaluatingBlock;
 }
 
 - (instancetype)initWithView:(UIView *)view
@@ -34,10 +37,15 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 			((UITableView *)_view).delegate = self;
 		}
 		
-		_validationComponents = [NSMutableArray array];
-		_validatedTags = [NSMutableArray array];
+		_validationComponents = [NSMutableDictionary dictionary];
 	}
 	return self;
+}
+
+- (void)setValidationBlock:(REDTableViewValidationBlock)validationBlock
+{
+	_validationBlock = [validationBlock copy];
+	[self evaluateValidationBlock];
 }
 
 - (void)setRule:(id<REDValidationRuleProtocol>)rule forComponentWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event;
@@ -45,21 +53,18 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithUIComponent:[_view viewWithTag:tag] validateOn:event];
 	validationComponent.rule = rule;
 	validationComponent.delegate = self;
-	[_validationComponents addObject:validationComponent];
-	[_validatedTags addObject:@(tag)];
+	_validationComponents[@(tag)] = validationComponent;
+	[self evaluateValidationBlock];
 }
 
 - (BOOL)componentWithTagIsValid:(NSInteger)tag
 {
-	return [self validationComponentWithTag:tag].valid;
-}
-
-- (REDValidationComponent *)validationComponentWithTag:(NSInteger)tag
-{
-	NSUInteger index = [_validationComponents indexOfObjectPassingTest:^BOOL(REDValidationComponent *obj, NSUInteger idx, BOOL *stop) {
-		return obj.tag == tag;
-	}];
-	return index != NSNotFound ? _validationComponents[index] : nil;
+	if (_evaluatingBlock) {
+		_validationComponents[@(tag)].validatedInValidatorBlock = YES;
+		return NO;
+	} else {
+		return _validationComponents[@(tag)].valid;
+	}
 }
 
 - (BOOL)validate
@@ -68,8 +73,14 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	if (_shouldValidate) {
 		if (_validationBlock) {
 			result = _validationBlock(self);
+			
+			for (REDValidationComponent *component in _validationComponents.allValues) {
+				if (component.validatedInValidatorBlock == NO) {
+					result &= component.valid;
+				}
+			}
 		} else {
-			for (REDValidationComponent *component in _validationComponents) {
+			for (REDValidationComponent *component in _validationComponents.allValues) {
 				result &= component.valid;
 			}
 		}
@@ -80,6 +91,20 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	}
 	
 	return result;
+}
+
+#pragma mark - Helpers
+
+- (void)evaluateValidationBlock
+{
+	if (_validationBlock) {
+		for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
+			validationComponent.validatedInValidatorBlock = NO;
+		}
+		_evaluatingBlock = YES;
+		_validationBlock(self);
+		_evaluatingBlock = NO;
+	}
 }
 
 #pragma mark - REDValidationComponentDelegate
@@ -120,10 +145,10 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	[_validatedTags enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL *stop) {
-		UIView *view = [cell viewWithTag:[obj integerValue]];
+	[_validationComponents.allKeys enumerateObjectsUsingBlock:^(NSNumber *tag, NSUInteger idx, BOOL *stop) {
+		UIView *view = [cell viewWithTag:[tag integerValue]];
 		if (view) {
-			_validationComponents[idx].uiComponent = view;
+			_validationComponents[tag].uiComponent = view;
 			*stop = YES;
 		}
 	}];

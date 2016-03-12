@@ -26,6 +26,7 @@
 @property (nonatomic, assign) NSInteger tag;
 @property (nonatomic, assign) BOOL valid;
 @property (nonatomic, assign) BOOL validated;
+@property (nonatomic, assign) BOOL validatedInValidatorBlock;
 
 - (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event;
 
