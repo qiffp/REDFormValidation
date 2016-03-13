@@ -234,23 +234,7 @@
 
 - (BOOL)isNonTextControlClass
 {
-	for (Class class in [self nonTextControlClasses]) {
-		if ([self isKindOfClass:class]) {
-			return YES;
-		}
-	}
-	
-	return NO;
-}
-
-- (NSArray *)nonTextControlClasses
-{
-	static NSArray *classes = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		classes = @[[UIDatePicker class], [UISegmentedControl class], [UISlider class], [UIStepper class], [UISwitch class]];
-	});
-	return classes;
+	return [self isKindOfClass:[UIControl class]] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
 }
 
 @end
