@@ -19,9 +19,9 @@
 
 @implementation REDValidationComponent {
 	struct {
-		unsigned int change:1;
-		unsigned int beginEditing:1;
-		unsigned int endEditing:1;
+		BOOL change;
+		BOOL beginEditing;
+		BOOL endEditing;
 	} _validationEvents;
 	
 	BOOL _valid;
@@ -34,9 +34,9 @@
 	self = [super init];
 	if (self ) {
 		if (event & REDValidationEventAll) {
-			_validationEvents.change = 1;
-			_validationEvents.beginEditing = 1;
-			_validationEvents.endEditing = 1;
+			_validationEvents.change = YES;
+			_validationEvents.beginEditing = YES;
+			_validationEvents.endEditing = YES;
 		} else {
 			_validationEvents.change = event & REDValidationEventChange;
 			_validationEvents.beginEditing = event & REDValidationEventBeginEditing;
@@ -61,6 +61,8 @@
 	if ([_rule isKindOfClass:[REDNetworkValidationRule class]]) {
 		((REDNetworkValidationRule *)_rule).delegate = self;
 	}
+	
+	_validated = NO;
 }
 
 - (void)setUiComponent:(UIView *)uiComponent
