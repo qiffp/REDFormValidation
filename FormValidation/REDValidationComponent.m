@@ -25,6 +25,7 @@
 	} _validationEvents;
 	
 	BOOL _valid;
+	BOOL _validated;
 	__weak id _componentDelegate;
 }
 

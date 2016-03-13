@@ -14,6 +14,7 @@
 @class REDValidationComponent;
 
 @protocol REDValidationComponentDelegate <NSObject>
+@optional
 - (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIView *)uiComponent;
 - (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result;
 @end
@@ -24,8 +25,7 @@
 @property (nonatomic, weak) UIView *uiComponent;
 @property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
 @property (nonatomic, assign) NSInteger tag;
-@property (nonatomic, assign) BOOL valid;
-@property (nonatomic, assign) BOOL validated;
+@property (nonatomic, readonly, assign) BOOL valid;
 @property (nonatomic, assign) BOOL validatedInValidatorBlock;
 
 - (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event;

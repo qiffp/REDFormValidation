@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2235FA3E1C951B3A0043C1D9 /* REDValidationComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235FA3D1C951B3A0043C1D9 /* REDValidationComponentTests.m */; };
 		22871D291C8CC9C80064E85D /* REDValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D281C8CC9C80064E85D /* REDValidatorTests.m */; };
 		22871D4B1C8D31BF0064E85D /* REDValidationRuleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */; };
 		22DFE2111C8A34F10003FCAB /* REDFormValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2101C8A34F10003FCAB /* REDFormValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2235FA3D1C951B3A0043C1D9 /* REDValidationComponentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationComponentTests.m; sourceTree = "<group>"; };
 		22871D281C8CC9C80064E85D /* REDValidatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = REDValidatorTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationRuleTests.m; sourceTree = "<group>"; };
 		22DFE20D1C8A34F10003FCAB /* REDFormValidation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = REDFormValidation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +133,7 @@
 				22DFE21E1C8A34F10003FCAB /* Info.plist */,
 				22871D281C8CC9C80064E85D /* REDValidatorTests.m */,
 				22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */,
+				2235FA3D1C951B3A0043C1D9 /* REDValidationComponentTests.m */,
 			);
 			name = REDFormValidationTests;
 			path = FormValidationTests;
@@ -315,6 +318,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22871D4B1C8D31BF0064E85D /* REDValidationRuleTests.m in Sources */,
+				2235FA3E1C951B3A0043C1D9 /* REDValidationComponentTests.m in Sources */,
 				22871D291C8CC9C80064E85D /* REDValidatorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
