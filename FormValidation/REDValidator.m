@@ -158,17 +158,15 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	}
 }
 
-// don't think this is necessary since _uiComponent is weak
-
-//- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath
-//{
-//	[_validatedTags enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL *stop) {
-//		UIView *view = [cell viewWithTag:[obj integerValue]];
-//		if (view) {
-//			_validationComponents[idx].uiComponent = nil;
-//			*stop = YES;
-//		}
-//	}];
-//}
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath
+{
+	[_validationComponents.allKeys enumerateObjectsUsingBlock:^(NSNumber *tag, NSUInteger idx, BOOL *stop) {
+		UIView *view = [cell viewWithTag:[tag integerValue]];
+		if (view) {
+			_validationComponents[tag].uiComponent = nil;
+			*stop = YES;
+		}
+	}];
+}
 
 @end

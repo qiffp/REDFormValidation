@@ -10,6 +10,10 @@
 
 #import "REDValidationRule.h"
 
+@interface UIView (Control)
+- (BOOL)isNonTextControlClass;
+@end
+
 @interface REDValidationComponent () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
 @end
 
@@ -60,8 +64,17 @@
 
 - (void)setUiComponent:(UIView *)uiComponent
 {
-	_uiComponent = uiComponent;
-	[self setupComponentDelegate];
+	if (uiComponent) {
+		_uiComponent = uiComponent;
+		[self setupComponentDelegate];
+	} else {
+		if ([_uiComponent isKindOfClass:[UITextField class]]) {
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:_uiComponent];
+		} else if ([_uiComponent isNonTextControlClass]) {
+			[(UIControl *)_uiComponent removeTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+		}
+		_uiComponent = uiComponent;
+	}
 }
 
 - (BOOL)valid
@@ -79,7 +92,6 @@
 		}
 		
 		if (_validationEvents.change) {
-			[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:component];
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:component];
 		}
 	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
@@ -88,10 +100,9 @@
 			_componentDelegate = component.delegate;
 			component.delegate = self;
 		}
-	} else if ([_uiComponent isKindOfClass:[UIDatePicker class]] || [_uiComponent isKindOfClass:[UISegmentedControl class]] || [_uiComponent isKindOfClass:[UISlider class]] || [_uiComponent isKindOfClass:[UIStepper class]] || [_uiComponent isKindOfClass:[UISwitch class]]) {
+	} else if ([_uiComponent isNonTextControlClass]) {
 		UIControl *component = (UIControl *)_uiComponent;
 		if (_validationEvents.change) {
-			[component removeTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
 			[component addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
 	}
@@ -216,4 +227,29 @@
 		[_componentDelegate textViewDidChange:textView];
 	}
 }
+@end
+
+@implementation UIView (Control)
+
+- (BOOL)isNonTextControlClass
+{
+	for (Class class in [self nonTextControlClasses]) {
+		if ([self isKindOfClass:class]) {
+			return YES;
+		}
+	}
+	
+	return NO;
+}
+
+- (NSArray *)nonTextControlClasses
+{
+	static NSArray *classes = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		classes = @[[UIDatePicker class], [UISegmentedControl class], [UISlider class], [UIStepper class], [UISwitch class]];
+	});
+	return classes;
+}
+
 @end
