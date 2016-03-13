@@ -7,20 +7,9 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <OCMock/OCMock.h>
+
 #import "REDValidationRule.h"
-
-@interface TestValidationRuleDelegate : NSObject <REDNetworkValidationRuleDelegate>
-@property (nonatomic, assign) REDValidationResult result;
-@end
-
-@implementation TestValidationRuleDelegate
-
-- (void)validationRule:(id<REDValidationRuleProtocol>)rule didValidateWithResult:(REDValidationResult)result error:(NSError *)error
-{
-	_result = result;
-}
-
-@end
 
 @interface REDValidationRuleTests : XCTestCase
 @end
@@ -62,12 +51,14 @@
 		return task;
 	}];
 	
-	TestValidationRuleDelegate *delegate = [TestValidationRuleDelegate new];
+	id delegate = [OCMockObject niceMockForProtocol:@protocol(REDNetworkValidationRuleDelegate)];
 	rule.delegate = delegate;
 	
+	[[delegate expect] validationRule:rule didValidateWithResult:REDValidationResultSuccess error:nil];
 	XCTAssertEqual([rule validate:nil], REDValidationResultPending, @"Validation should be pending until completion is called");
+	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
-	XCTAssertEqual(delegate.result, REDValidationResultSuccess, @"Validation should pass");
+	[delegate verify];
 }
 
 - (void)testNetworkRuleFailingValidation
@@ -83,12 +74,14 @@
 		return task;
 	}];
 	
-	TestValidationRuleDelegate *delegate = [TestValidationRuleDelegate new];
+	id delegate = [OCMockObject niceMockForProtocol:@protocol(REDNetworkValidationRuleDelegate)];
 	rule.delegate = delegate;
 	
+	[[delegate expect] validationRule:rule didValidateWithResult:REDValidationResultFailure error:nil];
 	XCTAssertEqual([rule validate:nil], REDValidationResultPending, @"Validation should be pending until completion is called");
+	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
-	XCTAssertEqual(delegate.result, REDValidationResultFailure, @"Validation should fail");
+	[delegate verify];
 }
 
 - (void)testNetworkRuleFailsValidationWithoutABlock

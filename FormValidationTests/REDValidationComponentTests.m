@@ -7,38 +7,22 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <OCMock/OCMock.h>
+
 #import "REDValidationComponent.h"
-
-@interface TestValidationComponentDelegate : NSObject <REDValidationComponentDelegate>
-@property (nonatomic, assign) BOOL result;
-@end
-
-@implementation TestValidationComponentDelegate
-
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIView *)uiComponent
-{
-	
-}
-
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result
-{
-	_result = result;
-}
-
-@end
 
 @interface REDValidationComponentTests : XCTestCase
 @end
 
 @implementation REDValidationComponentTests {
 	REDValidationComponent *_component;
-	TestValidationComponentDelegate *_delegate;
+	id _delegate;
 }
 
 - (void)setUp
 {
     [super setUp];
-	_delegate = [TestValidationComponentDelegate new];
+	_delegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationComponentDelegate)];
 	
 	UITextField *textField = [[UITextField alloc] init];
 	_component = [[REDValidationComponent alloc] initWithUIComponent:textField validateOn:REDValidationEventAll];
@@ -50,19 +34,20 @@
 
 - (void)tearDown
 {
+	[_delegate verify];
 	_component = nil;
     [super tearDown];
 }
 
 - (void)testValidPerformsValidationIfNotAlreadyValidated
 {
-	XCTAssertFalse(_delegate.result, @"Result should not be set before validation");
+	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
 	XCTAssertTrue(_component.valid, @"Component should be valid");
-	XCTAssertTrue(_delegate.result, @"Result should be set since validation has run");
 }
 
 - (void)testValidReturnsPreviousValidationResultIfAlreadyValidated
 {
+	[[_delegate reject] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:[OCMArg any]];
 	[_component setValue:@YES forKey:@"_validated"];
 	
 	[_component setValue:@YES forKey:@"_valid"];
@@ -74,11 +59,11 @@
 
 - (void)testValidIsFalseWithNoUIComponent
 {
-	XCTAssertTrue(_component.valid, @"");
+	_component.rule = [REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return YES;
+	}];
 	_component.uiComponent = nil;
-	
-	[_component setValue:@NO forKey:@"_validated"];
-	XCTAssertFalse(_component.valid, @"");
+	XCTAssertFalse(_component.valid, @"Component should not be valid without a UI component");
 }
 
 @end
