@@ -14,12 +14,15 @@ xcuserdata
 profile
 *.moved-aside
 
-
-#Mac
+# Mac
 *.DS_Store
 .DS_Store
 
 .bundle
 *.gcno
 *.gcda
+
+# Carthage
+Cartfile.resolved
+Carthage/*
 

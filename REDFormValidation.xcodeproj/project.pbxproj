@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2235FA3E1C951B3A0043C1D9 /* REDValidationComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235FA3D1C951B3A0043C1D9 /* REDValidationComponentTests.m */; };
+		2235FA561C95FF530043C1D9 /* OCMock.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2235FA551C95FF530043C1D9 /* OCMock.framework */; };
 		22871D291C8CC9C80064E85D /* REDValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D281C8CC9C80064E85D /* REDValidatorTests.m */; };
 		22871D4B1C8D31BF0064E85D /* REDValidationRuleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */; };
 		22DFE2111C8A34F10003FCAB /* REDFormValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2101C8A34F10003FCAB /* REDFormValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		2235FA3D1C951B3A0043C1D9 /* REDValidationComponentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationComponentTests.m; sourceTree = "<group>"; };
+		2235FA551C95FF530043C1D9 /* OCMock.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OCMock.framework; path = ../Carthage/Build/iOS/OCMock.framework; sourceTree = "<group>"; };
 		22871D281C8CC9C80064E85D /* REDValidatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = REDValidatorTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationRuleTests.m; sourceTree = "<group>"; };
 		22DFE20D1C8A34F10003FCAB /* REDFormValidation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = REDFormValidation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2235FA561C95FF530043C1D9 /* OCMock.framework in Frameworks */,
 				22DFE2181C8A34F10003FCAB /* REDFormValidation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -91,6 +94,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2235FA571C95FF570043C1D9 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				2235FA551C95FF530043C1D9 /* OCMock.framework */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
 		22DFE2031C8A34F10003FCAB = {
 			isa = PBXGroup;
 			children = (
@@ -130,6 +141,7 @@
 		22DFE21B1C8A34F10003FCAB /* REDFormValidationTests */ = {
 			isa = PBXGroup;
 			children = (
+				2235FA571C95FF570043C1D9 /* Libraries */,
 				22DFE21E1C8A34F10003FCAB /* Info.plist */,
 				22871D281C8CC9C80064E85D /* REDValidatorTests.m */,
 				22871D4A1C8D31BF0064E85D /* REDValidationRuleTests.m */,
@@ -207,6 +219,7 @@
 				22DFE2131C8A34F10003FCAB /* Sources */,
 				22DFE2141C8A34F10003FCAB /* Frameworks */,
 				22DFE2151C8A34F10003FCAB /* Resources */,
+				2235FA581C96011A0043C1D9 /* Carthage Script */,
 			);
 			buildRules = (
 			);
@@ -301,6 +314,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2235FA581C96011A0043C1D9 /* Carthage Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/OCMock.framework",
+			);
+			name = "Carthage Script";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		22DFE2081C8A34F10003FCAB /* Sources */ = {
@@ -497,6 +528,10 @@
 		22DFE2251C8A34F10003FCAB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = FormValidationTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sd.FormValidationTests;
@@ -507,6 +542,10 @@
 		22DFE2261C8A34F10003FCAB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = FormValidationTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sd.FormValidationTests;
