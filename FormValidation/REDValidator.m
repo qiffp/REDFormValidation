@@ -146,13 +146,13 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	[_validationComponents.allKeys enumerateObjectsUsingBlock:^(NSNumber *tag, NSUInteger idx, BOOL *stop) {
+	for (NSNumber *tag in _validationComponents.allKeys) {
 		UIView *view = [cell viewWithTag:[tag integerValue]];
 		if (view) {
 			_validationComponents[tag].uiComponent = view;
-			*stop = YES;
+			break;
 		}
-	}];
+	}
 	
 	if ([_tableViewDelegate respondsToSelector:@selector(tableView:willDisplayCell:forRowAtIndexPath:)]) {
 		[_tableViewDelegate tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
@@ -161,13 +161,13 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath
 {
-	[_validationComponents.allKeys enumerateObjectsUsingBlock:^(NSNumber *tag, NSUInteger idx, BOOL *stop) {
+	for (NSNumber *tag in _validationComponents.allKeys) {
 		UIView *view = [cell viewWithTag:[tag integerValue]];
 		if (view) {
 			_validationComponents[tag].uiComponent = nil;
-			*stop = YES;
+			break;
 		}
-	}];
+	}
 	
 	if ([_tableViewDelegate respondsToSelector:@selector(tableView:didEndDisplayingCell:forRowAtIndexPath:)]) {
 		[_tableViewDelegate tableView:tableView didEndDisplayingCell:cell forRowAtIndexPath:indexPath];
