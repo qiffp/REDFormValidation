@@ -157,20 +157,12 @@
 
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
-	if ([super respondsToSelector:aSelector]) {
-		return YES;
-	} else if ([_componentDelegate respondsToSelector:aSelector]) {
-		return YES;
-	}
-	
-	return [super respondsToSelector:aSelector];
+	return [super respondsToSelector:aSelector] || [_componentDelegate respondsToSelector:aSelector];
 }
 
 - (id)forwardingTargetForSelector:(SEL)aSelector
 {
-	if ([super respondsToSelector:aSelector]) {
-		return self;
-	} else if ([_componentDelegate respondsToSelector:aSelector]) {
+	if ([_componentDelegate respondsToSelector:aSelector]) {
 		return _componentDelegate;
 	}
 	

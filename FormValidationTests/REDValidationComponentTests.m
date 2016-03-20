@@ -17,11 +17,6 @@
 
 @implementation REDValidationComponentTestDelegate
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
-{
-	return YES;
-}
-
 // not implemented by REDValidationComponent
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
@@ -214,13 +209,21 @@
 
 - (void)testUnimplementedComponentDelegateMethodsGetPassedToOriginalDelegate
 {
-	[_component performSelector:@selector(textFieldShouldReturn:) withObject:_component.uiComponent];
+	_originalDelegate.delegateMethodCalled = NO;
+	[[_delegate reject] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:[OCMArg any]];
+	if ([_component respondsToSelector:@selector(textFieldShouldReturn:)]) {
+		[(id<UITextFieldDelegate>)_component textFieldShouldReturn:(UITextField *)_component.uiComponent];
+	}
 	XCTAssertTrue(_originalDelegate.delegateMethodCalled, @"Delegate method should have been called on original delegate");
 }
 
 - (void)testImplementedComponentDelegateMethodsGetPassedToOriginalDelegate
 {
-	[_component performSelector:@selector(textFieldDidBeginEditing:) withObject:_component.uiComponent];
+	_originalDelegate.delegateMethodCalled = NO;
+	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
+	if ([_component respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
+		[(id<UITextFieldDelegate>)_component textFieldDidBeginEditing:(UITextField *)_component.uiComponent];
+	}
 	XCTAssertTrue(_originalDelegate.delegateMethodCalled, @"Delegate method should have been called on original delegate");
 }
 

@@ -97,10 +97,11 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 
 - (void)evaluateValidationBlock
 {
+	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
+		validationComponent.validatedInValidatorBlock = NO;
+	}
+	
 	if (_validationBlock) {
-		for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
-			validationComponent.validatedInValidatorBlock = NO;
-		}
 		_evaluatingBlock = YES;
 		_validationBlock(self);
 		_evaluatingBlock = NO;
@@ -167,6 +168,10 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 			*stop = YES;
 		}
 	}];
+	
+	if ([_tableViewDelegate respondsToSelector:@selector(tableView:didEndDisplayingCell:forRowAtIndexPath:)]) {
+		[_tableViewDelegate tableView:tableView didEndDisplayingCell:cell forRowAtIndexPath:indexPath];
+	}
 }
 
 @end
