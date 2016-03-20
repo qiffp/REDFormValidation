@@ -24,8 +24,8 @@
 @property (nonatomic, strong) id<REDValidationRuleProtocol> rule;
 @property (nonatomic, weak) UIView *uiComponent;
 @property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
-@property (nonatomic, assign) NSInteger tag;
 @property (nonatomic, readonly, assign) BOOL valid;
+@property (nonatomic, readonly, assign) BOOL validated;
 @property (nonatomic, assign) BOOL validatedInValidatorBlock;
 
 - (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event;

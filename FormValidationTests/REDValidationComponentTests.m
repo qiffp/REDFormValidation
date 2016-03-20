@@ -207,6 +207,41 @@
 	[_delegate verify];
 }
 
+- (void)testComponentIsValidatedAfterValidating
+{
+	[_component validateUIComponent:_component.uiComponent withCallbacks:NO];
+	XCTAssertTrue(_component.validated, @"Component should be validated after validating");
+}
+
+- (void)testComponentIsNotValidatedUntilNetworkValidationCompletes
+{
+	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
+	_component.rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIView *component, REDNetworkValidationResultBlock completion) {
+		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+			completion(NO, nil);
+			
+			[validationExpectation fulfill];
+		}];
+		[task resume];
+		return task;
+	}];
+	
+	[_component validateUIComponent:_component.uiComponent withCallbacks:NO];
+	XCTAssertFalse(_component.validated, @"Component should not be validated until network validation completes");
+	
+	[self waitForExpectationsWithTimeout:5.0 handler:nil];
+	XCTAssertTrue(_component.validated, @"Component should be validated once network validation completes");
+}
+
+- (void)testComponentRequiresValidationAfterChangingRule
+{
+	[_component validateUIComponent:_component.uiComponent withCallbacks:NO];
+	XCTAssertTrue(_component.validated, @"Component should be validated after validating");
+	
+	_component.rule = nil;
+	XCTAssertFalse(_component.validated, @"Component should be unvalidated after changing its rule");
+}
+
 - (void)testUnimplementedComponentDelegateMethodsGetPassedToOriginalDelegate
 {
 	_originalDelegate.delegateMethodCalled = NO;

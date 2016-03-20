@@ -44,7 +44,6 @@
 		}
 		
 		_uiComponent = uiComponent;
-		_tag = uiComponent.tag;
 		[self setupComponentDelegate];
 	}
 	return self;
@@ -119,15 +118,15 @@
 		[_delegate validationComponent:self willValidateUIComponent:uiComponent];
 	}
 	
-	BOOL result = [_rule validate:uiComponent] & REDValidationResultSuccess;
-	_valid = result;
-	_validated = YES;
+	REDValidationResult result = [_rule validate:uiComponent];
+	_validated = result != REDValidationResultPending;
+	_valid = result & REDValidationResultSuccess;
 	
 	if (callback && [_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-		[_delegate validationComponent:self didValidateUIComponent:uiComponent result:result];
+		[_delegate validationComponent:self didValidateUIComponent:uiComponent result:_valid];
 	}
 	
-	return result;
+	return _valid;
 }
 
 #pragma mark - Actions
