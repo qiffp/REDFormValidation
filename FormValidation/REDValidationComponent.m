@@ -18,6 +18,7 @@
 @end
 
 @implementation REDValidationComponent {
+	id<REDValidationRuleProtocol> _rule;
 	struct {
 		BOOL change;
 		BOOL beginEditing;
@@ -29,7 +30,7 @@
 	__weak id _componentDelegate;
 }
 
-- (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event
+- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule
 {
 	self = [super init];
 	if (self ) {
@@ -42,9 +43,10 @@
 			_validationEvents.beginEditing = event & REDValidationEventBeginEditing;
 			_validationEvents.endEditing = event & REDValidationEventEndEditing;
 		}
-		
-		_uiComponent = uiComponent;
-		[self setupComponentDelegate];
+		_rule = rule;
+		if ([_rule isKindOfClass:[REDNetworkValidationRule class]]) {
+			((REDNetworkValidationRule *)_rule).delegate = self;
+	}
 	}
 	return self;
 }
@@ -54,29 +56,15 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)setRule:(id<REDValidationRuleProtocol>)rule
-{
-	_rule = rule;
-	if ([_rule isKindOfClass:[REDNetworkValidationRule class]]) {
-		((REDNetworkValidationRule *)_rule).delegate = self;
-	}
-	
-	_validated = NO;
-}
-
 - (void)setUiComponent:(UIView *)uiComponent
 {
-	if (uiComponent) {
-		_uiComponent = uiComponent;
-		[self setupComponentDelegate];
-	} else {
-		if ([_uiComponent isKindOfClass:[UITextField class]]) {
-			[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:_uiComponent];
-		} else if ([_uiComponent isNonTextControlClass]) {
-			[(UIControl *)_uiComponent removeTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
-		}
-		_uiComponent = uiComponent;
+	if (_uiComponent == uiComponent) {
+		return;
 	}
+	
+	[self removeComponentEventActions];
+	_uiComponent = uiComponent;
+	[self setupComponentEventActions];
 }
 
 - (BOOL)valid
@@ -84,7 +72,25 @@
 	return _validated ? _valid : _uiComponent ? [self validateUIComponent:_uiComponent withCallbacks:YES] : NO;
 }
 
-- (void)setupComponentDelegate
+- (void)removeComponentEventActions
+{
+	if ([_uiComponent isKindOfClass:[UITextField class]]) {
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:_uiComponent];
+	} else if ([_uiComponent isNonTextControlClass]) {
+		UIControl *control = (UIControl *)_uiComponent;
+		if (_validationEvents.change) {
+			[control removeTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+		}
+		if (_validationEvents.beginEditing) {
+			[control removeTarget:self action:@selector(componentDidBeginEditing:) forControlEvents:UIControlEventEditingDidBegin];
+		}
+		if (_validationEvents.endEditing) {
+			[control removeTarget:self action:@selector(componentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
+		}
+	}
+}
+
+- (void)setupComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
 		UITextField *component = (UITextField *)_uiComponent;
@@ -106,6 +112,12 @@
 		UIControl *component = (UIControl *)_uiComponent;
 		if (_validationEvents.change) {
 			[component addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+		}
+		if (_validationEvents.beginEditing) {
+			[component addTarget:self action:@selector(componentDidBeginEditing:) forControlEvents:UIControlEventEditingDidBegin];
+		}
+		if (_validationEvents.endEditing) {
+			[component addTarget:self action:@selector(componentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
 		}
 	}
 }
@@ -129,9 +141,26 @@
 	return _valid;
 }
 
+- (void)reset
+{
+	_valid = NO;
+	_validated = NO;
+	_uiComponent = nil;
+}
+
 #pragma mark - Actions
 
 - (void)componentValueChanged:(UIView *)component
+{
+	[self validateUIComponent:component withCallbacks:YES];
+}
+
+- (void)componentDidBeginEditing:(UIView *)component
+{
+	[self validateUIComponent:component withCallbacks:YES];
+}
+
+- (void)componentDidEndEditing:(UIView *)component
 {
 	[self validateUIComponent:component withCallbacks:YES];
 }

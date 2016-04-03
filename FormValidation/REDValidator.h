@@ -33,10 +33,9 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, weak) id<REDValidatorDelegate> delegate;
 @property (nonatomic, copy) REDTableViewValidationBlock validationBlock;
 
-- (instancetype)initWithView:(UIView *)view;
-
-- (void)setRule:(id<REDValidationRuleProtocol>)rule forComponentWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event;
-- (BOOL)componentWithTagIsValid:(NSInteger)tag;
+- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule;
+- (void)setComponent:(UIView *)component forValidation:(NSInteger)tag;
+- (BOOL)validationIsValid:(NSInteger)tag;
 
 - (BOOL)validate;
 

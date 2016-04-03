@@ -21,15 +21,15 @@
 
 @interface REDValidationComponent : NSObject
 
-@property (nonatomic, strong) id<REDValidationRuleProtocol> rule;
 @property (nonatomic, weak) UIView *uiComponent;
 @property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
 @property (nonatomic, readonly, assign) BOOL valid;
 @property (nonatomic, readonly, assign) BOOL validated;
 @property (nonatomic, assign) BOOL validatedInValidatorBlock;
 
-- (instancetype)initWithUIComponent:(UIView *)uiComponent validateOn:(REDValidationEvent)event;
+- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule;
 
 - (BOOL)validateUIComponent:(UIView *)uiComponent withCallbacks:(BOOL)callback;
+- (void)reset;
 
 @end
