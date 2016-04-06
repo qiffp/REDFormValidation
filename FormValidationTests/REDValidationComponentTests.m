@@ -33,8 +33,8 @@
 @end
 
 @interface REDValidationComponent (TestHelper)
-@property (nonatomic, readwrite, assign) BOOL valid;
-@property (nonatomic, readwrite, assign) BOOL validated;
+@property (nonatomic, assign, readwrite) BOOL valid;
+@property (nonatomic, assign, readwrite) BOOL validated;
 @end
 
 @implementation REDValidationComponent (TestHelper)
@@ -196,7 +196,7 @@
 
 - (void)testComponentIsValidatedAfterValidating
 {
-	[_component validateUIComponent:_component.uiComponent withCallbacks:NO];
+	[_component validate];
 	XCTAssertTrue(_component.validated, @"Component should be validated after validating");
 }
 
@@ -213,7 +213,7 @@
 		return task;
 	}]];
 	
-	[_component validateUIComponent:_component.uiComponent withCallbacks:NO];
+	[_component validate];
 	XCTAssertFalse(_component.validated, @"Component should not be validated until network validation completes");
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];

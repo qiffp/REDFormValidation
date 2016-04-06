@@ -30,6 +30,11 @@
 	__weak id _componentDelegate;
 }
 
+- (instancetype)init
+{
+	return [self initWithValidationEvent:REDValidationEventAll rule:nil];
+}
+
 - (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule
 {
 	self = [super init];
@@ -69,7 +74,7 @@
 
 - (BOOL)valid
 {
-	return _validated ? _valid : _uiComponent ? [self validateUIComponent:_uiComponent withCallbacks:YES] : NO;
+	return _validated ? _valid : _uiComponent ? [self validate] : NO;
 }
 
 - (void)removeComponentEventActions
@@ -122,20 +127,16 @@
 	}
 }
 
-- (BOOL)validateUIComponent:(UIView *)uiComponent withCallbacks:(BOOL)callback
+- (BOOL)validate
 {
-	_uiComponent = uiComponent;
+	[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
 	
-	if (callback) {
-		[_delegate validationComponent:self willValidateUIComponent:uiComponent];
-	}
-	
-	REDValidationResult result = [_rule validate:uiComponent];
+	REDValidationResult result = [_rule validate:_uiComponent];
 	_validated = result != REDValidationResultPending;
 	_valid = result & REDValidationResultSuccess;
 	
-	if (callback && [_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-		[_delegate validationComponent:self didValidateUIComponent:uiComponent result:_valid];
+	if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
+		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
 	}
 	
 	return _valid;
@@ -145,31 +146,30 @@
 {
 	_valid = NO;
 	_validated = NO;
-	_uiComponent = nil;
 }
 
 #pragma mark - Actions
 
 - (void)componentValueChanged:(UIView *)component
 {
-	[self validateUIComponent:component withCallbacks:YES];
+	[self validate];
 }
 
 - (void)componentDidBeginEditing:(UIView *)component
 {
-	[self validateUIComponent:component withCallbacks:YES];
+	[self validate];
 }
 
 - (void)componentDidEndEditing:(UIView *)component
 {
-	[self validateUIComponent:component withCallbacks:YES];
+	[self validate];
 }
 
 #pragma mark - Notifications
 
 - (void)textDidChange:(NSNotification *)notification
 {
-	[self validateUIComponent:notification.object withCallbacks:YES];
+	[self validate];
 }
 
 #pragma mark - NetworkValidationRuleDelegate
@@ -202,7 +202,7 @@
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
 	if (_validationEvents.beginEditing) {
-		[self validateUIComponent:textField withCallbacks:YES];
+		[self validate];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
 		[_componentDelegate textFieldDidBeginEditing:textField];
@@ -212,7 +212,7 @@
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
 	if (_validationEvents.endEditing) {
-		[self validateUIComponent:textField withCallbacks:YES];
+		[self validate];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textFieldDidEndEditing:)]) {
 		[_componentDelegate textFieldDidEndEditing:textField];
@@ -224,7 +224,7 @@
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
 	if (_validationEvents.beginEditing) {
-		[self validateUIComponent:textView withCallbacks:YES];
+		[self validate];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textViewDidBeginEditing:)]) {
 		[_componentDelegate textViewDidBeginEditing:textView];
@@ -234,7 +234,7 @@
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
 	if (_validationEvents.endEditing) {
-		[self validateUIComponent:textView withCallbacks:YES];
+		[self validate];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textViewDidEndEditing:)]) {
 		[_componentDelegate textViewDidEndEditing:textView];
@@ -244,7 +244,7 @@
 - (void)textViewDidChange:(UITextView *)textView
 {
 	if (_validationEvents.change) {
-		[self validateUIComponent:textView withCallbacks:YES];
+		[self validate];
 	}
 	if ([_componentDelegate respondsToSelector:@selector(textViewDidChange:)]) {
 		[_componentDelegate textViewDidChange:textView];
