@@ -87,6 +87,8 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 		}
 	}
 	
+	_valid = result;
+	
 	return result;
 }
 
@@ -116,11 +118,11 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 
 - (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result
 {
-	[self validate];
-	
 	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:)]) {
 		[_delegate validator:self didValidateComponent:uiComponent result:result];
 	}
+	
+	[self validate];
 }
 
 @end
