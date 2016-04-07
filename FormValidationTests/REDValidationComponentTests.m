@@ -32,6 +32,10 @@
 
 @end
 
+@interface REDValidationComponent (TestExpose)
+- (BOOL)validate;
+@end
+
 @interface REDValidationComponent (TestHelper)
 @property (nonatomic, assign, readwrite) BOOL valid;
 @property (nonatomic, assign, readwrite) BOOL validated;

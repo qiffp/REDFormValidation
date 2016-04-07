@@ -79,12 +79,6 @@
 - (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule NS_DESIGNATED_INITIALIZER;
 
 /*!
- * @brief Validates the current UI component.
- * @return The result of the validation.
- */
-- (BOOL)validate;
-
-/*!
  * @brief Resets the valid and validated state of the validation object.
  * @see valid, validated
  */
