@@ -274,4 +274,43 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.validator.validationComponents[@(kTestValidationSwitch)].validatedInValidatorBlock, YES, @"The switch is validated in the block");
 }
 
+- (void)testRemoveValidationRemovesValidation
+{
+	[_testForm.validator addValidationWithTag:kTestValidationTextField validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return YES;
+	}]];
+	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField)], @"There should be a validation using the tag");
+	
+	BOOL success = [_testForm.validator removeValidation:kTestValidationTextField];
+	XCTAssertTrue(success, @"The removal should have been successful");
+	XCTAssertNil(_testForm.validator.validationComponents[@(kTestValidationTextField)], @"The validation using the tag should have been removed");
+}
+
+- (void)testRemoveValidationDoesNotRemoveValidationIfItIsInValidationBlock
+{
+	[_testForm.validator addValidationWithTag:kTestValidationTextField validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return YES;
+	}]];
+	_testForm.validator.validationBlock = ^BOOL(REDValidator *validator) {
+		return [validator validationIsValid:kTestValidationTextField];
+	};
+	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField)], @"There should be a validation using the tag");
+	
+	BOOL success = [_testForm.validator removeValidation:kTestValidationTextField];
+	XCTAssertFalse(success, @"The removal should have been failed");
+	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField)], @"The validation using the tag should not have been removed");
+}
+
+- (void)testFormIsReEvaluatedAfterSettingShouldValidateComponent
+{
+	[_testForm.validator addValidationWithTag:kTestValidationTextField validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return NO;
+	}]];
+	XCTAssertFalse([_testForm.validator validate], @"Initial validation should fail");
+	XCTAssertFalse(_testForm.success, @"Initial validation should fail");
+	
+	[_testForm.validator setShouldValidate:NO forValidation:kTestValidationTextField];
+	XCTAssertTrue(_testForm.success, @"Validation after disabling shouldValidate on component should be successful");
+}
+
 @end

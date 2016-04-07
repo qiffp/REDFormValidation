@@ -17,7 +17,6 @@
  * @brief Delegate protocol for the REDValidationComponent, which performs validation on individual UI components.
  */
 @protocol REDValidationComponentDelegate <NSObject>
-@optional
 
 /*!
  * @brief Notifies the delegate when a UI component is about to be validated.
@@ -69,6 +68,11 @@
  * @see REDValidator.validationBlock
  */
 @property (nonatomic, assign) BOOL validatedInValidatorBlock;
+
+/*!
+ * @brief Whether the UI component should be validated. Allows temporary enabling and disabling the validation.
+ */
+@property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
  * @brief Initializes and returns a new REDValidationComponent.

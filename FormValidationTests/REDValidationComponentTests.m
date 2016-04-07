@@ -224,6 +224,24 @@
 	XCTAssertTrue(_component.validated, @"Component should be validated once network validation completes");
 }
 
+- (void)testValidateReturnsValidIfShouldValidateIsFalse
+{
+	_component.shouldValidate = NO;
+	
+	_component.valid = YES;
+	XCTAssertTrue([_component validate], @"Validate should return true if valid is true");
+	
+	_component.valid = NO;
+	XCTAssertFalse([_component validate], @"Validate should return false if valid is false");
+}
+
+- (void)testValidReturnsTrueIfShouldValidateIsFalse
+{
+	_component.shouldValidate = NO;
+	_component.valid = NO;
+	XCTAssertTrue(_component.valid, @"Component should be considered valid if not being validated");
+}
+
 - (void)testUnimplementedComponentDelegateMethodsGetPassedToOriginalDelegate
 {
 	_originalDelegate.delegateMethodCalled = NO;

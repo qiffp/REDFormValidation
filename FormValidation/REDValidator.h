@@ -98,6 +98,22 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 - (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule;
 
 /*!
+ * @brief Removes the validation with the given tag.
+ * @discussion The validation will not be removed if it is still being used in the `validatorBlock`.
+ * @param tag The tag that will be removed.
+ * @return Returns whether the validation was removed successfully.
+ * @see validatorBlock
+ */
+- (BOOL)removeValidation:(NSInteger)tag;
+
+/*!
+ * @brief Allows temporarily enabing and disabling the given validation.
+ * @param shouldValidate Whether the validation with the given tag should be validated.
+ * @param tag The tag that will be removed.
+ */
+- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(NSInteger)tag;
+
+/*!
  * @brief Sets the UI component that should be validated with the given validation.
  * @param component The UI component that should be validated.
  * @param tag The tag of the desired validation.

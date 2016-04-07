@@ -39,6 +39,8 @@
 {
 	self = [super init];
 	if (self ) {
+		_shouldValidate = YES;
+		
 		if (event & REDValidationEventAll) {
 			_validationEvents.change = YES;
 			_validationEvents.beginEditing = YES;
@@ -48,10 +50,11 @@
 			_validationEvents.beginEditing = event & REDValidationEventBeginEditing;
 			_validationEvents.endEditing = event & REDValidationEventEndEditing;
 		}
+		
 		_rule = rule;
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]]) {
 			((REDNetworkValidationRule *)_rule).delegate = self;
-	}
+		}
 	}
 	return self;
 }
@@ -74,7 +77,19 @@
 
 - (BOOL)valid
 {
-	return _validated ? _valid : _uiComponent ? [self validate] : NO;
+	if (_shouldValidate) {
+		if (_validated) {
+			return _valid;
+		} else {
+			if (_uiComponent) {
+				return [self validate];
+			} else {
+				return NO;
+			}
+		}
+	}
+	
+	return YES;
 }
 
 - (void)removeComponentEventActions
@@ -129,14 +144,16 @@
 
 - (BOOL)validate
 {
-	[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
-	
-	REDValidationResult result = [_rule validate:_uiComponent];
-	_validated = result != REDValidationResultPending;
-	_valid = result & REDValidationResultSuccess;
-	
-	if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
+	if (_shouldValidate) {
+		[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
+		
+		REDValidationResult result = [_rule validate:_uiComponent];
+		_validated = result != REDValidationResultPending;
+		_valid = result & REDValidationResultSuccess;
+		
+		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
+			[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
+		}
 	}
 	
 	return _valid;

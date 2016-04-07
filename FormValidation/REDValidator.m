@@ -46,6 +46,22 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	[self evaluateValidationBlock];
 }
 
+- (BOOL)removeValidation:(NSInteger)tag
+{
+	if (_validationComponents[@(tag)].validatedInValidatorBlock) {
+		return NO;
+	} else {
+		[_validationComponents removeObjectForKey:@(tag)];
+		return YES;
+	}
+}
+
+- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(NSInteger)tag
+{
+	_validationComponents[@(tag)].shouldValidate = shouldValidate;
+	[self validate];
+}
+
 - (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule;
 {
 	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithValidationEvent:event rule:rule];
