@@ -54,7 +54,7 @@
 	id delegate = [OCMockObject niceMockForProtocol:@protocol(REDNetworkValidationRuleDelegate)];
 	rule.delegate = delegate;
 	
-	[[delegate expect] validationRule:rule didValidateWithResult:REDValidationResultSuccess error:nil];
+	[[delegate expect] validationRule:rule completedNetworkValidationOfComponent:nil withResult:REDValidationResultSuccess error:nil];
 	XCTAssertEqual([rule validate:nil], REDValidationResultPending, @"Validation should be pending until completion is called");
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
@@ -77,7 +77,7 @@
 	id delegate = [OCMockObject niceMockForProtocol:@protocol(REDNetworkValidationRuleDelegate)];
 	rule.delegate = delegate;
 	
-	[[delegate expect] validationRule:rule didValidateWithResult:REDValidationResultFailure error:nil];
+	[[delegate expect] validationRule:rule completedNetworkValidationOfComponent:nil withResult:REDValidationResultFailure error:nil];
 	XCTAssertEqual([rule validate:nil], REDValidationResultPending, @"Validation should be pending until completion is called");
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];

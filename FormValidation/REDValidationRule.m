@@ -74,7 +74,7 @@
 		_task = _block(component, ^void(BOOL success, NSError *error) {
 			__strong typeof(weakSelf) strongSelf = weakSelf;
 			REDValidationResult result = success ? REDValidationResultSuccess : REDValidationResultFailure;
-			[strongSelf.delegate validationRule:strongSelf didValidateWithResult:result error:error];
+			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfComponent:component withResult:result error:error];
 		});
 		
 		return REDValidationResultPending;

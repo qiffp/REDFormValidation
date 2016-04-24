@@ -14,7 +14,7 @@
 @class REDValidationComponent;
 
 /*!
- * @brief Delegate protocol for the REDValidationComponent, which performs validation on individual UI components.
+ * @brief Delegate protocol for the REDValidationComponent that informs the delegate of validation events.
  */
 @protocol REDValidationComponentDelegate <NSObject>
 
@@ -80,7 +80,7 @@
  * @param rule The rule used to validate the UI component.
  * @return The initialized REDValidationComponent or nil if there was an error during initialization.
  */
-- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule NS_DESIGNATED_INITIALIZER;
 
 /*!
  * @brief Resets the valid and validated state of the validation object.

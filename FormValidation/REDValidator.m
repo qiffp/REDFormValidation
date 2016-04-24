@@ -62,7 +62,7 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	[self validate];
 }
 
-- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule;
+- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
 {
 	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithValidationEvent:event rule:rule];
 	validationComponent.delegate = self;

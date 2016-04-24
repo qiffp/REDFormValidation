@@ -20,25 +20,71 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 	REDValidationResultPending = (1 << 3)
 };
 
-@protocol REDValidationRuleProtocol <NSObject>
+/*!
+ * @brief Protocol describing behaviour of validation rules
+ */
+@protocol REDValidationRule <NSObject>
+
+/*!
+ * @brief Validate the specified component using the validation rule
+ * @param component The component that is being evaluated.
+ * @return The result of the validation.
+ */
 - (REDValidationResult)validate:(UIView *)component;
+
+/*!
+ * @brief Cancel the validation that is currently in progress. Intended for network validations.
+ */
 - (void)cancel;
+
 @end
 
+
+/*!
+ * @brief Delegate protocol for the REDNetworkValidationRule that informs the delegate of validation events.
+ */
 @protocol REDNetworkValidationRuleDelegate <NSObject>
-- (void)validationRule:(id<REDValidationRuleProtocol>)rule didValidateWithResult:(REDValidationResult)result error:(NSError *)error;
+
+/*!
+ * @brief Notifies the delegate when a network validation has completed.
+ * @param rule The validation rule that is being used.
+ * @param component The component that has been validated.
+ * @param result The result of the validation.
+ * @param error An error that has occurred during the validation process.
+ */
+- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(UIView *)component withResult:(REDValidationResult)result error:(NSError *)error;
+
 @end
 
-@interface REDValidationRule : NSObject <REDValidationRuleProtocol>
 
+/*!
+ * @brief Object that validates components based on a specified rule.
+ */
+@interface REDValidationRule : NSObject <REDValidationRule>
+
+/*!
+ * @brief Initializes and returns a REDValidationRule using the specified rule.
+ * @param block The validation rule to be used.
+ */
 + (instancetype)ruleWithBlock:(REDValidationBlock)block;
 
 @end
 
-@interface REDNetworkValidationRule : NSObject <REDValidationRuleProtocol>
 
+/*!
+ * @brief Object that validates components based on a specified rule that requires network calls.
+ */
+@interface REDNetworkValidationRule : NSObject <REDValidationRule>
+
+/*!
+ * @brief Delegate that gets notified of network validation events.
+ */
 @property (nonatomic, weak) id<REDNetworkValidationRuleDelegate> delegate;
 
+/*!
+ * @brief Initializes and returns a REDNetworkValidationRule using the specified rule.
+ * @param block The validation rule to be used.
+ */
 + (instancetype)ruleWithBlock:(REDNetworkValidationBlock)block;
 
 @end

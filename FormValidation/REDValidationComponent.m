@@ -18,7 +18,7 @@
 @end
 
 @implementation REDValidationComponent {
-	id<REDValidationRuleProtocol> _rule;
+	id<REDValidationRule> _rule;
 	struct {
 		BOOL change;
 		BOOL beginEditing;
@@ -35,7 +35,7 @@
 	return [self initWithValidationEvent:REDValidationEventAll rule:nil];
 }
 
-- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule
+- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule
 {
 	self = [super init];
 	if (self ) {
@@ -191,11 +191,11 @@
 
 #pragma mark - NetworkValidationRuleDelegate
 
-- (void)validationRule:(id<REDValidationRuleProtocol>)rule didValidateWithResult:(REDValidationResult)result error:(NSError *)error
+- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(UIView *)component withResult:(REDValidationResult)result error:(NSError *)error
 {
 	_valid = result & REDValidationResultSuccess;
 	_validated = YES;
-	[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:result];
+	[_delegate validationComponent:self didValidateUIComponent:component result:result];
 }
 
 #pragma mark - Delegate Funny Business

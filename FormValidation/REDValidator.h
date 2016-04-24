@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class REDValidator;
-@protocol REDValidationRuleProtocol;
+@protocol REDValidationRule;
 
 typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
 
@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 };
 
 /*!
- * @brief Delegate protocol for the REDValidator, which handles validation for all registered form UI components.
+ * @brief Delegate protocol for the REDValidator that informs the delegate of validation events.
  */
 @protocol REDValidatorDelegate <NSObject>
 @optional
@@ -95,7 +95,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  */
-- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleProtocol>)rule;
+- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
 
 /*!
  * @brief Removes the validation with the given tag.
