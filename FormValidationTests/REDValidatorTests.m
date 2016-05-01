@@ -14,8 +14,27 @@ static NSInteger const kTestValidationTextField = 1;
 static NSInteger const kTestValidationSwitch = 2;
 static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
+@interface TestTextField : UITextField
+@property (nonatomic, assign) BOOL willValidate;
+@property (nonatomic, assign) BOOL didValidate;
+@end
+
+@implementation TestTextField
+
+- (void)validatorWillValidateComponent:(REDValidator *)validator
+{
+	_willValidate = YES;
+}
+
+- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(BOOL)result
+{
+	_didValidate = YES;
+}
+
+@end
+
 @interface TestTableViewCell : UITableViewCell
-@property (nonatomic, strong) UITextField *textField;
+@property (nonatomic, strong) TestTextField *textField;
 @property (nonatomic, strong) UISwitch *cellSwitch;
 @end
 
@@ -25,7 +44,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 {
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 	if (self) {
-		_textField = [[UITextField alloc] init];
+		_textField = [[TestTextField alloc] init];
 		[self.contentView addSubview:_textField];
 		
 		_cellSwitch = [[UISwitch alloc] init];
@@ -40,6 +59,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 @property (nonatomic, strong) REDValidator *validator;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, assign) BOOL success;
+@property (nonatomic, assign) BOOL willValidateComponent;
+@property (nonatomic, assign) BOOL didValidateComponent;
 @end
 
 @implementation TestTableViewForm
@@ -74,7 +95,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 {
 	TestTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kTestTableViewCellIdentifier forIndexPath:indexPath];
 	[_validator setComponent:cell.textField forValidation:kTestValidationTextField];
-	[_validator setComponent:cell.textField forValidation:kTestValidationSwitch];
+	[_validator setComponent:cell.cellSwitch forValidation:kTestValidationSwitch];
 	return cell;
 }
 
@@ -83,9 +104,19 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	_success = result;
 }
 
+- (void)validator:(REDValidator *)validator willValidateComponent:(UIView *)component
+{
+	_willValidateComponent = YES;
+}
+
+- (void)validator:(REDValidator *)validator didValidateComponent:(UIView *)component result:(BOOL)result
+{
+	_didValidateComponent = YES;
+}
+
 @end
 
-@interface REDValidator (TestExpose)
+@interface REDValidator (TestExpose) <REDValidationComponentDelegate>
 - (BOOL)validate;
 @end
 
@@ -311,6 +342,31 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	
 	[_testForm.validator setShouldValidate:NO forValidation:kTestValidationTextField];
 	XCTAssertTrue(_testForm.success, @"Validation after disabling shouldValidate on component should be successful");
+}
+
+- (void)testDelegateIsNotifiedWhenComponentsAreValidated
+{
+	XCTAssertFalse(_testForm.willValidateComponent, @"");
+	[_testForm.validator validationComponent:nil willValidateUIComponent:nil];
+	XCTAssertTrue(_testForm.willValidateComponent, @"");
+	
+	XCTAssertFalse(_testForm.didValidateComponent, @"");
+	[_testForm.validator validationComponent:nil didValidateUIComponent:nil result:YES];
+	XCTAssertTrue(_testForm.didValidateComponent, @"");
+}
+
+- (void)testComponentIsNotifiedWhenItIsValidated
+{
+	TestTableViewCell *cell = (TestTableViewCell *)[_testForm tableView:_testForm.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+	TestTextField *textField = cell.textField;
+	
+	XCTAssertFalse(textField.willValidate, @"");
+	[_testForm.validator validationComponent:nil willValidateUIComponent:textField];
+	XCTAssertTrue(textField.willValidate, @"");
+	
+	XCTAssertFalse(textField.didValidate, @"");
+	[_testForm.validator validationComponent:nil didValidateUIComponent:textField result:YES];
+	XCTAssertTrue(textField.didValidate, @"");
 }
 
 @end
