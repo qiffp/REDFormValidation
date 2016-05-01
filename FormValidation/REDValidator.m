@@ -10,8 +10,6 @@
 #import "REDValidationRule.h"
 #import "REDValidationComponent.h"
 
-static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsChangedContext;
-
 @interface REDValidator () <REDValidationComponentDelegate, UITableViewDelegate>
 @end
 

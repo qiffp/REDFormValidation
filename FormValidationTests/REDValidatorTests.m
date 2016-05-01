@@ -172,7 +172,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	}]];
 	
 	_testForm.validator.validationBlock = ^BOOL(REDValidator *validator) {
-		return [validator validationIsValid:kTestValidationTextField] || [validator validationIsValid:kTestValidationSwitch];
+		return [validator validationIsValid:kTestValidationTextField] | [validator validationIsValid:kTestValidationSwitch];
 	};
 	
 	[self loadCells];
@@ -191,7 +191,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	}]];
 	
 	_testForm.validator.validationBlock = ^BOOL(REDValidator *validator) {
-		return [validator validationIsValid:kTestValidationTextField] && [validator validationIsValid:kTestValidationSwitch];
+		return [validator validationIsValid:kTestValidationTextField] & [validator validationIsValid:kTestValidationSwitch];
 	};
 	
 	[self loadCells];
@@ -299,7 +299,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.validator.validationComponents[@(kTestValidationSwitch)].validatedInValidatorBlock, NO, @"The switch is not validated in the block");
 	
 	_testForm.validator.validationBlock = ^BOOL(REDValidator *validator) {
-		return [validator validationIsValid:kTestValidationTextField] || [validator validationIsValid:kTestValidationSwitch];
+		return [validator validationIsValid:kTestValidationTextField] | [validator validationIsValid:kTestValidationSwitch];
 	};
 	XCTAssertEqual(_testForm.validator.validationComponents[@(kTestValidationTextField)].validatedInValidatorBlock, YES, @"The text field is validated in the block");
 	XCTAssertEqual(_testForm.validator.validationComponents[@(kTestValidationSwitch)].validatedInValidatorBlock, YES, @"The switch is validated in the block");

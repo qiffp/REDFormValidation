@@ -98,6 +98,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 /*!
  * @brief Block that contains logic that determines whether the form is valid. Not required.
+ * @warning Logical operators used in this block MUST be bitwise operators so that they don't get short-circuited.
  * @discussion
  *	If this is nil, all of the component validations are ANDed.
  *	If this is not nil but doesn't include all of the component validations, the remaining ones are ANDed.
@@ -105,7 +106,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  *	The block should only use the @c validationIsValid: @c method.
  * @code
  * validator.validationBlock = ^BOOL(REDValidator *v) {
- *	return [v validationIsValid:kREDValidationEmail] || [v validationIsValid:kREDValidationName];
+ *	return [v validationIsValid:kREDValidationEmail] | [v validationIsValid:kREDValidationName];
  * }
  * @endcode
  * @see @c validationIsValid: @c
