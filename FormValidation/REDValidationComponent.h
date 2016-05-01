@@ -14,7 +14,7 @@
 @class REDValidationComponent;
 
 /*!
- * @brief Delegate protocol for the REDValidationComponent that informs the delegate of validation events.
+ * @brief Delegate protocol for the @c REDValidationComponent @c that informs the delegate of validation events.
  */
 @protocol REDValidationComponentDelegate <NSObject>
 
@@ -58,14 +58,14 @@
 
 /*!
  * @brief Describes whether the UI component has yet been validated or has been modified such that it requires revalidation.
- * @see valid
+ * @see @c valid @c
  */
 @property (nonatomic, assign, readonly) BOOL validated;
 
 /*!
- * @brief Describes whether the UI component is being used in the validation block of the REDValidator.
+ * @brief Describes whether the UI component is being used in the validation block of the @c REDValidator @c.
  * @discussion If false, the component's validation is ANDed with the rest of the components that are false.
- * @see REDValidator.validationBlock
+ * @see @c REDValidator.validationBlock @c
  */
 @property (nonatomic, assign) BOOL validatedInValidatorBlock;
 
@@ -75,16 +75,16 @@
 @property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
- * @brief Initializes and returns a new REDValidationComponent.
+ * @brief Initializes and returns a new @c REDValidationComponent @c.
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
- * @return The initialized REDValidationComponent or nil if there was an error during initialization.
+ * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
  */
 - (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule NS_DESIGNATED_INITIALIZER;
 
 /*!
  * @brief Resets the valid and validated state of the validation object.
- * @see valid, validated
+ * @see @c valid @c, @c validated @c
  */
 - (void)reset;
 

@@ -130,12 +130,20 @@ static void *REDTableViewVisibleCellsChangedContext = &REDTableViewVisibleCellsC
 	if ([_delegate respondsToSelector:@selector(validator:willValidateComponent:)]) {
 		[_delegate validator:self willValidateComponent:uiComponent];
 	}
+	
+	if ([validationComponent.uiComponent respondsToSelector:@selector(validatorWillValidateComponent:)]) {
+		[(id<REDValidatorComponent>)validationComponent.uiComponent validatorWillValidateComponent:self];
+	}
 }
 
 - (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result
 {
 	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:)]) {
 		[_delegate validator:self didValidateComponent:uiComponent result:result];
+	}
+	
+	if ([validationComponent.uiComponent respondsToSelector:@selector(validator:didValidateComponentWithResult:)]) {
+		[(id<REDValidatorComponent>)validationComponent.uiComponent validator:self didValidateComponentWithResult:result];
 	}
 	
 	[self validate];

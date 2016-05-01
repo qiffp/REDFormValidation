@@ -21,7 +21,9 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 };
 
 /*!
- * @brief Delegate protocol for the REDValidator that informs the delegate of validation events.
+ * @brief Delegate protocol for the @c REDValidator @c that informs the delegate of validation events.
+ * @discussion If the delegate (generally a controller) handles the view/component changes when a validation occurs, the methods in this protocol should be implemented.
+ * @see @c REDValidatorComponent @c
  */
 @protocol REDValidatorDelegate <NSObject>
 @optional
@@ -53,6 +55,38 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 
 /*!
+ * @brief Protocol to notify components of their validation events.
+ * @discussion If the view/component handles its own changes when a validation occurs, the methods in this protocol should be implemented by the component.
+ * @see @c REDValidatorDelegate @c
+ */
+@protocol REDValidatorComponent <NSObject>
+@optional
+
+/*!
+ * @brief Notifies the component when it is about to be validated.
+ * @param validator The validator object managing the form.
+ */
+- (void)validatorWillValidateComponent:(REDValidator *)validator;
+
+/*!
+ * @brief Notifies the component when it has been validated.
+ * @param validator The validator object managing the form.
+ * @param result The result of the validation.
+ */
+- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(BOOL)result;
+
+@end
+
+/*!
+ * @brief All @c UIView @c objects conform to @c REDValidatorComponent @c.
+ * @discussion This makes it so that the protocol can be made obvious when using @c setComponent:forValidation: @c. Since all of the protocol methods are optional, there are no restrictions on which @c UIView @c objects can be used as the the component.
+ * @see @c setComponent:forValidation: @c
+ */
+@interface UIView (REDValidator) <REDValidatorComponent>
+@end
+
+
+/*!
  * @brief Object that performs validation for and keeps track of validation state of a form.
  */
 @interface REDValidator : NSObject
@@ -68,13 +102,13 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  *	If this is nil, all of the component validations are ANDed.
  *	If this is not nil but doesn't include all of the component validations, the remaining ones are ANDed.
  *
- *	The block should only use the `validationIsValid:` method.
+ *	The block should only use the @c validationIsValid: @c method.
  * @code
  * validator.validationBlock = ^BOOL(REDValidator *v) {
  *	return [v validationIsValid:kREDValidationEmail] || [v validationIsValid:kREDValidationName];
  * }
  * @endcode
- * @see validationIsValid:
+ * @see @c validationIsValid: @c
  */
 @property (nonatomic, copy) REDTableViewValidationBlock validationBlock;
 
@@ -99,10 +133,10 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 /*!
  * @brief Removes the validation with the given tag.
- * @discussion The validation will not be removed if it is still being used in the `validatorBlock`.
+ * @discussion The validation will not be removed if it is still being used in the @c validatorBlock @c.
  * @param tag The tag that will be removed.
  * @return Returns whether the validation was removed successfully.
- * @see validatorBlock
+ * @see @c validatorBlock @c
  */
 - (BOOL)removeValidation:(NSInteger)tag;
 
@@ -115,17 +149,18 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 /*!
  * @brief Sets the UI component that should be validated with the given validation.
+ * @note All @c UIView @c objects conform to @c REDValidatorComponent @c.
  * @param component The UI component that should be validated.
  * @param tag The tag of the desired validation.
  */
-- (void)setComponent:(UIView *)component forValidation:(NSInteger)tag;
+- (void)setComponent:(UIView<REDValidatorComponent> *)component forValidation:(NSInteger)tag;
 
 /*!
- * @brief Returns the `valid` state of a certain validation tag.
- * @discussion This is only intended for use in the `validationBlock`.
+ * @brief Returns the @c valid @c state of a certain validation tag.
+ * @discussion This is only intended for use in the @c validationBlock @c.
  * @param tag The tag of the desired validation.
- * @return The `valid` state of the given validation tag.
- * @see validationBlock
+ * @return The @c valid @c state of the given validation tag.
+ * @see @c validationBlock @c
  */
 - (BOOL)validationIsValid:(NSInteger)tag;
 

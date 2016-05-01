@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 
 
 /*!
- * @brief Delegate protocol for the REDNetworkValidationRule that informs the delegate of validation events.
+ * @brief Delegate protocol for the @c REDNetworkValidationRule @c that informs the delegate of validation events.
  */
 @protocol REDNetworkValidationRuleDelegate <NSObject>
 
@@ -63,7 +63,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 @interface REDValidationRule : NSObject <REDValidationRule>
 
 /*!
- * @brief Initializes and returns a REDValidationRule using the specified rule.
+ * @brief Initializes and returns a @c REDValidationRule @c using the specified rule.
  * @param block The validation rule to be used.
  */
 + (instancetype)ruleWithBlock:(REDValidationBlock)block;
@@ -82,7 +82,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 @property (nonatomic, weak) id<REDNetworkValidationRuleDelegate> delegate;
 
 /*!
- * @brief Initializes and returns a REDNetworkValidationRule using the specified rule.
+ * @brief Initializes and returns a @c REDNetworkValidationRule @c using the specified rule.
  * @param block The validation rule to be used.
  */
 + (instancetype)ruleWithBlock:(REDNetworkValidationBlock)block;
