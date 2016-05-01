@@ -17,7 +17,6 @@
 		22DFE24D1C8A35530003FCAB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE24C1C8A35530003FCAB /* AppDelegate.m */; };
 		22DFE2501C8A35530003FCAB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE24F1C8A35530003FCAB /* ViewController.m */; };
 		22DFE2531C8A35530003FCAB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22DFE2511C8A35530003FCAB /* Main.storyboard */; };
-		22DFE2561C8A35530003FCAB /* FormValidationExample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2541C8A35530003FCAB /* FormValidationExample.xcdatamodeld */; };
 		22DFE2581C8A35530003FCAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22DFE2571C8A35530003FCAB /* Assets.xcassets */; };
 		22DFE25B1C8A35530003FCAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22DFE2591C8A35530003FCAB /* LaunchScreen.storyboard */; };
 		22DFE2631C8A37AE0003FCAB /* REDValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2611C8A37AE0003FCAB /* REDValidator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -55,7 +54,6 @@
 		22DFE24E1C8A35530003FCAB /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		22DFE24F1C8A35530003FCAB /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		22DFE2521C8A35530003FCAB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		22DFE2551C8A35530003FCAB /* FormValidationExample.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FormValidationExample.xcdatamodel; sourceTree = "<group>"; };
 		22DFE2571C8A35530003FCAB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		22DFE25A1C8A35530003FCAB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		22DFE25C1C8A35530003FCAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -162,7 +160,6 @@
 				22DFE2571C8A35530003FCAB /* Assets.xcassets */,
 				22DFE2591C8A35530003FCAB /* LaunchScreen.storyboard */,
 				22DFE25C1C8A35530003FCAB /* Info.plist */,
-				22DFE2541C8A35530003FCAB /* FormValidationExample.xcdatamodeld */,
 				22DFE2481C8A35530003FCAB /* Supporting Files */,
 			);
 			name = REDFormValidationExample;
@@ -359,7 +356,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				22DFE2501C8A35530003FCAB /* ViewController.m in Sources */,
-				22DFE2561C8A35530003FCAB /* FormValidationExample.xcdatamodeld in Sources */,
 				22DFE24D1C8A35530003FCAB /* AppDelegate.m in Sources */,
 				22DFE24A1C8A35530003FCAB /* main.m in Sources */,
 			);
@@ -615,19 +611,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		22DFE2541C8A35530003FCAB /* FormValidationExample.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				22DFE2551C8A35530003FCAB /* FormValidationExample.xcdatamodel */,
-			);
-			currentVersion = 22DFE2551C8A35530003FCAB /* FormValidationExample.xcdatamodel */;
-			path = FormValidationExample.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 22DFE2041C8A34F10003FCAB /* Project object */;
 }
