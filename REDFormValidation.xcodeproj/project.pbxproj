@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		221AF71B1CD6BBAA0050D6E7 /* REDFormValidation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22DFE20D1C8A34F10003FCAB /* REDFormValidation.framework */; };
 		2235FA3E1C951B3A0043C1D9 /* REDValidationComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2235FA3D1C951B3A0043C1D9 /* REDValidationComponentTests.m */; };
 		2235FA561C95FF530043C1D9 /* OCMock.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2235FA551C95FF530043C1D9 /* OCMock.framework */; };
 		22871D291C8CC9C80064E85D /* REDValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 22871D281C8CC9C80064E85D /* REDValidatorTests.m */; };
@@ -86,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				221AF71B1CD6BBAA0050D6E7 /* REDFormValidation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
