@@ -26,13 +26,18 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 
 - (void)validator:(REDValidator *)validator didValidateComponentWithResult:(BOOL)result
 {
-	self.textColor = result ? [UIColor greenColor] : [UIColor redColor];
+	self.textColor = result ? [UIColor greenColor] : validator.valid ? [UIColor grayColor] : [UIColor redColor];
 }
 
 @end
 
-@interface REDTextFieldCell : UITableViewCell
+@protocol REDTextFieldCellDelegate <NSObject>
+- (void)textFieldUpdated:(REDTextField *)textField;
+@end
+
+@interface REDTextFieldCell : UITableViewCell <UITextFieldDelegate>
 @property (nonatomic, strong) REDTextField *textField;
+@property (nonatomic, weak) id<REDTextFieldCellDelegate> delegate;
 @end
 
 @implementation REDTextFieldCell
@@ -42,7 +47,10 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 	if (self) {
 		_textField = [[REDTextField alloc] initWithFrame:CGRectZero];
+		_textField.delegate = self;
 		[self.contentView addSubview:_textField];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChanged:) name:UITextFieldTextDidChangeNotification object:nil];
 	}
 	return self;
 }
@@ -53,25 +61,52 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	_textField.frame = self.bounds;
 }
 
+- (void)textChanged:(NSNotification *)notification
+{
+	[_delegate textFieldUpdated:notification.object];
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+	// Flash cell to confirm that textField delegate methods are firing to the desired targets
+	self.selected = YES;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		self.selected = NO;
+	});
+	return YES;
+}
+
 @end
 
-@interface ViewController () <UITableViewDelegate, UITableViewDataSource, REDValidatorDelegate>
+@interface ViewController () <UITableViewDelegate, UITableViewDataSource, REDValidatorDelegate, REDTextFieldCellDelegate>
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UILabel *headerView;
 @property (nonatomic, strong) REDValidator *validator;
 @end
 
-@implementation ViewController
+@implementation ViewController {
+	NSString *_firstName;
+	NSString *_lastName;
+	NSString *_email;
+	NSString *_address;
+	NSString *_note;
+}
 
 - (void)loadView
 {
 	[super loadView];
 	
-	_tableView = [[UITableView alloc] init];
+	UIView *contentView = [[UIView alloc] init];
+	contentView.backgroundColor = [UIColor lightGrayColor];
+	
+	_tableView = [[UITableView alloc] initWithFrame:CGRectMake(0.0f, 50.0f, 0.0f, 200.0f)];
 	_tableView.delegate = self;
 	_tableView.dataSource = self;
+	_tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+	_tableView.rowHeight = 80.0f;
+	[contentView addSubview:_tableView];
 	
-	_headerView = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f)];
+	_headerView = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 0.0f, 100.0f)];
 	_headerView.text = @"Requires address and first/last name or email. Note is optional.";
 	_headerView.numberOfLines = 2;
 	_headerView.backgroundColor = [UIColor grayColor];
@@ -79,7 +114,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	
 	[_tableView registerClass:[REDTextFieldCell class] forCellReuseIdentifier:kTextFieldCellIdentifier];
 	
-	self.view = _tableView;
+	self.view = contentView;
 }
 
 - (void)viewDidLoad
@@ -98,7 +133,10 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	}];
 	[_validator addValidationWithTag:FormCellFirstName validateOn:REDValidationEventChange rule:lengthRule];
 	[_validator addValidationWithTag:FormCellLastName validateOn:REDValidationEventChange rule:lengthRule];
-	[_validator addValidationWithTag:FormCellEmail validateOn:REDValidationEventChange rule:lengthRule];
+	[_validator addValidationWithTag:FormCellEmail validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		NSString *text = ((UITextField *)component).text;
+		return text.length > 0 && [text containsString:@"@"];
+	}]];
 	[_validator addValidationWithTag:FormCellAddress validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return ((UITextField *)component).text.length > 5;
 	}]];
@@ -115,40 +153,65 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 
 - (void)validator:(REDValidator *)validator didValidateFormWithResult:(BOOL)result
 {
-	_headerView.backgroundColor = result ? [UIColor greenColor] : [UIColor redColor];
+	self.view.backgroundColor = result ? [UIColor greenColor] : [UIColor redColor];
+}
+
+- (void)textFieldUpdated:(REDTextField *)textField
+{
+	NSString *text = textField.text;
+	switch (textField.tag) {
+		case FormCellFirstName:
+			_firstName = text;
+			break;
+		case FormCellLastName:
+			_lastName = text;
+			break;
+		case FormCellEmail:
+			_email = text;
+			break;
+		case FormCellAddress:
+			_address = text;
+			break;
+		case FormCellNote:
+			_note = text;
+			break;
+		default:
+			break;
+	}
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	REDTextFieldCell *cell = [tableView dequeueReusableCellWithIdentifier:kTextFieldCellIdentifier forIndexPath:indexPath];
+	cell.delegate = self;
 	
 	switch (indexPath.row) {
-		case FormCellFirstName: {
+		case FormCellFirstName:
 			cell.textField.placeholder = @"First name (length > 0)";
+			cell.textField.text = _firstName;
 			break;
-		}
-		case FormCellLastName: {
+		case FormCellLastName:
 			cell.textField.placeholder = @"Last name (length > 0)";
+			cell.textField.text = _lastName;
 			break;
-		}
-		case FormCellEmail: {
-			cell.textField.placeholder = @"Email (length > 0)";
+		case FormCellEmail:
+			cell.textField.placeholder = @"Email (length > 0 and contains '@')";
+			cell.textField.text = _email;
 			break;
-		}
-		case FormCellAddress: {
+		case FormCellAddress:
 			cell.textField.placeholder = @"Address (length > 5)";
+			cell.textField.text = _address;
 			break;
-		}
-		case FormCellNote: {
+		case FormCellNote:
 			cell.textField.placeholder = @"Note";
+			cell.textField.text = _note;
 			break;
-		}
-		default: {
+		default:
 			break;
-		}
 	}
 	
 	[_validator setComponent:cell.textField forValidation:indexPath.row];
+	cell.textField.tag = indexPath.row;
 	
 	return cell;
 }
