@@ -15,6 +15,7 @@
 @end
 
 @interface REDValidationComponent () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
+@property (nonatomic, weak) id componentDelegate;
 @end
 
 @implementation REDValidationComponent {
@@ -27,7 +28,6 @@
 	
 	BOOL _valid;
 	BOOL _validated;
-	__weak id _componentDelegate;
 }
 
 - (instancetype)init
@@ -71,6 +71,7 @@
 	}
 	
 	[self removeComponentEventActions];
+	_componentDelegate = nil;
 	_uiComponent = uiComponent;
 	[self setupComponentEventActions];
 }
@@ -94,8 +95,14 @@
 
 - (void)removeComponentEventActions
 {
+	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
+		[_uiComponent performSelector:@selector(setDelegate:) withObject:_componentDelegate];
+	}
+	
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:_uiComponent];
+		if (_validationEvents.change) {
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:_uiComponent];
+		}
 	} else if ([_uiComponent isNonTextControlClass]) {
 		UIControl *control = (UIControl *)_uiComponent;
 		if (_validationEvents.change) {
@@ -112,21 +119,22 @@
 
 - (void)setupComponentEventActions
 {
+	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
+		id delegate = [_uiComponent performSelector:@selector(delegate)];
+		if (delegate != self) {
+			id componentDelegate = nil;
+			if ([delegate isKindOfClass:[REDValidationComponent class]]) {
+				componentDelegate = ((REDValidationComponent *)delegate).componentDelegate;
+			}
+			
+			_componentDelegate = componentDelegate ?: delegate;
+			[_uiComponent performSelector:@selector(setDelegate:) withObject:self];
+		}
+	}
+	
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
-		UITextField *component = (UITextField *)_uiComponent;
-		if (component.delegate != self) {
-			_componentDelegate = component.delegate;
-			component.delegate = self;
-		}
-		
 		if (_validationEvents.change) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:component];
-		}
-	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
-		UITextView *component = (UITextView *)_uiComponent;
-		if (component.delegate != self) {
-			_componentDelegate = component.delegate;
-			component.delegate = self;
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
 		}
 	} else if ([_uiComponent isNonTextControlClass]) {
 		UIControl *component = (UIControl *)_uiComponent;
@@ -273,7 +281,7 @@
 
 - (BOOL)isNonTextControlClass
 {
-	return [self isKindOfClass:[UIControl class]] && ([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
+	return [self isKindOfClass:[UIControl class]] && !([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
 }
 
 @end
