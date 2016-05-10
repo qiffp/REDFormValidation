@@ -15,7 +15,6 @@
 @end
 
 @interface REDValidationComponent () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
-@property (nonatomic, weak) id componentDelegate;
 @end
 
 @implementation REDValidationComponent {
@@ -71,7 +70,6 @@
 	}
 	
 	[self removeComponentEventActions];
-	_componentDelegate = nil;
 	_uiComponent = uiComponent;
 	[self setupComponentEventActions];
 }
@@ -96,45 +94,33 @@
 - (void)removeComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
-		[_uiComponent performSelector:@selector(setDelegate:) withObject:_componentDelegate];
-	}
-	
-	if ([_uiComponent isKindOfClass:[UITextField class]]) {
-		if (_validationEvents.change) {
-			[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:_uiComponent];
-		}
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:_uiComponent];
 	} else if ([_uiComponent isNonTextControlClass]) {
-		UIControl *control = (UIControl *)_uiComponent;
-		if (_validationEvents.change) {
-			[control removeTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
-		}
-		if (_validationEvents.beginEditing) {
-			[control removeTarget:self action:@selector(componentDidBeginEditing:) forControlEvents:UIControlEventEditingDidBegin];
-		}
-		if (_validationEvents.endEditing) {
-			[control removeTarget:self action:@selector(componentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
-		}
+		[(UIControl *)_uiComponent removeTarget:self action:nil forControlEvents:UIControlEventAllEvents];
 	}
 }
 
 - (void)setupComponentEventActions
 {
-	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
-		id delegate = [_uiComponent performSelector:@selector(delegate)];
-		if (delegate != self) {
-			id componentDelegate = nil;
-			if ([delegate isKindOfClass:[REDValidationComponent class]]) {
-				componentDelegate = ((REDValidationComponent *)delegate).componentDelegate;
-			}
-			
-			_componentDelegate = componentDelegate ?: delegate;
-			[_uiComponent performSelector:@selector(setDelegate:) withObject:self];
-		}
-	}
-	
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
 		if (_validationEvents.change) {
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
+		}
+		if (_validationEvents.beginEditing) {
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidBeginEditing:) name:UITextFieldTextDidBeginEditingNotification object:_uiComponent];
+		}
+		if (_validationEvents.endEditing) {
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_uiComponent];
+		}
+	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
+		if (_validationEvents.change) {
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextViewTextDidChangeNotification object:_uiComponent];
+		}
+		if (_validationEvents.beginEditing) {
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidBeginEditing:) name:UITextViewTextDidBeginEditingNotification object:_uiComponent];
+		}
+		if (_validationEvents.endEditing) {
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
 		}
 	} else if ([_uiComponent isNonTextControlClass]) {
 		UIControl *component = (UIControl *)_uiComponent;
@@ -197,6 +183,16 @@
 	[self validate];
 }
 
+- (void)textDidBeginEditing:(NSNotification *)notification
+{
+	[self validate];
+}
+
+- (void)textDidEndEditing:(NSNotification *)notification
+{
+	[self validate];
+}
+
 #pragma mark - NetworkValidationRuleDelegate
 
 - (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(UIView *)component withResult:(REDValidationResult)result error:(NSError *)error
@@ -206,75 +202,6 @@
 	[_delegate validationComponent:self didValidateUIComponent:component result:result];
 }
 
-#pragma mark - Delegate Funny Business
-
-- (BOOL)respondsToSelector:(SEL)aSelector
-{
-	return [super respondsToSelector:aSelector] || [_componentDelegate respondsToSelector:aSelector];
-}
-
-- (id)forwardingTargetForSelector:(SEL)aSelector
-{
-	if ([_componentDelegate respondsToSelector:aSelector]) {
-		return _componentDelegate;
-	}
-	
-	return [super forwardingTargetForSelector:aSelector];
-}
-
-#pragma mark - UITextFieldDelegate
-
-- (void)textFieldDidBeginEditing:(UITextField *)textField
-{
-	if (_validationEvents.beginEditing) {
-		[self validate];
-	}
-	if ([_componentDelegate respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
-		[_componentDelegate textFieldDidBeginEditing:textField];
-	}
-}
-
-- (void)textFieldDidEndEditing:(UITextField *)textField
-{
-	if (_validationEvents.endEditing) {
-		[self validate];
-	}
-	if ([_componentDelegate respondsToSelector:@selector(textFieldDidEndEditing:)]) {
-		[_componentDelegate textFieldDidEndEditing:textField];
-	}
-}
-
-#pragma mark - UITextViewDelegate
-
-- (void)textViewDidBeginEditing:(UITextView *)textView
-{
-	if (_validationEvents.beginEditing) {
-		[self validate];
-	}
-	if ([_componentDelegate respondsToSelector:@selector(textViewDidBeginEditing:)]) {
-		[_componentDelegate textViewDidBeginEditing:textView];
-	}
-}
-
-- (void)textViewDidEndEditing:(UITextView *)textView
-{
-	if (_validationEvents.endEditing) {
-		[self validate];
-	}
-	if ([_componentDelegate respondsToSelector:@selector(textViewDidEndEditing:)]) {
-		[_componentDelegate textViewDidEndEditing:textView];
-	}
-}
-
-- (void)textViewDidChange:(UITextView *)textView
-{
-	if (_validationEvents.change) {
-		[self validate];
-	}
-	if ([_componentDelegate respondsToSelector:@selector(textViewDidChange:)]) {
-		[_componentDelegate textViewDidChange:textView];
-	}
-}
 @end
 
 @implementation UIView (Control)

@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 - (void)textFieldUpdated:(REDTextField *)textField;
 @end
 
-@interface REDTextFieldCell : UITableViewCell <UITextFieldDelegate>
+@interface REDTextFieldCell : UITableViewCell
 @property (nonatomic, strong) REDTextField *textField;
 @property (nonatomic, weak) id<REDTextFieldCellDelegate> delegate;
 @end
@@ -47,7 +47,6 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 	if (self) {
 		_textField = [[REDTextField alloc] initWithFrame:CGRectZero];
-		_textField.delegate = self;
 		[self.contentView addSubview:_textField];
 		
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChanged:) name:UITextFieldTextDidChangeNotification object:nil];
@@ -64,16 +63,6 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 - (void)textChanged:(NSNotification *)notification
 {
 	[_delegate textFieldUpdated:notification.object];
-}
-
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
-{
-	// Flash cell to confirm that textField delegate methods are firing to the desired targets
-	self.selected = YES;
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		self.selected = NO;
-	});
-	return YES;
 }
 
 @end

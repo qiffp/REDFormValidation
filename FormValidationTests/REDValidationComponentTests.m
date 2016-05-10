@@ -11,27 +11,6 @@
 
 #import "REDValidationComponent.h"
 
-@interface REDValidationComponentTestDelegate : NSObject <UITextFieldDelegate>
-@property (nonatomic, assign) BOOL delegateMethodCalled;
-@end
-
-@implementation REDValidationComponentTestDelegate
-
-// not implemented by REDValidationComponent
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-	_delegateMethodCalled = YES;
-	return YES;
-}
-
-// implemented by REDValidationComponent
-- (void)textFieldDidBeginEditing:(UITextField *)textField
-{
-	_delegateMethodCalled = YES;
-}
-
-@end
-
 @interface REDValidationComponent (TestExpose)
 - (BOOL)validate;
 @end
@@ -67,17 +46,14 @@
 	UITextField *_textField;
 	REDValidationComponent *_component;
 	id _delegate;
-	REDValidationComponentTestDelegate *_originalDelegate;
 }
 
 - (void)setUp
 {
     [super setUp];
-	_delegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationComponentDelegate)];
-	_originalDelegate = [REDValidationComponentTestDelegate new];
 	
+	_delegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationComponentDelegate)];
 	_textField = [UITextField new];
-	_textField.delegate = _originalDelegate;
 	
 	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return YES;
@@ -133,12 +109,12 @@
 		callCount++;
 	}] validationComponent:_component didValidateUIComponent:_component.uiComponent result:[OCMArg any]];
 	
-	[_component performSelector:@selector(textFieldDidBeginEditing:) withObject:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
 	
-	[_component performSelector:@selector(textFieldDidEndEditing:) withObject:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase");
+	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
 }
 
 - (void)testValidatesOnEndEditingWithValidationEventEndEditing
@@ -154,12 +130,12 @@
 		callCount++;
 	}] validationComponent:_component didValidateUIComponent:_component.uiComponent result:[OCMArg any]];
 	
-	[_component performSelector:@selector(textFieldDidEndEditing:) withObject:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing");
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
 	
-	[_component performSelector:@selector(textFieldDidBeginEditing:) withObject:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase");
+	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
 }
 
 - (void)testValidatesOnChangeWithValidationEventChange
@@ -176,21 +152,21 @@
 	}] validationComponent:_component didValidateUIComponent:_component.uiComponent result:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after change");
+	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
 	
-	[_component performSelector:@selector(textFieldDidEndEditing:) withObject:_component.uiComponent];
-	[_component performSelector:@selector(textFieldDidBeginEditing:) withObject:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase");
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
 }
 
 - (void)testValidatesOnAllEventsWithValidationEventAll
 {
 	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
-	[_component performSelector:@selector(textFieldDidBeginEditing:) withObject:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	[_delegate verify];
 	
 	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
-	[_component performSelector:@selector(textFieldDidEndEditing:) withObject:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
 	[_delegate verify];
 	
 	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
@@ -240,26 +216,6 @@
 	_component.shouldValidate = NO;
 	_component.valid = NO;
 	XCTAssertTrue(_component.valid, @"Component should be considered valid if not being validated");
-}
-
-- (void)testUnimplementedComponentDelegateMethodsGetPassedToOriginalDelegate
-{
-	_originalDelegate.delegateMethodCalled = NO;
-	[[_delegate reject] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:[OCMArg any]];
-	if ([_component respondsToSelector:@selector(textFieldShouldReturn:)]) {
-		[(id<UITextFieldDelegate>)_component textFieldShouldReturn:(UITextField *)_component.uiComponent];
-	}
-	XCTAssertTrue(_originalDelegate.delegateMethodCalled, @"Delegate method should have been called on original delegate");
-}
-
-- (void)testImplementedComponentDelegateMethodsGetPassedToOriginalDelegate
-{
-	_originalDelegate.delegateMethodCalled = NO;
-	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
-	if ([_component respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
-		[(id<UITextFieldDelegate>)_component textFieldDidBeginEditing:(UITextField *)_component.uiComponent];
-	}
-	XCTAssertTrue(_originalDelegate.delegateMethodCalled, @"Delegate method should have been called on original delegate");
 }
 
 @end
