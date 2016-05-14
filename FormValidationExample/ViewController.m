@@ -120,22 +120,22 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	REDValidationRule *lengthRule = [REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return ((UITextField *)component).text.length > 0;
 	}];
-	[_validator addValidationWithTag:FormCellFirstName validateOn:REDValidationEventChange rule:lengthRule];
-	[_validator addValidationWithTag:FormCellLastName validateOn:REDValidationEventChange rule:lengthRule];
-	[_validator addValidationWithTag:FormCellEmail validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	[_validator addValidation:@(FormCellFirstName) validateOn:REDValidationEventChange rule:lengthRule];
+	[_validator addValidation:@(FormCellLastName) validateOn:REDValidationEventChange rule:lengthRule];
+	[_validator addValidation:@(FormCellEmail) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		NSString *text = ((UITextField *)component).text;
 		return text.length > 0 && [text containsString:@"@"];
 	}]];
-	[_validator addValidationWithTag:FormCellAddress validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return ((UITextField *)component).text.length > 5;
 	}]];
-	[_validator addValidationWithTag:FormCellNote validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
 		return YES;
 	}]];
 	
 	_validator.validationBlock = ^BOOL(REDValidator *v) {
-		BOOL valid = ([v validationIsValid:FormCellFirstName] & [v validationIsValid:FormCellLastName]) | [v validationIsValid:FormCellEmail];
-		valid &= [v validationIsValid:FormCellAddress];
+		BOOL valid = ([v validationIsValid:@(FormCellFirstName)] & [v validationIsValid:@(FormCellLastName)]) | [v validationIsValid:@(FormCellEmail)];
+		valid &= [v validationIsValid:@(FormCellAddress)];
 		return valid;
 	};
 }
@@ -199,7 +199,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 			break;
 	}
 	
-	[_validator setComponent:cell.textField forValidation:indexPath.row];
+	[_validator setComponent:cell.textField forValidation:@(indexPath.row)];
 	cell.textField.tag = indexPath.row;
 	
 	return cell;

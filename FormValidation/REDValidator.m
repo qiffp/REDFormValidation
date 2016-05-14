@@ -36,45 +36,45 @@
 	[self evaluateValidationBlock];
 }
 
-- (void)setComponent:(UIView *)component forValidation:(NSInteger)tag
+- (void)setComponent:(UIView *)component forValidation:(id)identifier
 {
-	REDValidationComponent *validationComponent = _validationComponents[@(tag)];
+	REDValidationComponent *validationComponent = _validationComponents[identifier];
 	[validationComponent reset];
 	validationComponent.uiComponent = component;
 	[self evaluateValidationBlock];
 }
 
-- (BOOL)removeValidation:(NSInteger)tag
+- (BOOL)removeValidation:(id)identifier
 {
-	if (_validationComponents[@(tag)].validatedInValidatorBlock) {
+	if (_validationComponents[identifier].validatedInValidatorBlock) {
 		return NO;
 	} else {
-		[_validationComponents removeObjectForKey:@(tag)];
+		[_validationComponents removeObjectForKey:identifier];
 		return YES;
 	}
 }
 
-- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(NSInteger)tag
+- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(id)identifier
 {
-	_validationComponents[@(tag)].shouldValidate = shouldValidate;
+	_validationComponents[identifier].shouldValidate = shouldValidate;
 	[self validate];
 }
 
-- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
+- (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
 {
 	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithValidationEvent:event rule:rule];
 	validationComponent.delegate = self;
-	_validationComponents[@(tag)] = validationComponent;
+	_validationComponents[identifier] = validationComponent;
 	[self evaluateValidationBlock];
 }
 
-- (BOOL)validationIsValid:(NSInteger)tag
+- (BOOL)validationIsValid:(id)identifier
 {
 	if (_evaluatingBlock) {
-		_validationComponents[@(tag)].validatedInValidatorBlock = YES;
+		_validationComponents[identifier].validatedInValidatorBlock = YES;
 		return NO;
 	} else {
-		return _validationComponents[@(tag)].valid;
+		return _validationComponents[identifier].valid;
 	}
 }
 

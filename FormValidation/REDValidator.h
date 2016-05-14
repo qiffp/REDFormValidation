@@ -126,43 +126,43 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 /*!
  * @brief Creates a new validation.
- * @param tag The tag that will be assigned to the validation.
+ * @param identifier The identifier that will be assigned to the validation.
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  */
-- (void)addValidationWithTag:(NSInteger)tag validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
+- (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
 
 /*!
- * @brief Removes the validation with the given tag.
+ * @brief Removes the validation with the given identifier.
  * @discussion The validation will not be removed if it is still being used in the @c validatorBlock @c.
- * @param tag The tag that will be removed.
+ * @param identifier The identifier for the validation that will be removed.
  * @return Returns whether the validation was removed successfully.
  * @see @c validatorBlock @c
  */
-- (BOOL)removeValidation:(NSInteger)tag;
+- (BOOL)removeValidation:(id)identifier;
 
 /*!
  * @brief Allows temporarily enabing and disabling the given validation.
- * @param shouldValidate Whether the validation with the given tag should be validated.
- * @param tag The tag that will be removed.
+ * @param shouldValidate Whether the validation with the given identifier should be validated.
+ * @param identifier The identifier for the validation that will be removed.
  */
-- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(NSInteger)tag;
+- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(id)identifier;
 
 /*!
  * @brief Sets the UI component that should be validated with the given validation.
  * @note All @c UIView @c objects conform to @c REDValidatorComponent @c.
  * @param component The UI component that should be validated.
- * @param tag The tag of the desired validation.
+ * @param identifier The identifier of the desired validation.
  */
-- (void)setComponent:(UIView<REDValidatorComponent> *)component forValidation:(NSInteger)tag;
+- (void)setComponent:(UIView<REDValidatorComponent> *)component forValidation:(id)identifier;
 
 /*!
- * @brief Returns the @c valid @c state of a certain validation tag.
+ * @brief Returns the @c valid @c state of a certain validation identifier.
  * @discussion This is only intended for use in the @c validationBlock @c.
- * @param tag The tag of the desired validation.
- * @return The @c valid @c state of the given validation tag.
+ * @param identifier The identifier of the desired validation.
+ * @return The @c valid @c state of the given validation identifier.
  * @see @c validationBlock @c
  */
-- (BOOL)validationIsValid:(NSInteger)tag;
+- (BOOL)validationIsValid:(id)identifier;
 
 @end
