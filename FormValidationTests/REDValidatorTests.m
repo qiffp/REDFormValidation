@@ -199,6 +199,33 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertFalse(_testForm.success, @"Validation should fail");
 }
 
+- (void)testComponentValidationsNotIncludedInValidationBlockAreANDed
+{
+	_testForm.validator.validationBlock = ^BOOL(REDValidator *validator) {
+		return YES;
+	};
+	
+	[_testForm.validator addValidation:@(kTestValidationTextField) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return YES;
+	}]];
+	
+	[_testForm.validator addValidation:@(kTestValidationSwitch) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return YES;
+	}]];
+	
+	[self loadCells];
+	XCTAssertTrue([_testForm.validator validate], @"Validation should pass");
+	XCTAssertTrue(_testForm.success, @"Validation should pass");
+	
+	[_testForm.validator addValidation:@(kTestValidationSwitch) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+		return NO;
+	}]];
+	
+	[self loadCells];
+	XCTAssertFalse([_testForm.validator validate], @"Validation should fail");
+	XCTAssertFalse(_testForm.success, @"Validation should fail");
+}
+
 - (void)testComponentValidationsAreANDedIfValidationBlockIsNil
 {
 	_testForm.validator.validationBlock = nil;
