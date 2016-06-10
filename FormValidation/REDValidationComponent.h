@@ -83,6 +83,12 @@
 - (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule NS_DESIGNATED_INITIALIZER;
 
 /*!
+ * @brief Programmatically execute a validation.
+ * @return The result of the validation.
+ */
+- (BOOL)validate;
+
+/*!
  * @brief Resets the valid and validated state of the validation object.
  * @see @c valid @c, @c validated @c
  */

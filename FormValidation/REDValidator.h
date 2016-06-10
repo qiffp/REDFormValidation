@@ -125,6 +125,12 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
+ * @brief Programmatically execute a validation. Generally not necessary.
+ * @return Result of validation.
+ */
+- (BOOL)validate;
+
+/*!
  * @brief Creates a new validation.
  * @param identifier The identifier that will be assigned to the validation.
  * @param event The event upon which the UI component will be validated.

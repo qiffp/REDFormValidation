@@ -117,7 +117,6 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 @end
 
 @interface REDValidator (TestExpose) <REDValidationComponentDelegate>
-- (BOOL)validate;
 @end
 
 @interface REDValidator (TestHelper)

@@ -76,19 +76,9 @@
 
 - (BOOL)valid
 {
-	if (_shouldValidate) {
-		if (_validated) {
-			return _valid;
-		} else {
-			if (_uiComponent) {
-				return [self validate];
-			} else {
-				return NO;
-			}
-		}
-	}
-	
-	return YES;
+	// what if the validation allows nil? then NO should not be returned...
+	// potentially worked into `required` property...
+	return _validated ? _valid : NO;
 }
 
 - (void)removeComponentEventActions
@@ -138,7 +128,11 @@
 
 - (BOOL)validate
 {
-	if (_shouldValidate) {
+	if (!_shouldValidate) {
+		return YES;
+	}
+	
+	if (_uiComponent) {
 		[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
 		
 		REDValidationResult result = [_rule validate:_uiComponent];

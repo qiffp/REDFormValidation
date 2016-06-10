@@ -18,6 +18,7 @@
 	
 	REDTableViewValidationBlock _validationBlock;
 	BOOL _evaluatingBlock;
+	BOOL _revalidatingComponents;
 }
 
 - (instancetype)init
@@ -74,34 +75,38 @@
 		_validationComponents[identifier].validatedInValidatorBlock = YES;
 		return NO;
 	} else {
-		return _validationComponents[identifier].valid;
+		REDValidationComponent *component = _validationComponents[identifier];
+		return _revalidatingComponents ? [component validate] : component.valid;
 	}
+}
+
+- (BOOL)valid
+{
+	return [self revalidate:NO];
 }
 
 - (BOOL)validate
 {
-	BOOL result = YES;
-	if (_shouldValidate) {
-		if (_validationBlock) {
-			result = _validationBlock(self);
-			
-			for (REDValidationComponent *component in _validationComponents.allValues) {
-				if (component.validatedInValidatorBlock == NO) {
-					result &= component.valid;
-				}
-			}
-		} else {
-			for (REDValidationComponent *component in _validationComponents.allValues) {
-				result &= component.valid;
-			}
-		}
-		
-		if ([_delegate respondsToSelector:@selector(validator:didValidateFormWithResult:)]) {
-			[_delegate validator:self didValidateFormWithResult:result];
+	return _shouldValidate ? [self revalidate:YES] : YES;
+}
+
+- (BOOL)revalidate:(BOOL)revalidate
+{
+	BOOL result = [self executeValidationBlockAfter:^{
+		_revalidatingComponents = revalidate;
+	} completion:^{
+		_revalidatingComponents = NO;
+	}];
+	
+	for (REDValidationComponent *component in _validationComponents.allValues) {
+		if (component.validatedInValidatorBlock == NO) {
+			result &= revalidate ? [component validate] : component.valid;
 		}
 	}
 	
-	_valid = result;
+	if ([_delegate respondsToSelector:@selector(validator:didValidateFormWithResult:)]) {
+		[_delegate validator:self didValidateFormWithResult:result];
+	}
 	
 	return result;
 }
@@ -114,11 +119,30 @@
 		validationComponent.validatedInValidatorBlock = NO;
 	}
 	
-	if (_validationBlock) {
+	[self executeValidationBlockAfter:^{
 		_evaluatingBlock = YES;
-		_validationBlock(self);
+	} completion:^{
 		_evaluatingBlock = NO;
+	}];
+}
+
+- (BOOL)executeValidationBlockAfter:(void (^)())first completion:(void (^)())completion
+{
+	BOOL result = YES;
+	
+	if (first) {
+		first();
 	}
+	
+	if (_validationBlock) {
+		result = _validationBlock(self);
+	}
+	
+	if (completion) {
+		completion();
+	}
+	
+	return result;
 }
 
 #pragma mark - REDValidationComponentDelegate
@@ -144,7 +168,7 @@
 		[(id<REDValidatorComponent>)uiComponent validator:self didValidateComponentWithResult:result];
 	}
 	
-	[self validate];
+	[self revalidate:NO];
 }
 
 @end

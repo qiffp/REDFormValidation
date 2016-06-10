@@ -69,10 +69,10 @@
     [super tearDown];
 }
 
-- (void)testValidPerformsValidationIfNotAlreadyValidated
+- (void)testValidReturnsFalseIfNotAlreadyValidated
 {
-	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
-	XCTAssertTrue(_component.valid, @"Component should be valid");
+	XCTAssertFalse(_component.validated, @"Component should not be validated");
+	XCTAssertFalse(_component.valid, @"Component should not be valid");
 }
 
 - (void)testValidReturnsPreviousValidationResultIfAlreadyValidated
@@ -87,13 +87,22 @@
 	XCTAssertFalse(_component.valid, @"Component should not be valid");
 }
 
-- (void)testValidIsFalseWithNoUIComponent
+- (void)testValidateReturnsTrueIfShouldValidateIsFalse
 {
-	XCTAssertTrue(_component.valid, @"Component should be valid");
-	
-	_component.validated = NO;
+	_component.shouldValidate = NO;
+	_component.valid = NO;
+	XCTAssertTrue([_component validate], @"Validate should return true if shouldValidate is false");
+}
+
+- (void)testValidateReturnsValidWithNoUIComponent
+{
 	_component.uiComponent = nil;
-	XCTAssertFalse(_component.valid, @"Component should not be valid without a UI component");
+	
+	_component.valid = YES;
+	XCTAssertTrue([_component validate], @"Validate should return previous valid value if there is no uiComponent");
+	
+	_component.valid = NO;
+	XCTAssertFalse([_component validate], @"Validate should return previous valid value if there is no uiCompnent");
 }
 
 - (void)testValidatesOnBeginEditingWithValidationEventBeginEditing
@@ -192,30 +201,13 @@
 		[task resume];
 		return task;
 	}]];
+	_component.uiComponent = _textField;
 	
 	[_component validate];
 	XCTAssertFalse(_component.validated, @"Component should not be validated until network validation completes");
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 	XCTAssertTrue(_component.validated, @"Component should be validated once network validation completes");
-}
-
-- (void)testValidateReturnsValidIfShouldValidateIsFalse
-{
-	_component.shouldValidate = NO;
-	
-	_component.valid = YES;
-	XCTAssertTrue([_component validate], @"Validate should return true if valid is true");
-	
-	_component.valid = NO;
-	XCTAssertFalse([_component validate], @"Validate should return false if valid is false");
-}
-
-- (void)testValidReturnsTrueIfShouldValidateIsFalse
-{
-	_component.shouldValidate = NO;
-	_component.valid = NO;
-	XCTAssertTrue(_component.valid, @"Component should be considered valid if not being validated");
 }
 
 @end
