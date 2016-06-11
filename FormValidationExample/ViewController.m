@@ -117,19 +117,18 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 
 - (void)setUpValidationRules
 {
-	REDValidationRule *lengthRule = [REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
-		return ((UITextField *)component).text.length > 0;
+	REDValidationRule *lengthRule = [REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+		return text.length > 0;
 	}];
 	[_validator addValidation:@(FormCellFirstName) validateOn:REDValidationEventChange rule:lengthRule];
 	[_validator addValidation:@(FormCellLastName) validateOn:REDValidationEventChange rule:lengthRule];
-	[_validator addValidation:@(FormCellEmail) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
-		NSString *text = ((UITextField *)component).text;
+	[_validator addValidation:@(FormCellEmail) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 0 && [text containsString:@"@"];
 	}]];
-	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
-		return ((UITextField *)component).text.length > 5;
+	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+		return text.length > 5;
 	}]];
-	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	

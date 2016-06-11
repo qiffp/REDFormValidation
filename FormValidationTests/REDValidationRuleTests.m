@@ -18,7 +18,7 @@
 
 - (void)testRulePassingValidation
 {
-	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
 	XCTAssertEqual([rule validate:nil], REDValidationResultSuccess, @"Validation should succeed");
@@ -26,7 +26,7 @@
 
 - (void)testRuleFailingValidation
 {
-	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}];
 	XCTAssertEqual([rule validate:nil], REDValidationResultFailure, @"Validation should fail");
@@ -41,7 +41,7 @@
 - (void)testNetworkRulePassingValidation
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIView *component, REDNetworkValidationResultBlock completion) {
+	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(YES, nil);
 			
@@ -64,7 +64,7 @@
 - (void)testNetworkRuleFailingValidation
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIView *component, REDNetworkValidationResultBlock completion) {
+	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(NO, nil);
 			

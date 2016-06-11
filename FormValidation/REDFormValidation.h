@@ -10,6 +10,7 @@
 
 #import "REDValidator.h"
 #import "REDValidationRule.h"
+#import "REDValidatableComponent.h"
 
 //! Project version number for FormValidation.
 FOUNDATION_EXPORT double FormValidationVersionNumber;

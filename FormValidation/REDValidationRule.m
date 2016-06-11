@@ -7,6 +7,7 @@
 //
 
 #import "REDValidationRule.h"
+#import "REDValidatableComponent.h"
 
 @interface REDValidationRule ()
 @property (nonatomic, copy) REDValidationBlock block;
@@ -28,10 +29,10 @@
 	return self;
 }
 
-- (REDValidationResult)validate:(UIView *)component
+- (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component
 {
 	if (_block) {
-		return _block(component) ? REDValidationResultSuccess : REDValidationResultFailure;
+		return _block([component validatedValue]) ? REDValidationResultSuccess : REDValidationResultFailure;
 	} else {
 		return REDValidationResultFailure;
 	}
@@ -65,13 +66,13 @@
 	return self;
 }
 
-- (REDValidationResult)validate:(UIView *)component
+- (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component
 {
 	[self cancel];
 	
 	if (_block) {
 		__weak typeof(self) weakSelf = self;
-		_task = _block(component, ^void(BOOL success, NSError *error) {
+		_task = _block([component validatedValue], ^void(BOOL success, NSError *error) {
 			__strong typeof(weakSelf) strongSelf = weakSelf;
 			REDValidationResult result = success ? REDValidationResultSuccess : REDValidationResultFailure;
 			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfComponent:component withResult:result error:error];

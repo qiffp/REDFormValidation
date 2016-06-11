@@ -8,10 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-typedef BOOL (^REDValidationBlock)(UIView *component);
+@protocol REDValidatableComponent;
+
+typedef BOOL (^REDValidationBlock)(id value);
 
 typedef void (^REDNetworkValidationResultBlock)(BOOL success, NSError *error);
-typedef NSURLSessionTask * (^REDNetworkValidationBlock)(UIView *component, REDNetworkValidationResultBlock completion);
+typedef NSURLSessionTask * (^REDNetworkValidationBlock)(id value, REDNetworkValidationResultBlock completion);
 
 typedef NS_ENUM(NSInteger, REDValidationResult) {
 	REDValidationResultUnknown = (1 << 0),
@@ -19,6 +21,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 	REDValidationResultSuccess = (1 << 2),
 	REDValidationResultPending = (1 << 3)
 };
+
 
 /*!
  * @brief Protocol describing behaviour of validation rules
@@ -30,7 +33,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @param component The component that is being evaluated.
  * @return The result of the validation.
  */
-- (REDValidationResult)validate:(UIView *)component;
+- (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component;
 
 /*!
  * @brief Cancel the validation that is currently in progress. Intended for network validations.
@@ -52,7 +55,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @param result The result of the validation.
  * @param error An error that has occurred during the validation process.
  */
-- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(UIView *)component withResult:(REDValidationResult)result error:(NSError *)error;
+- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error;
 
 @end
 

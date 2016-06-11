@@ -9,6 +9,7 @@
 #import "REDValidator.h"
 #import "REDValidationRule.h"
 #import "REDValidationComponent.h"
+#import "REDValidatableComponent.h"
 
 @interface REDValidator () <REDValidationComponentDelegate, UITableViewDelegate>
 @end
@@ -37,7 +38,7 @@
 	[self evaluateValidationBlock];
 }
 
-- (void)setComponent:(UIView *)component forValidation:(id)identifier
+- (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier
 {
 	REDValidationComponent *validationComponent = _validationComponents[identifier];
 	[validationComponent reset];
@@ -147,25 +148,25 @@
 
 #pragma mark - REDValidationComponentDelegate
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIView *)uiComponent
+- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent
 {
 	if ([_delegate respondsToSelector:@selector(validator:willValidateComponent:)]) {
 		[_delegate validator:self willValidateComponent:uiComponent];
 	}
 	
 	if ([uiComponent respondsToSelector:@selector(validatorWillValidateComponent:)]) {
-		[(id<REDValidatorComponent>)uiComponent validatorWillValidateComponent:self];
+		[uiComponent validatorWillValidateComponent:self];
 	}
 }
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(BOOL)result
 {
 	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:)]) {
 		[_delegate validator:self didValidateComponent:uiComponent result:result];
 	}
 	
 	if ([uiComponent respondsToSelector:@selector(validator:didValidateComponentWithResult:)]) {
-		[(id<REDValidatorComponent>)uiComponent validator:self didValidateComponentWithResult:result];
+		[uiComponent validator:self didValidateComponentWithResult:result];
 	}
 	
 	[self revalidate:NO];

@@ -9,8 +9,9 @@
 #import "REDValidationComponent.h"
 
 #import "REDValidationRule.h"
+#import "REDValidatableComponent.h"
 
-@interface UIView (Control)
+@interface NSObject (Control)
 - (BOOL)isNonTextControlClass;
 @end
 
@@ -63,7 +64,7 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)setUiComponent:(UIView *)uiComponent
+- (void)setUiComponent:(NSObject<REDValidatableComponent> *)uiComponent
 {
 	if (_uiComponent == uiComponent) {
 		return;
@@ -155,17 +156,17 @@
 
 #pragma mark - Actions
 
-- (void)componentValueChanged:(UIView *)component
+- (void)componentValueChanged:(NSObject<REDValidatableComponent> *)component
 {
 	[self validate];
 }
 
-- (void)componentDidBeginEditing:(UIView *)component
+- (void)componentDidBeginEditing:(NSObject<REDValidatableComponent> *)component
 {
 	[self validate];
 }
 
-- (void)componentDidEndEditing:(UIView *)component
+- (void)componentDidEndEditing:(NSObject<REDValidatableComponent> *)component
 {
 	[self validate];
 }
@@ -189,7 +190,7 @@
 
 #pragma mark - NetworkValidationRuleDelegate
 
-- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(UIView *)component withResult:(REDValidationResult)result error:(NSError *)error
+- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
 {
 	_valid = result & REDValidationResultSuccess;
 	_validated = YES;

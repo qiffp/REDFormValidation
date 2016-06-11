@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class REDValidator;
-@protocol REDValidationRule;
+@protocol REDValidationRule, REDValidatableComponent;
 
 typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
 
@@ -19,6 +19,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 	REDValidationEventEndEditing = (1 << 2),
 	REDValidationEventAll = (1 << 3)
 };
+
 
 /*!
  * @brief Delegate protocol for the @c REDValidator @c that informs the delegate of validation events.
@@ -33,7 +34,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param validator The validator object managing the form.
  * @param uiComponent The UI component whose value is being validated.
  */
-- (void)validator:(REDValidator *)validator willValidateComponent:(UIView *)component;
+- (void)validator:(REDValidator *)validator willValidateComponent:(NSObject<REDValidatableComponent> *)component;
 
 /*!
  * @brief Notifies the delegate when a UI component has been validated.
@@ -41,7 +42,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param uiComponent The UI component whose value is being validated.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateComponent:(UIView *)component result:(BOOL)result;
+- (void)validator:(REDValidator *)validator didValidateComponent:(NSObject<REDValidatableComponent> *)component result:(BOOL)result;
 
 /*!
  * @brief Notifies the delegate when the entire form has been validated.
@@ -51,38 +52,6 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  */
 - (void)validator:(REDValidator *)validator didValidateFormWithResult:(BOOL)result;
 
-@end
-
-
-/*!
- * @brief Protocol to notify components of their validation events.
- * @discussion If the view/component handles its own changes when a validation occurs, the methods in this protocol should be implemented by the component.
- * @see @c REDValidatorDelegate @c
- */
-@protocol REDValidatorComponent <NSObject>
-@optional
-
-/*!
- * @brief Notifies the component when it is about to be validated.
- * @param validator The validator object managing the form.
- */
-- (void)validatorWillValidateComponent:(REDValidator *)validator;
-
-/*!
- * @brief Notifies the component when it has been validated.
- * @param validator The validator object managing the form.
- * @param result The result of the validation.
- */
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(BOOL)result;
-
-@end
-
-/*!
- * @brief All @c UIView @c objects conform to @c REDValidatorComponent @c.
- * @discussion This makes it so that the protocol can be made obvious when using @c setComponent:forValidation: @c. Since all of the protocol methods are optional, there are no restrictions on which @c UIView @c objects can be used as the the component.
- * @see @c setComponent:forValidation: @c
- */
-@interface UIView (REDValidator) <REDValidatorComponent>
 @end
 
 
@@ -160,7 +129,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param component The UI component that should be validated.
  * @param identifier The identifier of the desired validation.
  */
-- (void)setComponent:(UIView<REDValidatorComponent> *)component forValidation:(id)identifier;
+- (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier;
 
 /*!
  * @brief Returns the @c valid @c state of a certain validation identifier.

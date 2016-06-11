@@ -10,6 +10,8 @@
 #import <OCMock/OCMock.h>
 
 #import "REDValidationComponent.h"
+#import "REDValidationRule.h"
+#import "REDValidatableComponent.h"
 
 @interface REDValidationComponent (TestExpose)
 - (BOOL)validate;
@@ -55,7 +57,7 @@
 	_delegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationComponentDelegate)];
 	_textField = [UITextField new];
 	
-	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
@@ -107,7 +109,7 @@
 
 - (void)testValidatesOnBeginEditingWithValidationEventBeginEditing
 {
-	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
@@ -128,7 +130,7 @@
 
 - (void)testValidatesOnEndEditingWithValidationEventEndEditing
 {
-	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
@@ -149,7 +151,7 @@
 
 - (void)testValidatesOnChangeWithValidationEventChange
 {
-	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(UIView *component) {
+	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
@@ -192,7 +194,7 @@
 - (void)testComponentIsNotValidatedUntilNetworkValidationCompletes
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(UIView *component, REDNetworkValidationResultBlock completion) {
+	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(NO, nil);
 			

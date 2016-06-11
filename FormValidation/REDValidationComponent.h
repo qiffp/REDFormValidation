@@ -9,9 +9,10 @@
 #import <UIKit/UIKit.h>
 
 #import "REDValidator.h"
-#import "REDValidationRule.h"
 
 @class REDValidationComponent;
+@protocol REDValidationRule;
+
 
 /*!
  * @brief Delegate protocol for the @c REDValidationComponent @c that informs the delegate of validation events.
@@ -23,7 +24,7 @@
  * @param validationComponent The object handling validation.
  * @param uiComponent The UI component whose value is being validated.
  */
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(UIView *)uiComponent;
+- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component has been validated
@@ -31,7 +32,7 @@
  * @param uiComponent The UI component whose value is being validated.
  * @param result The result of the validation.
  */
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(UIView *)uiComponent result:(BOOL)result;
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(BOOL)result;
 
 @end
 
@@ -44,7 +45,7 @@
 /*!
  * @brief The UI component being validated.
  */
-@property (nonatomic, weak) UIView *uiComponent;
+@property (nonatomic, weak) NSObject<REDValidatableComponent> *uiComponent;
 
 /*!
  * @brief Delegate that gets notified when the UI component is being validated.
