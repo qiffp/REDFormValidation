@@ -10,17 +10,19 @@
 #import "REDValidatableComponent.h"
 
 @interface REDValidationRule ()
-@property (nonatomic, copy) REDValidationBlock block;
+@property (nonatomic, copy) REDValidationRuleBlock block;
 @end
 
 @implementation REDValidationRule
 
-+ (instancetype)ruleWithBlock:(REDValidationBlock)block
+@synthesize allowsNil = _allowsNil;
+
++ (instancetype)ruleWithBlock:(REDValidationRuleBlock)block
 {
 	return [[self alloc] initWithBlock:block];
 }
 
-- (instancetype)initWithBlock:(REDValidationBlock)block
+- (instancetype)initWithBlock:(REDValidationRuleBlock)block
 {
 	self = [super init];
 	if (self) {
@@ -31,10 +33,16 @@
 
 - (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component
 {
+	id value = [component validatedValue];
+	
+	if (_allowsNil && value == nil) {
+		return REDValidationResultOptionalValid;
+	}
+	
 	if (_block) {
-		return _block([component validatedValue]) ? REDValidationResultSuccess : REDValidationResultFailure;
+		return _block(value) ? REDValidationResultValid : REDValidationResultInvalid;
 	} else {
-		return REDValidationResultFailure;
+		return REDValidationResultInvalid;
 	}
 }
 
@@ -45,19 +53,21 @@
 @end
 
 @interface REDNetworkValidationRule ()
-@property (nonatomic, copy) REDNetworkValidationBlock block;
+@property (nonatomic, copy) REDNetworkValidationRuleBlock block;
 @end
 
 @implementation REDNetworkValidationRule {
 	__weak NSURLSessionTask *_task;
 }
 
-+ (instancetype)ruleWithBlock:(REDNetworkValidationBlock)block
+@synthesize allowsNil = _allowsNil;
+
++ (instancetype)ruleWithBlock:(REDNetworkValidationRuleBlock)block
 {
 	return [[self alloc] initWithBlock:block];
 }
 
-- (instancetype)initWithBlock:(REDNetworkValidationBlock)block
+- (instancetype)initWithBlock:(REDNetworkValidationRuleBlock)block
 {
 	self = [super init];
 	if (self) {
@@ -70,17 +80,23 @@
 {
 	[self cancel];
 	
+	id value = [component validatedValue];
+	
+	if (_allowsNil && value == nil) {
+		return REDValidationResultOptionalValid;
+	}
+	
 	if (_block) {
 		__weak typeof(self) weakSelf = self;
-		_task = _block([component validatedValue], ^void(BOOL success, NSError *error) {
+		_task = _block([component validatedValue], ^void(BOOL result, NSError *error) {
 			__strong typeof(weakSelf) strongSelf = weakSelf;
-			REDValidationResult result = success ? REDValidationResultSuccess : REDValidationResultFailure;
-			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfComponent:component withResult:result error:error];
+			REDValidationResult validationResult = result ? REDValidationResultValid : REDValidationResultInvalid;
+			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfComponent:component withResult:validationResult error:error];
 		});
 		
 		return REDValidationResultPending;
 	} else {
-		return REDValidationResultFailure;
+		return REDValidationResultInvalid;
 	}
 }
 

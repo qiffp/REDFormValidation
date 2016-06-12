@@ -7,17 +7,16 @@
 //
 
 #import "REDValidator.h"
-#import "REDValidationRule.h"
 #import "REDValidationComponent.h"
 #import "REDValidatableComponent.h"
 
-@interface REDValidator () <REDValidationComponentDelegate, UITableViewDelegate>
+@interface REDValidator () <REDValidationComponentDelegate>
 @end
 
 @implementation REDValidator {
 	NSMutableDictionary<NSNumber *, REDValidationComponent *> *_validationComponents;
 	
-	REDTableViewValidationBlock _validationBlock;
+	REDValidationBlock _validationBlock;
 	BOOL _evaluatingBlock;
 	BOOL _revalidatingComponents;
 }
@@ -32,7 +31,7 @@
 	return self;
 }
 
-- (void)setValidationBlock:(REDTableViewValidationBlock)validationBlock
+- (void)setValidationBlock:(REDValidationBlock)validationBlock
 {
 	_validationBlock = [validationBlock copy];
 	[self evaluateValidationBlock];
@@ -77,23 +76,24 @@
 		return NO;
 	} else {
 		REDValidationComponent *component = _validationComponents[identifier];
-		return _revalidatingComponents ? [component validate] : component.valid;
+		REDValidationResult result = _revalidatingComponents ? [component validate] : component.valid;
+		return result & REDValidationResultValid;
 	}
 }
 
-- (BOOL)valid
+- (REDValidationResult)valid
 {
 	return [self revalidate:NO];
 }
 
-- (BOOL)validate
+- (REDValidationResult)validate
 {
-	return _shouldValidate ? [self revalidate:YES] : YES;
+	return _shouldValidate ? [self revalidate:YES] : REDValidationResultValid;
 }
 
-- (BOOL)revalidate:(BOOL)revalidate
+- (REDValidationResult)revalidate:(BOOL)revalidate
 {
-	BOOL result = [self executeValidationBlockAfter:^{
+	REDValidationResult result = [self executeValidationBlockAfter:^{
 		_revalidatingComponents = revalidate;
 	} completion:^{
 		_revalidatingComponents = NO;
@@ -102,6 +102,10 @@
 	for (REDValidationComponent *component in _validationComponents.allValues) {
 		if (component.validatedInValidatorBlock == NO) {
 			result &= revalidate ? [component validate] : component.valid;
+			if (result == 0) {
+				result = REDValidationResultInvalid;
+				break;
+			}
 		}
 	}
 	
@@ -127,16 +131,16 @@
 	}];
 }
 
-- (BOOL)executeValidationBlockAfter:(void (^)())first completion:(void (^)())completion
+- (REDValidationResult)executeValidationBlockAfter:(void (^)())first completion:(void (^)())completion
 {
-	BOOL result = YES;
+	REDValidationResult result = REDValidationResultValid;
 	
 	if (first) {
 		first();
 	}
 	
 	if (_validationBlock) {
-		result = _validationBlock(self);
+		result = _validationBlock(self) ? REDValidationResultValid : REDValidationResultInvalid;
 	}
 	
 	if (completion) {
@@ -159,7 +163,7 @@
 	}
 }
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(BOOL)result
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result
 {
 	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:)]) {
 		[_delegate validator:self didValidateComponent:uiComponent result:result];

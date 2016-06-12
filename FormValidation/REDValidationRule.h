@@ -10,16 +10,18 @@
 
 @protocol REDValidatableComponent;
 
-typedef BOOL (^REDValidationBlock)(id value);
 
-typedef void (^REDNetworkValidationResultBlock)(BOOL success, NSError *error);
-typedef NSURLSessionTask * (^REDNetworkValidationBlock)(id value, REDNetworkValidationResultBlock completion);
+typedef BOOL (^REDValidationRuleBlock)(id value);
+
+typedef void (^REDNetworkValidationRuleResultBlock)(BOOL result, NSError *error);
+typedef NSURLSessionTask * (^REDNetworkValidationRuleBlock)(id value, REDNetworkValidationRuleResultBlock completion);
 
 typedef NS_ENUM(NSInteger, REDValidationResult) {
-	REDValidationResultUnknown = (1 << 0),
-	REDValidationResultFailure = (1 << 1),
-	REDValidationResultSuccess = (1 << 2),
-	REDValidationResultPending = (1 << 3)
+	REDValidationResultUnvalidated = (1 << 0),
+	REDValidationResultInvalid = (1 << 1),
+	REDValidationResultValid = (1 << 2),
+	REDValidationResultOptionalValid = (1 << 3),
+	REDValidationResultPending = (1 << 4)
 };
 
 
@@ -39,6 +41,13 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @brief Cancel the validation that is currently in progress. Intended for network validations.
  */
 - (void)cancel;
+
+/*!
+ * @brief If enabled, the component value can be nil and the component is considered valid.
+ * @discussion This is used for fields that do not require a value. Generally  all of the fields of the form are not validated
+ * at once, so this allows determining the validity of the form by evaluating fields without performing their validations.
+ */
+@property (nonatomic, assign) BOOL allowsNil;
 
 @end
 
@@ -69,7 +78,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @brief Initializes and returns a @c REDValidationRule @c using the specified rule.
  * @param block The validation rule to be used.
  */
-+ (instancetype)ruleWithBlock:(REDValidationBlock)block;
++ (instancetype)ruleWithBlock:(REDValidationRuleBlock)block;
 
 @end
 
@@ -88,6 +97,6 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @brief Initializes and returns a @c REDNetworkValidationRule @c using the specified rule.
  * @param block The validation rule to be used.
  */
-+ (instancetype)ruleWithBlock:(REDNetworkValidationBlock)block;
++ (instancetype)ruleWithBlock:(REDNetworkValidationRuleBlock)block;
 
 @end

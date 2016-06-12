@@ -10,33 +10,20 @@
 #import <OCMock/OCMock.h>
 
 #import "REDValidationComponent.h"
-#import "REDValidationRule.h"
-#import "REDValidatableComponent.h"
 
 @interface REDValidationComponent (TestExpose)
 - (BOOL)validate;
 @end
 
 @interface REDValidationComponent (TestHelper)
-@property (nonatomic, assign, readwrite) BOOL valid;
-@property (nonatomic, assign, readwrite) BOOL validated;
+@property (nonatomic, assign, readwrite) REDValidationResult valid;
 @end
 
 @implementation REDValidationComponent (TestHelper)
 
-- (void)setValid:(BOOL)valid
+- (void)setValid:(REDValidationResult)valid
 {
 	[self setValue:@(valid) forKey:@"_valid"];
-}
-
-- (void)setValidated:(BOOL)validated
-{
-	[self setValue:@(validated) forKey:@"_validated"];
-}
-
-- (BOOL)validated
-{
-	return [[self valueForKey:@"_validated"] boolValue];
 }
 
 @end
@@ -71,40 +58,34 @@
     [super tearDown];
 }
 
-- (void)testValidReturnsFalseIfNotAlreadyValidated
+- (void)testNewComponentIsUnvalidated
 {
-	XCTAssertFalse(_component.validated, @"Component should not be validated");
-	XCTAssertFalse(_component.valid, @"Component should not be valid");
+	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
 }
 
-- (void)testValidReturnsPreviousValidationResultIfAlreadyValidated
+- (void)testResetReinitializesValid
 {
-	[[_delegate reject] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:[OCMArg any]];
-	_component.validated = YES;
-	
-	_component.valid = YES;
-	XCTAssertTrue(_component.valid, @"Component should be valid");
-	
-	_component.valid = NO;
-	XCTAssertFalse(_component.valid, @"Component should not be valid");
+	_component.valid = REDValidationResultValid;
+	[_component reset];
+	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
 }
 
-- (void)testValidateReturnsTrueIfShouldValidateIsFalse
+- (void)testValidateReturnsValidResultIfShouldValidateIsFalse
 {
 	_component.shouldValidate = NO;
-	_component.valid = NO;
-	XCTAssertTrue([_component validate], @"Validate should return true if shouldValidate is false");
+	_component.valid = REDValidationResultUnvalidated;
+	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validate should return valid if shouldValidate is false");
 }
 
-- (void)testValidateReturnsValidWithNoUIComponent
+- (void)testValidateReturnsValidValueWithNoUIComponent
 {
 	_component.uiComponent = nil;
 	
-	_component.valid = YES;
-	XCTAssertTrue([_component validate], @"Validate should return previous valid value if there is no uiComponent");
+	_component.valid = REDValidationResultValid;
+	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validate should return previous valid value if there is no uiComponent");
 	
-	_component.valid = NO;
-	XCTAssertFalse([_component validate], @"Validate should return previous valid value if there is no uiCompnent");
+	_component.valid = REDValidationResultInvalid;
+	XCTAssertEqual([_component validate], REDValidationResultInvalid, @"Validate should return previous valid value if there is no uiCompnent");
 }
 
 - (void)testValidatesOnBeginEditingWithValidationEventBeginEditing
@@ -116,9 +97,9 @@
 	_component.delegate = _delegate;
 	
 	__block NSUInteger callCount = 0;
-	[[[_delegate expect] andDo:^(NSInvocation *invocation) {
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:_component didValidateUIComponent:_component.uiComponent result:[OCMArg any]];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
@@ -137,9 +118,9 @@
 	_component.delegate = _delegate;
 	
 	__block NSUInteger callCount = 0;
-	[[[_delegate expect] andDo:^(NSInvocation *invocation) {
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:_component didValidateUIComponent:_component.uiComponent result:[OCMArg any]];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
@@ -158,9 +139,9 @@
 	_component.delegate = _delegate;
 	
 	__block NSUInteger callCount = 0;
-	[[[_delegate expect] andDo:^(NSInvocation *invocation) {
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:_component didValidateUIComponent:_component.uiComponent result:[OCMArg any]];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
@@ -172,44 +153,16 @@
 
 - (void)testValidatesOnAllEventsWithValidationEventAll
 {
-	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
+	__block NSUInteger callCount = 0;
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
+		callCount++;
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
-	[_delegate verify];
-	
-	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
-	[_delegate verify];
-	
-	[[_delegate expect] validationComponent:_component didValidateUIComponent:_component.uiComponent result:YES];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	[_delegate verify];
-}
-
-- (void)testComponentIsValidatedAfterValidating
-{
-	[_component validate];
-	XCTAssertTrue(_component.validated, @"Component should be validated after validating");
-}
-
-- (void)testComponentIsNotValidatedUntilNetworkValidationCompletes
-{
-	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	_component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationResultBlock completion) {
-		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-			completion(NO, nil);
-			
-			[validationExpectation fulfill];
-		}];
-		[task resume];
-		return task;
-	}]];
-	_component.uiComponent = _textField;
 	
-	[_component validate];
-	XCTAssertFalse(_component.validated, @"Component should not be validated until network validation completes");
-	
-	[self waitForExpectationsWithTimeout:5.0 handler:nil];
-	XCTAssertTrue(_component.validated, @"Component should be validated once network validation completes");
+	XCTAssertEqual(callCount, 3, @"callCount should have been incremented for each event");
 }
 
 @end

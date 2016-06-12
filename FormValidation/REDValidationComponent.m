@@ -8,9 +8,6 @@
 
 #import "REDValidationComponent.h"
 
-#import "REDValidationRule.h"
-#import "REDValidatableComponent.h"
-
 @interface NSObject (Control)
 - (BOOL)isNonTextControlClass;
 @end
@@ -26,8 +23,7 @@
 		BOOL endEditing;
 	} _validationEvents;
 	
-	BOOL _valid;
-	BOOL _validated;
+	REDValidationResult _valid;
 }
 
 - (instancetype)init
@@ -39,6 +35,7 @@
 {
 	self = [super init];
 	if (self ) {
+		[self reset];
 		_shouldValidate = YES;
 		
 		if (event & REDValidationEventAll) {
@@ -73,13 +70,6 @@
 	[self removeComponentEventActions];
 	_uiComponent = uiComponent;
 	[self setupComponentEventActions];
-}
-
-- (BOOL)valid
-{
-	// what if the validation allows nil? then NO should not be returned...
-	// potentially worked into `required` property...
-	return _validated ? _valid : NO;
 }
 
 - (void)removeComponentEventActions
@@ -127,18 +117,17 @@
 	}
 }
 
-- (BOOL)validate
+- (REDValidationResult)validate
 {
 	if (!_shouldValidate) {
-		return YES;
+		return REDValidationResultValid;
 	}
 	
 	if (_uiComponent) {
 		[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
 		
 		REDValidationResult result = [_rule validate:_uiComponent];
-		_validated = result != REDValidationResultPending;
-		_valid = result & REDValidationResultSuccess;
+		_valid = result;
 		
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
 			[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
@@ -150,8 +139,7 @@
 
 - (void)reset
 {
-	_valid = NO;
-	_validated = NO;
+	_valid = REDValidationResultUnvalidated;
 }
 
 #pragma mark - Actions
@@ -192,8 +180,7 @@
 
 - (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
 {
-	_valid = result & REDValidationResultSuccess;
-	_validated = YES;
+	_valid = result;
 	[_delegate validationComponent:self didValidateUIComponent:component result:result];
 }
 

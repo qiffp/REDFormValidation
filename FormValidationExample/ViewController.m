@@ -24,9 +24,9 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 
 @implementation REDTextField : UITextField
 
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(BOOL)result
+- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result
 {
-	self.textColor = result ? [UIColor greenColor] : validator.valid ? [UIColor grayColor] : [UIColor redColor];
+	self.textColor = result == REDValidationResultValid ? [UIColor greenColor] : validator.valid == REDValidationResultValid ? [UIColor grayColor] : [UIColor redColor];
 }
 
 @end
@@ -139,9 +139,9 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	};
 }
 
-- (void)validator:(REDValidator *)validator didValidateFormWithResult:(BOOL)result
+- (void)validator:(REDValidator *)validator didValidateFormWithResult:(REDValidationResult)result
 {
-	self.view.backgroundColor = result ? [UIColor greenColor] : [UIColor redColor];
+	self.view.backgroundColor = result == REDValidationResultValid ? [UIColor greenColor] : [UIColor redColor];
 }
 
 - (void)textFieldUpdated:(REDTextField *)textField

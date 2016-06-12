@@ -9,9 +9,9 @@
 #import <UIKit/UIKit.h>
 
 #import "REDValidator.h"
+#import "REDValidatableComponent.h"
 
 @class REDValidationComponent;
-@protocol REDValidationRule;
 
 
 /*!
@@ -32,7 +32,7 @@
  * @param uiComponent The UI component whose value is being validated.
  * @param result The result of the validation.
  */
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(BOOL)result;
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result;
 
 @end
 
@@ -55,13 +55,7 @@
 /*!
  * @brief The current validity of the UI component based on the validation rule.
  */
-@property (nonatomic, assign, readonly) BOOL valid;
-
-/*!
- * @brief Describes whether the UI component has yet been validated or has been modified such that it requires revalidation.
- * @see @c valid @c
- */
-@property (nonatomic, assign, readonly) BOOL validated;
+@property (nonatomic, assign, readonly) REDValidationResult valid;
 
 /*!
  * @brief Describes whether the UI component is being used in the validation block of the @c REDValidator @c.
@@ -87,11 +81,11 @@
  * @brief Programmatically execute a validation.
  * @return The result of the validation.
  */
-- (BOOL)validate;
+- (REDValidationResult)validate;
 
 /*!
- * @brief Resets the valid and validated state of the validation object.
- * @see @c valid @c, @c validated @c
+ * @brief Resets the valid state of the validation object.
+ * @see @c valid @c
  */
 - (void)reset;
 

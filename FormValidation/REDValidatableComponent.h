@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "REDValidationRule.h"
 
 @class REDValidator;
 
@@ -35,7 +35,7 @@
  * @param validator The validator object managing the form.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(BOOL)result;
+- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result;
 
 @end
 

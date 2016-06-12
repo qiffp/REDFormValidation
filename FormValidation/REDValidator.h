@@ -6,12 +6,12 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "REDValidationRule.h"
 
 @class REDValidator;
-@protocol REDValidationRule, REDValidatableComponent;
+@protocol REDValidatableComponent;
 
-typedef BOOL (^REDTableViewValidationBlock)(REDValidator *validator);
+typedef BOOL (^REDValidationBlock)(REDValidator *validator);
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
 	REDValidationEventChange = (1 << 0),
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param uiComponent The UI component whose value is being validated.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateComponent:(NSObject<REDValidatableComponent> *)component result:(BOOL)result;
+- (void)validator:(REDValidator *)validator didValidateComponent:(NSObject<REDValidatableComponent> *)component result:(REDValidationResult)result;
 
 /*!
  * @brief Notifies the delegate when the entire form has been validated.
@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param validator The validator object managing the form.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateFormWithResult:(BOOL)result;
+- (void)validator:(REDValidator *)validator didValidateFormWithResult:(REDValidationResult)result;
 
 @end
 
@@ -80,12 +80,12 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @endcode
  * @see @c validationIsValid: @c
  */
-@property (nonatomic, copy) REDTableViewValidationBlock validationBlock;
+@property (nonatomic, copy) REDValidationBlock validationBlock;
 
 /*!
  * @brief The current validity of the form.
  */
-@property (nonatomic, assign, readonly) BOOL valid;
+@property (nonatomic, assign, readonly) REDValidationResult valid;
 
 /*!
  * @brief Whether the form should be validated.
@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @brief Programmatically execute a validation. Generally not necessary.
  * @return Result of validation.
  */
-- (BOOL)validate;
+- (REDValidationResult)validate;
 
 /*!
  * @brief Creates a new validation.
