@@ -54,14 +54,22 @@
 - (void)tearDown
 {
 	[_delegate verify];
+	
+	_textField = nil;
 	_component = nil;
+	_delegate = nil;
+	
     [super tearDown];
 }
+
+#pragma mark - valid
 
 - (void)testNewComponentIsUnvalidated
 {
 	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
 }
+
+#pragma mark - reset
 
 - (void)testResetReinitializesValid
 {
@@ -70,6 +78,8 @@
 	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
 }
 
+#pragma mark - validate
+
 - (void)testValidateReturnsValidResultIfShouldValidateIsFalse
 {
 	_component.shouldValidate = NO;
@@ -77,7 +87,7 @@
 	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validate should return valid if shouldValidate is false");
 }
 
-- (void)testValidateReturnsValidValueWithNoUIComponent
+- (void)testValidateReturnsExistingValidValueWithNoUIComponent
 {
 	_component.uiComponent = nil;
 	
@@ -87,6 +97,8 @@
 	_component.valid = REDValidationResultInvalid;
 	XCTAssertEqual([_component validate], REDValidationResultInvalid, @"Validate should return previous valid value if there is no uiCompnent");
 }
+
+#pragma mark - validationEvent
 
 - (void)testValidatesOnBeginEditingWithValidationEventBeginEditing
 {

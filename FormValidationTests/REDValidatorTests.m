@@ -160,6 +160,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	[_testForm.tableView layoutSubviews];
 }
 
+#pragma mark - validate
+
 - (void)testPassingValidationBlock
 {
 	[_testForm.validator addValidation:@(kTestValidationTextField) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
@@ -292,7 +294,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.valid, REDValidationResultInvalid, @"Validation should fail");
 }
 
-- (void)testResultIsAutomaticallyValidIfShouldValidateIsFalse
+- (void)testValidateResultIsAutomaticallyValidIfShouldValidateIsFalse
 {
 	_testForm.validator.shouldValidate = NO;
 	
@@ -303,6 +305,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	[self loadCells];
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultValid, @"Validation should pass");
 }
+
+#pragma mark - evaluateValidationBlock
 
 - (void)testValidationBlockComponentsEvaluation
 {
@@ -334,6 +338,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertTrue(switchComponent.validatedInValidatorBlock, @"The switch is validated in the block");
 }
 
+#pragma mark - removeValidation:
+
 - (void)testRemoveValidationRemovesValidation
 {
 	[_testForm.validator addValidation:@(kTestValidationTextField) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
@@ -361,6 +367,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField)], @"The validation using the tag should not have been removed");
 }
 
+#pragma mark - setShouldValidate:forValidation:
+
 - (void)testFormIsReEvaluatedAfterSettingShouldValidateComponent
 {
 	[_testForm.validator addValidation:@(kTestValidationTextField) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
@@ -372,6 +380,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	[_testForm.validator setShouldValidate:NO forValidation:@(kTestValidationTextField)];
 	XCTAssertEqual(_testForm.valid, REDValidationResultValid, @"Validation after disabling shouldValidate on component should be successful");
 }
+
+#pragma mark - delegate notifications
 
 - (void)testDelegateIsNotifiedWhenComponentsAreValidated
 {

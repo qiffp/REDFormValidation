@@ -16,6 +16,8 @@
 
 @implementation REDValidationRuleTests
 
+#pragma mark - validate
+
 - (void)testRulePassingValidation
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
