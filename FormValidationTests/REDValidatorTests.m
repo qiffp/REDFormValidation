@@ -381,7 +381,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.valid, REDValidationResultValid, @"Validation after disabling shouldValidate on component should be successful");
 }
 
-#pragma mark - delegate notifications
+#pragma mark - Delegate notifications
 
 - (void)testDelegateIsNotifiedWhenComponentsAreValidated
 {

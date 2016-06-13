@@ -83,7 +83,9 @@
 	id value = [component validatedValue];
 	
 	if (_allowsNil && value == nil) {
-		return REDValidationResultOptionalValid;
+		REDValidationResult result = REDValidationResultOptionalValid;
+		[_delegate validationRule:self completedNetworkValidationOfComponent:component withResult:result error:nil];
+		return result;
 	}
 	
 	if (_block) {
