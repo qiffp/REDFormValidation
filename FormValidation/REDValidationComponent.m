@@ -142,6 +142,15 @@
 	_valid = REDValidationResultUnvalidated;
 }
 
+- (REDValidationResult)evaluateOptionalValidity
+{
+	if (_valid == REDValidationResultUnvalidated && _rule.allowsNil && [_uiComponent validatedValue] == nil) {
+		_valid = REDValidationResultOptionalValid;
+	}
+	
+	return _valid;
+}
+
 #pragma mark - Actions
 
 - (void)componentValueChanged:(NSObject<REDValidatableComponent> *)component

@@ -34,7 +34,7 @@
 - (void)setValidationBlock:(REDValidationBlock)validationBlock
 {
 	_validationBlock = [validationBlock copy];
-	[self evaluateValidationBlock];
+	[self evaluateComponents];
 }
 
 - (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier
@@ -42,7 +42,7 @@
 	REDValidationComponent *validationComponent = _validationComponents[identifier];
 	[validationComponent reset];
 	validationComponent.uiComponent = component;
-	[self evaluateValidationBlock];
+	[self evaluateComponents];
 }
 
 - (BOOL)removeValidation:(id)identifier
@@ -66,7 +66,7 @@
 	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithValidationEvent:event rule:rule];
 	validationComponent.delegate = self;
 	_validationComponents[identifier] = validationComponent;
-	[self evaluateValidationBlock];
+	[self evaluateComponents];
 }
 
 - (BOOL)validationIsValid:(id)identifier
@@ -77,7 +77,7 @@
 	} else {
 		REDValidationComponent *component = _validationComponents[identifier];
 		REDValidationResult result = _revalidatingComponents ? [component validate] : component.valid;
-		return result & REDValidationResultValid;
+		return result == REDValidationResultValid || result == REDValidationResultOptionalValid;
 	}
 }
 
@@ -118,6 +118,12 @@
 
 #pragma mark - Helpers
 
+- (void)evaluateComponents
+{
+	[self evaluateValidationBlock];
+	[self evaluateOptionalValidity];
+}
+
 - (void)evaluateValidationBlock
 {
 	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
@@ -129,6 +135,13 @@
 	} completion:^{
 		_evaluatingBlock = NO;
 	}];
+}
+
+- (void)evaluateOptionalValidity
+{
+	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
+		[validationComponent evaluateOptionalValidity];
+	}
 }
 
 - (REDValidationResult)executeValidationBlockAfter:(void (^)())first completion:(void (^)())completion

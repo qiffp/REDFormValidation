@@ -17,11 +17,11 @@ typedef void (^REDNetworkValidationRuleResultBlock)(BOOL result, NSError *error)
 typedef NSURLSessionTask * (^REDNetworkValidationRuleBlock)(id value, REDNetworkValidationRuleResultBlock completion);
 
 typedef NS_ENUM(NSInteger, REDValidationResult) {
-	REDValidationResultUnvalidated = (1 << 0),
-	REDValidationResultInvalid = (1 << 1),
-	REDValidationResultValid = (1 << 2),
-	REDValidationResultOptionalValid = (1 << 3),
-	REDValidationResultPending = (1 << 4)
+	REDValidationResultUnvalidated,
+	REDValidationResultInvalid,
+	REDValidationResultValid,
+	REDValidationResultOptionalValid,
+	REDValidationResultPending
 };
 
 

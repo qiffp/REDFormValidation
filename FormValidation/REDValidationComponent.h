@@ -89,4 +89,6 @@
  */
 - (void)reset;
 
+- (REDValidationResult)evaluateOptionalValidity;
+
 @end
