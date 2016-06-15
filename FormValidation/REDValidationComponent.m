@@ -142,10 +142,10 @@
 	_valid = REDValidationResultUnvalidated;
 }
 
-- (REDValidationResult)evaluateOptionalValidity
+- (REDValidationResult)evaluateDefaultValidity
 {
-	if (_valid == REDValidationResultUnvalidated && _rule.allowsNil && [_uiComponent validatedValue] == nil) {
-		_valid = REDValidationResultOptionalValid;
+	if (_valid == REDValidationResultUnvalidated && _rule.allowDefault && [[_uiComponent validatedValue] isEqual:[_uiComponent defaultValue]]) {
+		_valid = REDValidationResultDefaultValid;
 	}
 	
 	return _valid;

@@ -107,35 +107,34 @@
 	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid, @"Validation should fail");
 }
 
-#pragma mark - allowsNil
+#pragma mark - allowDefault
 
-- (void)testValidateReturnsOptionalValidIfRuleAllowsNilAndValueIsNil
+- (void)testValidateReturnsDefaultValidIfRuleAllowsDefaultAndValueIsDefault
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
-	id componentMock = [OCMockObject niceMockForProtocol:@protocol(REDValidatableComponent)];
-	[[[componentMock stub] andReturn:nil] validatedValue];
+	UITextField *textField = [UITextField new];
 	
-	XCTAssertEqual([rule validate:componentMock], REDValidationResultOptionalValid, @"Validation should not have run since validated value is nil and rule allows nil");
+	XCTAssertEqual([rule validate:textField], REDValidationResultDefaultValid, @"Validation should not have run since validated value is default value and rule allows default");
 }
 
-- (void)testValidateRunsValidationIfRuleAllowsNilAndValueIsNotNil
+- (void)testValidateRunsValidationIfRuleAllowsDefaultAndValueIsNotDefault
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
-	id componentMock = [OCMockObject niceMockForProtocol:@protocol(REDValidatableComponent)];
-	[[[componentMock stub] andReturn:[NSObject new]] validatedValue];
+	UITextField *textField = [UITextField new];
+	textField.text = @"test";
 	
-	XCTAssertEqual([rule validate:componentMock], REDValidationResultValid, @"Validation should have run and passed");
+	XCTAssertEqual([rule validate:textField], REDValidationResultValid, @"Validation should have run and passed");
 }
 
-- (void)testValidateReturnsOptionalValidIfNetworkRuleAllowsNilAndValueIsNil
+- (void)testValidateReturnsDefaultValidIfNetworkRuleAllowsDefaultAndValueIsDefault
 {
 	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -144,15 +143,14 @@
 		[task resume];
 		return task;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
-	id componentMock = [OCMockObject niceMockForProtocol:@protocol(REDValidatableComponent)];
-	[[[componentMock stub] andReturn:nil] validatedValue];
+	UITextField *textField = [UITextField new];
 	
-	XCTAssertEqual([rule validate:componentMock], REDValidationResultOptionalValid, @"Validation should not have run since validated value is nil and rule allows nil");
+	XCTAssertEqual([rule validate:textField], REDValidationResultDefaultValid, @"Validation should not have run since validated value is default value and rule allows default");
 }
 
-- (void)testValidateNotifiesDelegateIfNetworkRuleAllowsNilAndValueIsNil
+- (void)testValidateNotifiesDelegateIfNetworkRuleAllowsDefaultAndValueIsDefault
 {
 	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -161,21 +159,20 @@
 		[task resume];
 		return task;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
-	id componentMock = [OCMockObject niceMockForProtocol:@protocol(REDValidatableComponent)];
-	[[[componentMock stub] andReturn:nil] validatedValue];
+	UITextField *textField = [UITextField new];
 	
 	id delegateMock = [OCMockObject niceMockForProtocol:@protocol(REDNetworkValidationRuleDelegate)];
 	rule.delegate = delegateMock;
-	[[delegateMock expect] validationRule:rule completedNetworkValidationOfComponent:componentMock withResult:REDValidationResultOptionalValid error:nil];
+	[[delegateMock expect] validationRule:rule completedNetworkValidationOfComponent:textField withResult:REDValidationResultDefaultValid error:nil];
 	
-	[rule validate:componentMock];
+	[rule validate:textField];
 	
 	[delegateMock verify];
 }
 
-- (void)testValidateRunsValidationIfNetworkRuleAllowsNilAndValueIsNotNil
+- (void)testValidateRunsValidationIfNetworkRuleAllowsDefaultAndValueIsNotDefault
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
 	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
@@ -186,16 +183,16 @@
 		[task resume];
 		return task;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
-	id componentMock = [OCMockObject niceMockForProtocol:@protocol(REDValidatableComponent)];
-	[[[componentMock stub] andReturn:[NSObject new]] validatedValue];
+	UITextField *textField = [UITextField new];
+	textField.text = @"test";
 	
 	id delegateMock = [OCMockObject niceMockForProtocol:@protocol(REDNetworkValidationRuleDelegate)];
 	rule.delegate = delegateMock;
-	[[delegateMock expect] validationRule:rule completedNetworkValidationOfComponent:componentMock withResult:REDValidationResultValid error:nil];
+	[[delegateMock expect] validationRule:rule completedNetworkValidationOfComponent:textField withResult:REDValidationResultValid error:nil];
 	
-	[rule validate:componentMock];
+	[rule validate:textField];
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 	[delegateMock verify];

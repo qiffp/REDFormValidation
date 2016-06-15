@@ -173,34 +173,33 @@
 	XCTAssertEqual(callCount, 3, @"callCount should have been incremented for each event");
 }
 
-#pragma mark - evaluateOptionalValidity
+#pragma mark - evaluateDefaultValidity
 
-- (void)testEvaluateOptionalValidityReturnsOptionalValidIfUnvalidatedAndAllowsNilAndComponentValueIsNil
+- (void)testEvaluateDefaultValidityReturnsDefaultValidIfUnvalidatedAndAllowsDefaultAndComponentValueIsDefaultValue
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
 	UITextField *textField = [UITextField new];
-	textField.text = nil;
 	
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertEqual(component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
-	XCTAssertTrue(rule.allowsNil, @"Rule should allow nil");
-	XCTAssertNil(component.uiComponent.validatedValue, @"Validated value should be nil");
+	XCTAssertTrue(rule.allowDefault, @"Rule should allow default value");
+	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should be default value");
 	
-	XCTAssertEqual([_component evaluateOptionalValidity], REDValidationResultOptionalValid, @"Should be optional valid");
+	XCTAssertEqual([component evaluateDefaultValidity], REDValidationResultDefaultValid, @"Should be default valid");
 }
 
-- (void)testEvaluateOptionalValidityReturnsExistingValidValueIfAlreadyValidated
+- (void)testEvaluateDefaultValidityReturnsExistingValidValueIfAlreadyValidated
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
 	UITextField *textField = [UITextField new];
 	
@@ -209,13 +208,13 @@
 	component.valid = REDValidationResultValid;
 	
 	XCTAssertNotEqual(component.valid, REDValidationResultUnvalidated, @"Component should be validated");
-	XCTAssertTrue(rule.allowsNil, @"Rule should allow nil");
-	XCTAssertNil(component.uiComponent.validatedValue, @"Validated value should be nil");
+	XCTAssertTrue(rule.allowDefault, @"Rule should allow default value");
+	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should be default value");
 	
-	XCTAssertEqual([_component evaluateOptionalValidity], component.valid, @"Should be equal to existing valid value");
+	XCTAssertEqual([component evaluateDefaultValidity], component.valid, @"Should be equal to existing valid value");
 }
 
-- (void)testEvaluateOptionalValidityReturnsExistingValidValueIfRuleDoesNotAllowNil
+- (void)testEvaluateDefaultValidityReturnsExistingValidValueIfRuleDoesNotAllowDefault
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
@@ -225,33 +224,32 @@
 	
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = textField;
-	component.valid = REDValidationResultValid;
 	
 	XCTAssertEqual(component.valid, REDValidationResultUnvalidated, @"Component should not be validated");
-	XCTAssertFalse(rule.allowsNil, @"Rule should not allow nil");
-	XCTAssertNil(component.uiComponent.validatedValue, @"Validated value should be nil");
+	XCTAssertFalse(rule.allowDefault, @"Rule should not allow default value");
+	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should be default value");
 	
-	XCTAssertEqual([_component evaluateOptionalValidity], component.valid, @"Should be equal to existing valid value");
+	XCTAssertEqual([component evaluateDefaultValidity], component.valid, @"Should be equal to existing valid value");
 }
 
-- (void)testEvaluateOptionalValidityReturnsExistingValidValueIfComponentValueIsNotNil
+- (void)testEvaluateDefaultValidityReturnsExistingValidValueIfComponentValueIsNotDefaultValue
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	rule.allowsNil = YES;
+	rule.allowDefault = YES;
 	
 	UITextField *textField = [UITextField new];
-	textField.text = @"";
+	textField.text = @"test";
 	
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertEqual(component.valid, REDValidationResultUnvalidated, @"Component should not be validated");
-	XCTAssertTrue(rule.allowsNil, @"Rule should allow nil");
-	XCTAssertNotNil(component.uiComponent.validatedValue, @"Validated value should not be nil");
+	XCTAssertTrue(rule.allowDefault, @"Rule should allow default value");
+	XCTAssertNotEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should not be default value");
 	
-	XCTAssertEqual([_component evaluateOptionalValidity], component.valid, @"Should be equal to existing valid value");
+	XCTAssertEqual([component evaluateDefaultValidity], component.valid, @"Should be equal to existing valid value");
 }
 
 @end

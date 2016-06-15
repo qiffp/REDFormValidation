@@ -8,29 +8,26 @@
 
 #import "REDValidatableComponent.h"
 
-@implementation UIDatePicker (REDValidatableComponent)
-
-- (id)validatedValue
-{
-	return self.date;
-}
-
-@end
-
-@implementation UISegmentedControl (REDValidatableComponent)
-
-- (id)validatedValue
-{
-	return @(self.selectedSegmentIndex);
-}
-
-@end
+float const kUISliderDefaultValue = 0.0f;
+double const kUIStepperDefaultValue = 0.0;
+NSString *const kUITextFieldDefaultValue = @"";
+NSString *const kUITextViewDefaultValue = @"";
 
 @implementation UISlider (REDValidatableComponent)
 
 - (id)validatedValue
 {
 	return [[NSDecimalNumber alloc] initWithFloat:self.value];
+}
+
+- (id)defaultValue
+{
+	static NSDecimalNumber *value = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		value = [[NSDecimalNumber alloc] initWithFloat:kUISliderDefaultValue];
+	});
+	return value;
 }
 
 @end
@@ -42,13 +39,14 @@
 	return [[NSDecimalNumber alloc] initWithDouble:self.value];
 }
 
-@end
-
-@implementation UISwitch (REDValidatableComponent)
-
-- (id)validatedValue
+- (id)defaultValue
 {
-	return @(self.on);
+	static NSDecimalNumber *value = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		value = [[NSDecimalNumber alloc] initWithDouble:kUIStepperDefaultValue];
+	});
+	return value;
 }
 
 @end
@@ -60,6 +58,16 @@
 	return self.text;
 }
 
+- (id)defaultValue
+{
+	static NSString *value = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		value = kUITextFieldDefaultValue;
+	});
+	return value;
+}
+
 @end
 
 @implementation UITextView (REDValidatableComponent)
@@ -67,6 +75,16 @@
 - (id)validatedValue
 {
 	return self.text;
+}
+
+- (id)defaultValue
+{
+	static NSString *value = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		value = kUITextViewDefaultValue;
+	});
+	return value;
 }
 
 @end

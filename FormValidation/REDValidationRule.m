@@ -15,7 +15,7 @@
 
 @implementation REDValidationRule
 
-@synthesize allowsNil = _allowsNil;
+@synthesize allowDefault = _allowDefault;
 
 + (instancetype)ruleWithBlock:(REDValidationRuleBlock)block
 {
@@ -35,8 +35,8 @@
 {
 	id value = [component validatedValue];
 	
-	if (_allowsNil && value == nil) {
-		return REDValidationResultOptionalValid;
+	if (_allowDefault && [value isEqual:[component defaultValue]]) {
+		return REDValidationResultDefaultValid;
 	}
 	
 	if (_block) {
@@ -60,7 +60,7 @@
 	__weak NSURLSessionTask *_task;
 }
 
-@synthesize allowsNil = _allowsNil;
+@synthesize allowDefault = _allowDefault;
 
 + (instancetype)ruleWithBlock:(REDNetworkValidationRuleBlock)block
 {
@@ -82,8 +82,8 @@
 	
 	id value = [component validatedValue];
 	
-	if (_allowsNil && value == nil) {
-		REDValidationResult result = REDValidationResultOptionalValid;
+	if (_allowDefault && [value isEqual:[component defaultValue]]) {
+		REDValidationResult result = REDValidationResultDefaultValid;
 		[_delegate validationRule:self completedNetworkValidationOfComponent:component withResult:result error:nil];
 		return result;
 	}

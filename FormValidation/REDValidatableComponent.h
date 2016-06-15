@@ -8,6 +8,11 @@
 
 #import "REDValidationRule.h"
 
+OBJC_EXTERN float const kUISliderDefaultValue;
+OBJC_EXTERN double const kUIStepperDefaultValue;
+OBJC_EXTERN NSString *const kUITextFieldDefaultValue;
+OBJC_EXTERN NSString *const kUITextViewDefaultValue;
+
 @class REDValidator;
 
 /*!
@@ -21,6 +26,13 @@
  * @return The value of the validated property of the component.
  */
 - (id)validatedValue;
+
+/*!
+ * @brief Provides access to the default value of the validated property of the component.
+ * @return The default value of the validated property of the component.
+ * @see @c validatedValue @c
+ */
+- (id)defaultValue;
 
 @optional
 
@@ -40,19 +52,10 @@
 @end
 
 
-@interface UIDatePicker (REDValidatableComponent) <REDValidatableComponent>
-@end
-
-@interface UISegmentedControl (REDValidatableComponent) <REDValidatableComponent>
-@end
-
 @interface UISlider (REDValidatableComponent) <REDValidatableComponent>
 @end
 
 @interface UIStepper (REDValidatableComponent) <REDValidatableComponent>
-@end
-
-@interface UISwitch (REDValidatableComponent) <REDValidatableComponent>
 @end
 
 @interface UITextField (REDValidatableComponent) <REDValidatableComponent>

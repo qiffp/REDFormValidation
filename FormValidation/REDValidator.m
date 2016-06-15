@@ -77,7 +77,7 @@
 	} else {
 		REDValidationComponent *component = _validationComponents[identifier];
 		REDValidationResult result = _revalidatingComponents ? [component validate] : component.valid;
-		return result == REDValidationResultValid || result == REDValidationResultOptionalValid;
+		return result == REDValidationResultValid || result == REDValidationResultDefaultValid;
 	}
 }
 
@@ -121,7 +121,7 @@
 - (void)evaluateComponents
 {
 	[self evaluateValidationBlock];
-	[self evaluateOptionalValidity];
+	[self evaluateDefaultValidity];
 }
 
 - (void)evaluateValidationBlock
@@ -137,10 +137,10 @@
 	}];
 }
 
-- (void)evaluateOptionalValidity
+- (void)evaluateDefaultValidity
 {
 	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
-		[validationComponent evaluateOptionalValidity];
+		[validationComponent evaluateDefaultValidity];
 	}
 }
 
