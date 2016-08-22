@@ -72,6 +72,16 @@
 	[self setupComponentEventActions];
 }
 
+- (void)setShouldValidate:(BOOL)shouldValidate
+{
+	if (_shouldValidate == shouldValidate) {
+		return;
+	}
+	
+	_shouldValidate = shouldValidate;
+	[self validate];
+}
+
 - (void)removeComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
@@ -119,13 +129,12 @@
 
 - (REDValidationResult)validate
 {
-	if (!_shouldValidate) {
-		return REDValidationResultValid;
-	}
+	[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
 	
-	if (_uiComponent) {
-		[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
-		
+	if (!_shouldValidate) {
+		_valid = REDValidationResultValid;
+		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
+	} else if (_uiComponent) {
 		REDValidationResult result = [_rule validate:_uiComponent];
 		_valid = result;
 		

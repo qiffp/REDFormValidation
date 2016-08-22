@@ -58,7 +58,6 @@
 - (void)setShouldValidate:(BOOL)shouldValidate forValidation:(id)identifier
 {
 	_validationComponents[identifier].shouldValidate = shouldValidate;
-	[self validate];
 }
 
 - (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
