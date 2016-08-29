@@ -28,15 +28,16 @@
 
 - (instancetype)init
 {
-	return [self initWithValidationEvent:REDValidationEventAll rule:nil];
+	return [self initWithInitialValue:nil validationEvent:REDValidationEventAll rule:nil];
 }
 
-- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule
+- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule
 {
 	self = [super init];
 	if (self ) {
 		[self reset];
 		_shouldValidate = YES;
+		_initialValue = initialValue;
 		
 		if (event & REDValidationEventAll) {
 			_validationEvents.change = YES;
@@ -134,8 +135,15 @@
 	if (!_shouldValidate) {
 		_valid = REDValidationResultValid;
 		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
-	} else if (_uiComponent) {
-		REDValidationResult result = [_rule validate:_uiComponent];
+	} else {
+		REDValidationResult result = _valid;
+		
+		if (_uiComponent) {
+			result = [_rule validate:_uiComponent];
+		} else if (_initialValue && _valid == REDValidationResultUnvalidated) {
+			result = [_rule validateValue:_initialValue];
+		}
+		
 		_valid = result;
 		
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
@@ -153,7 +161,7 @@
 
 - (REDValidationResult)evaluateDefaultValidity
 {
-	if (_valid == REDValidationResultUnvalidated && _rule.allowDefault && [[_uiComponent validatedValue] isEqual:[_uiComponent defaultValue]]) {
+	if (_valid == REDValidationResultUnvalidated && _rule.allowDefault && (_uiComponent == nil || [[_uiComponent validatedValue] isEqual:[_uiComponent defaultValue]])) {
 		_valid = REDValidationResultDefaultValid;
 	}
 	

@@ -128,9 +128,12 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 5;
 	}]];
-	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	
+	REDValidationRule *noteRule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
-	}]];
+	}];
+	noteRule.allowDefault = YES;
+	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:noteRule];
 	
 	_validator.validationList = [REDValidationList and:@[
 														 [REDValidationList or:@[

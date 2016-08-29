@@ -70,12 +70,21 @@
 @property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
+ * @brief An initial value to be validated.
+ * @discussion This is used with UITableView forms. If a cell contains a form element but is offscreen and
+ * hasn't been loaded, its value can't be validated. If the cell is being pre-filled with a value that may be
+ * invalid, this property allows it to be valided upon form instantiation.
+ */
+@property (nonatomic, readonly) id initialValue;
+
+/*!
  * @brief Initializes and returns a new @c REDValidationComponent @c.
+ * @param initialValue An initial value for the rule to validate.
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
  */
-- (instancetype)initWithValidationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule NS_DESIGNATED_INITIALIZER;
 
 /*!
  * @brief Programmatically execute a validation.

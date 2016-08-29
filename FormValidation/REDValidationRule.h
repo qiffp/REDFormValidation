@@ -26,16 +26,23 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 
 
 /*!
- * @brief Protocol describing behaviour of validation rules
+ * @brief Protocol describing behaviour of validation rules.
  */
 @protocol REDValidationRule <NSObject>
 
 /*!
- * @brief Validate the specified component using the validation rule
- * @param component The component that is being evaluated.
+ * @brief Validates the specified component using the validation rule.
+ * @param component The component that is being validated.
  * @return The result of the validation.
  */
 - (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component;
+
+/*!
+ * @brief Validates the specified value using the validation rule.
+ * @param value The value that is being validated.
+ * @return The result of the validation.
+ */
+- (REDValidationResult)validateValue:(id)value;
 
 /*!
  * @brief Cancel the validation that is currently in progress. Intended for network validations.

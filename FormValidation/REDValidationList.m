@@ -134,8 +134,15 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 
 - (void)evaluateComponents:(NSDictionary<id, REDValidationComponent *> *)components
 {
-	for (REDValidationComponent *component in components.allValues) {
-		component.validatedInValidationList = NO;
+	[self evaluateComponents:components resetValues:YES];
+}
+
+- (void)evaluateComponents:(NSDictionary<id, REDValidationComponent *> *)components resetValues:(BOOL)resetValues
+{
+	if (resetValues) {
+		for (REDValidationComponent *component in components.allValues) {
+			component.validatedInValidationList = NO;
+		}
 	}
 	
 	for (REDValidationListNode *node in _nodes) {
@@ -145,7 +152,7 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 			}
 		} else {
 			for (REDValidationList *list in node.lists) {
-				[list evaluateComponents:components];
+				[list evaluateComponents:components resetValues:NO];
 			}
 		}
 	}

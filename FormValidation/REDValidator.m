@@ -60,7 +60,12 @@
 
 - (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
 {
-	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithValidationEvent:event rule:rule];
+	[self addValidation:identifier initialValue:nil validateOn:event rule:rule];
+}
+
+- (void)addValidation:(id)identifier initialValue:(id)initialValue validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
+{
+	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithInitialValue:initialValue validationEvent:event rule:rule];
 	validationComponent.delegate = self;
 	_validationComponents[identifier] = validationComponent;
 	[self evaluateComponents];

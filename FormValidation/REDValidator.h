@@ -97,6 +97,15 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 - (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
 
 /*!
+ * @brief Creates a new validation.
+ * @param identifier The identifier that will be assigned to the validation.
+ * @param initialValue An initial value for the rule to validate.
+ * @param event The event upon which the UI component will be validated.
+ * @param rule The rule used to validate the UI component.
+ */
+- (void)addValidation:(id)identifier initialValue:(id)initialValue validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
+
+/*!
  * @brief Removes the validation with the given identifier.
  * @discussion The validation will not be removed if it is still being used in the @c validatorBlock @c.
  * @param identifier The identifier for the validation that will be removed.

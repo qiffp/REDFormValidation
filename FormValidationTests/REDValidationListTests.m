@@ -9,6 +9,7 @@
 #import <XCTest/XCTest.h>
 
 #import "REDValidationList.h"
+#import "REDValidationList+Private.h"
 #import "REDValidationComponent.h"
 
 @interface REDValidationListTests : XCTestCase
@@ -48,7 +49,7 @@
 
 - (REDValidationComponent *)componentWithUIComponent:(id<REDValidatableComponent>)uiComponent rule:(id<REDValidationRule>)rule
 {
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithValidationEvent:REDValidationEventAll rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = uiComponent;
 	return component;
 }
@@ -209,6 +210,37 @@
 													   ]];
 	
 	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+}
+
+#pragma mark - evaluateComponents:
+
+- (void)testEvaluateComponents
+{
+	UITextField *textField5 = [UITextField new];
+	
+	NSDictionary<id, REDValidationComponent *> *components = @{
+								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
+								 @2 : [self componentWithUIComponent:_textField2 rule:returnNO],
+								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
+								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO],
+								 @5 : [self componentWithUIComponent:textField5 rule:returnYES]
+								 };
+	
+	REDValidationList *list = [REDValidationList and:@[
+														 [REDValidationList or:@[
+																				 [REDValidationList and:@[@1, @2]],
+																				 [REDValidationList single:@3]
+																				 ]],
+														 [REDValidationList single:@4]
+														 ]];
+	
+	[list evaluateComponents:components];
+	
+	XCTAssertTrue(components[@1].validatedInValidationList);
+	XCTAssertTrue(components[@2].validatedInValidationList);
+	XCTAssertTrue(components[@3].validatedInValidationList);
+	XCTAssertTrue(components[@4].validatedInValidationList);
+	XCTAssertFalse(components[@5].validatedInValidationList);
 }
 
 @end

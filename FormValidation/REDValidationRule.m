@@ -39,6 +39,11 @@
 		return REDValidationResultDefaultValid;
 	}
 	
+	return [self validateValue:value];
+}
+
+- (REDValidationResult)validateValue:(id)value
+{
 	if (_block) {
 		return _block(value) ? REDValidationResultValid : REDValidationResultInvalid;
 	} else {
@@ -88,9 +93,19 @@
 		return result;
 	}
 	
+	return [self validateComponent:component value:value];
+}
+
+- (REDValidationResult)validateValue:(id)value
+{
+	return [self validateComponent:nil value:value];
+}
+
+- (REDValidationResult)validateComponent:(NSObject<REDValidatableComponent> *)component value:(id)value
+{
 	if (_block) {
 		__weak typeof(self) weakSelf = self;
-		_task = _block([component validatedValue], ^void(BOOL result, NSError *error) {
+		_task = _block(value, ^void(BOOL result, NSError *error) {
 			__strong typeof(weakSelf) strongSelf = weakSelf;
 			REDValidationResult validationResult = result ? REDValidationResultValid : REDValidationResultInvalid;
 			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfComponent:component withResult:validationResult error:error];
