@@ -58,11 +58,11 @@
 @property (nonatomic, assign, readonly) REDValidationResult valid;
 
 /*!
- * @brief Describes whether the UI component is being used in the validation block of the @c REDValidator @c.
- * @discussion If false, the component's validation is ANDed with the rest of the components that are false.
- * @see @c REDValidator.validationBlock @c
+ * @brief Describes whether the UI component is being used in the validation list of the @c REDValidator @c.
+ * @discussion If false, the component's validation will be ANDed with the rest of the components that are false.
+ * @see @c REDValidator.validationList @c
  */
-@property (nonatomic, assign) BOOL validatedInValidatorBlock;
+@property (nonatomic, assign) BOOL validatedInValidationList;
 
 /*!
  * @brief Whether the UI component should be validated. Allows temporary enabling and disabling the validation.
@@ -89,6 +89,10 @@
  */
 - (void)reset;
 
+/*!
+ * @brief Determines whether the component is valid upon creation.
+ * @return Whether the component is unvalidated and has the default value of its class.
+ */
 - (REDValidationResult)evaluateDefaultValidity;
 
 @end

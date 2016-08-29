@@ -132,11 +132,13 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 		return YES;
 	}]];
 	
-	_validator.validationBlock = ^BOOL(REDValidator *v) {
-		BOOL valid = ([v validationIsValid:@(FormCellFirstName)] & [v validationIsValid:@(FormCellLastName)]) | [v validationIsValid:@(FormCellEmail)];
-		valid &= [v validationIsValid:@(FormCellAddress)];
-		return valid;
-	};
+	_validator.validationList = [REDValidationList and:@[
+														 [REDValidationList or:@[
+																				 [REDValidationList and:@[@(FormCellFirstName), @(FormCellLastName)]],
+																				 [REDValidationList single:@(FormCellEmail)]
+																				 ]],
+														 [REDValidationList single:@(FormCellAddress)]
+														 ]];
 }
 
 - (void)validator:(REDValidator *)validator didValidateFormWithResult:(REDValidationResult)result

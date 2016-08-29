@@ -8,10 +8,8 @@
 
 #import "REDValidationRule.h"
 
-@class REDValidator;
+@class REDValidator, REDValidationList;
 @protocol REDValidatableComponent;
-
-typedef BOOL (^REDValidationBlock)(REDValidator *validator);
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
 	REDValidationEventChange = (1 << 0),
@@ -66,21 +64,12 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, weak) id<REDValidatorDelegate> delegate;
 
 /*!
- * @brief Block that contains logic that determines whether the form is valid. Not required.
- * @warning Logical operators used in this block MUST be bitwise operators so that they don't get short-circuited.
+ * @brief Object that contains logic that determines whether the form is valid. Not required.
  * @discussion
  *	If this is nil, all of the component validations are ANDed.
  *	If this is not nil but doesn't include all of the component validations, the remaining ones are ANDed.
- *
- *	The block should only use the @c validationIsValid: @c method.
- * @code
- * validator.validationBlock = ^BOOL(REDValidator *v) {
- *	return [v validationIsValid:kREDValidationEmail] | [v validationIsValid:kREDValidationName];
- * }
- * @endcode
- * @see @c validationIsValid: @c
  */
-@property (nonatomic, copy) REDValidationBlock validationBlock;
+@property (nonatomic, strong) REDValidationList *validationList;
 
 /*!
  * @brief The current validity of the form.
@@ -130,14 +119,5 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param identifier The identifier of the desired validation.
  */
 - (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier;
-
-/*!
- * @brief Returns the @c valid @c state of a certain validation identifier.
- * @discussion This is only intended for use in the @c validationBlock @c.
- * @param identifier The identifier of the desired validation.
- * @return The @c valid @c state of the given validation identifier.
- * @see @c validationBlock @c
- */
-- (BOOL)validationIsValid:(id)identifier;
 
 @end

@@ -9,16 +9,14 @@
 #import "REDValidator.h"
 #import "REDValidationComponent.h"
 #import "REDValidatableComponent.h"
+#import "REDValidationList.h"
+#import "REDValidationList+Private.h"
 
 @interface REDValidator () <REDValidationComponentDelegate>
 @end
 
 @implementation REDValidator {
-	NSMutableDictionary<NSNumber *, REDValidationComponent *> *_validationComponents;
-	
-	REDValidationBlock _validationBlock;
-	BOOL _evaluatingBlock;
-	BOOL _revalidatingComponents;
+	NSMutableDictionary<id, REDValidationComponent *> *_validationComponents;
 }
 
 - (instancetype)init
@@ -31,9 +29,9 @@
 	return self;
 }
 
-- (void)setValidationBlock:(REDValidationBlock)validationBlock
+- (void)setValidationList:(REDValidationList *)validationList
 {
-	_validationBlock = [validationBlock copy];
+	_validationList = validationList;
 	[self evaluateComponents];
 }
 
@@ -47,7 +45,7 @@
 
 - (BOOL)removeValidation:(id)identifier
 {
-	if (_validationComponents[identifier].validatedInValidatorBlock) {
+	if (_validationComponents[identifier].validatedInValidationList) {
 		return NO;
 	} else {
 		[_validationComponents removeObjectForKey:identifier];
@@ -68,18 +66,6 @@
 	[self evaluateComponents];
 }
 
-- (BOOL)validationIsValid:(id)identifier
-{
-	if (_evaluatingBlock) {
-		_validationComponents[identifier].validatedInValidatorBlock = YES;
-		return NO;
-	} else {
-		REDValidationComponent *component = _validationComponents[identifier];
-		REDValidationResult result = _revalidatingComponents ? [component validate] : component.valid;
-		return result == REDValidationResultValid || result == REDValidationResultDefaultValid;
-	}
-}
-
 - (REDValidationResult)valid
 {
 	return [self revalidate:NO];
@@ -92,14 +78,10 @@
 
 - (REDValidationResult)revalidate:(BOOL)revalidate
 {
-	REDValidationResult result = [self executeValidationBlockAfter:^{
-		_revalidatingComponents = revalidate;
-	} completion:^{
-		_revalidatingComponents = NO;
-	}];
+	REDValidationResult result = [self revalidateValidationList:revalidate];
 	
 	for (REDValidationComponent *component in _validationComponents.allValues) {
-		if (component.validatedInValidatorBlock == NO) {
+		if (component.validatedInValidationList == NO) {
 			result &= revalidate ? [component validate] : component.valid;
 			if (result == 0) {
 				result = REDValidationResultInvalid;
@@ -119,21 +101,18 @@
 
 - (void)evaluateComponents
 {
-	[self evaluateValidationBlock];
+	[_validationList evaluateComponents:_validationComponents];
 	[self evaluateDefaultValidity];
 }
 
-- (void)evaluateValidationBlock
+- (REDValidationResult)revalidateValidationList:(BOOL)revalidate
 {
-	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
-		validationComponent.validatedInValidatorBlock = NO;
+	if (_validationList == nil) {
+		return REDValidationResultValid;
 	}
 	
-	[self executeValidationBlockAfter:^{
-		_evaluatingBlock = YES;
-	} completion:^{
-		_evaluatingBlock = NO;
-	}];
+	BOOL result = [_validationList validateComponents:_validationComponents revalidate:revalidate];
+	return result ? REDValidationResultValid : REDValidationResultInvalid;
 }
 
 - (void)evaluateDefaultValidity
@@ -141,25 +120,6 @@
 	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
 		[validationComponent evaluateDefaultValidity];
 	}
-}
-
-- (REDValidationResult)executeValidationBlockAfter:(void (^)())first completion:(void (^)())completion
-{
-	REDValidationResult result = REDValidationResultValid;
-	
-	if (first) {
-		first();
-	}
-	
-	if (_validationBlock) {
-		result = _validationBlock(self) ? REDValidationResultValid : REDValidationResultInvalid;
-	}
-	
-	if (completion) {
-		completion();
-	}
-	
-	return result;
 }
 
 #pragma mark - REDValidationComponentDelegate
