@@ -56,7 +56,59 @@
 
 #pragma mark - validateComponents:revalidate:
 
-- (void)testEvaluateSimpleANDSuccess
+- (void)testEvaluateANDIdentifiersSuccess
+{
+	NSDictionary *components = @{
+								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
+								 @2 : [self componentWithUIComponent:_textField2 rule:returnYES],
+								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
+								 };
+	
+	REDValidationList *list = [[REDValidationList single:@1] and:@[@2, @3]];
+	
+	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+}
+
+- (void)testEvaluateANDIdentifiersFailure
+{
+	NSDictionary *components = @{
+								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
+								 @2 : [self componentWithUIComponent:_textField2 rule:returnYES],
+								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
+								 };
+	
+	REDValidationList *list = [[REDValidationList single:@1] and:@[@2, @3]];
+	
+	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+}
+
+- (void)testEvaluateORIdentifiersSuccess
+{
+	NSDictionary *components = @{
+								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO],
+								 @2 : [self componentWithUIComponent:_textField2 rule:returnNO],
+								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
+								 };
+	
+	REDValidationList *list = [[REDValidationList single:@1] or:@[@2, @3]];
+	
+	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+}
+
+- (void)testEvaluateORIdentifiersFailure
+{
+	NSDictionary *components = @{
+								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO],
+								 @2 : [self componentWithUIComponent:_textField2 rule:returnNO],
+								 @3 : [self componentWithUIComponent:_textField3 rule:returnNO], // changed to cause failure
+								 };
+	
+	REDValidationList *list = [[REDValidationList single:@1] or:@[@2, @3]];
+	
+	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+}
+
+- (void)testEvaluateSimpleANDSListsSuccess
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
@@ -73,7 +125,7 @@
 	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
-- (void)testEvaluateSimpleANDFailure
+- (void)testEvaluateSimpleANDListsFailure
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
@@ -90,7 +142,7 @@
 	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
-- (void)testEvaluateSimpleORSuccess
+- (void)testEvaluateSimpleORListsSuccess
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
@@ -107,7 +159,7 @@
 	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
-- (void)testEvaluateSimpleORFailure
+- (void)testEvaluateSimpleORListsFailure
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
@@ -124,7 +176,7 @@
 	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
-- (void)testEvaluateComplexSuccess
+- (void)testEvaluateComplexListsSuccess
 {
 	UITextField *textField5 = [UITextField new];
 	UITextField *textField6 = [UITextField new];
@@ -168,7 +220,7 @@
 	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
-- (void)testEvaluateComplexFailure
+- (void)testEvaluateComplexListsFailure
 {
 	UITextField *textField5 = [UITextField new];
 	UITextField *textField6 = [UITextField new];
