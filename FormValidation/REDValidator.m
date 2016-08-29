@@ -38,9 +38,11 @@
 - (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier
 {
 	REDValidationComponent *validationComponent = _validationComponents[identifier];
-	[validationComponent reset];
-	validationComponent.uiComponent = component;
-	[self evaluateComponents];
+	if (validationComponent) {
+		[validationComponent reset];
+		validationComponent.uiComponent = component;
+		[self evaluateComponent:validationComponent identifier:identifier];
+	}
 }
 
 - (BOOL)removeValidation:(id)identifier
@@ -68,7 +70,7 @@
 	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithInitialValue:initialValue validationEvent:event rule:rule];
 	validationComponent.delegate = self;
 	_validationComponents[identifier] = validationComponent;
-	[self evaluateComponents];
+	[self evaluateComponent:validationComponent identifier:identifier];
 }
 
 - (REDValidationResult)valid
@@ -104,6 +106,12 @@
 
 #pragma mark - Helpers
 
+- (void)evaluateComponent:(REDValidationComponent *)component identifier:(id)identifier
+{
+	[_validationList evaluateComponents:@{ identifier : component }];
+	[self evaluateDefaultValidity:@[component]];
+}
+
 - (void)evaluateComponents
 {
 	[_validationList evaluateComponents:_validationComponents];
@@ -122,7 +130,12 @@
 
 - (void)evaluateDefaultValidity
 {
-	for (REDValidationComponent *validationComponent in _validationComponents.allValues) {
+	[self evaluateDefaultValidity:_validationComponents.allValues];
+}
+
+- (void)evaluateDefaultValidity:(NSArray<REDValidationComponent *> *)components
+{
+	for (REDValidationComponent *validationComponent in components) {
 		[validationComponent evaluateDefaultValidity];
 	}
 }
