@@ -8,10 +8,6 @@
 
 #import "REDValidationComponent.h"
 
-@interface NSObject (Control)
-- (BOOL)isNonTextControlClass;
-@end
-
 @interface REDValidationComponent () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
 @end
 
@@ -87,7 +83,7 @@
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:_uiComponent];
-	} else if ([_uiComponent isNonTextControlClass]) {
+	} else if ([_uiComponent isKindOfClass:[UIControl class]]) {
 		[(UIControl *)_uiComponent removeTarget:self action:nil forControlEvents:UIControlEventAllEvents];
 	}
 }
@@ -114,7 +110,7 @@
 		if (_validationEvents.endEditing) {
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
 		}
-	} else if ([_uiComponent isNonTextControlClass]) {
+	} else if ([_uiComponent isKindOfClass:[UIControl class]]) {
 		UIControl *component = (UIControl *)_uiComponent;
 		if (_validationEvents.change) {
 			[component addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -208,15 +204,6 @@
 {
 	_valid = result;
 	[_delegate validationComponent:self didValidateUIComponent:component result:result];
-}
-
-@end
-
-@implementation UIView (Control)
-
-- (BOOL)isNonTextControlClass
-{
-	return [self isKindOfClass:[UIControl class]] && !([self isKindOfClass:[UITextField class]] || [self isKindOfClass:[UITextView class]]);
 }
 
 @end
