@@ -128,10 +128,7 @@
 {
 	[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
 	
-	if (!_shouldValidate) {
-		_valid = REDValidationResultValid;
-		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
-	} else {
+	if (_shouldValidate) {
 		REDValidationResult result = _valid;
 		
 		if (_uiComponent) {
@@ -145,6 +142,9 @@
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
 			[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
 		}
+	} else {
+		_valid = REDValidationResultValid;
+		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
 	}
 	
 	return _valid;
