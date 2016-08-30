@@ -118,6 +118,10 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 		if (node.identifiers) {
 			for (id identifier in node.identifiers) {
 				REDValidationComponent *component = components[identifier];
+				if (component == nil) {
+					NSLog(@"<REDFormValidation WARNING> Identifier '%@' used in the validation tree is not associated with a component. This will always validate as REDValidationResultUnvalidated", identifier);
+				}
+				
 				REDValidationResult result = revalidate ? [component validate] : component.valid;
 				finalResult = operation(node, finalResult, result == REDValidationResultValid || result == REDValidationResultDefaultValid);
 			}
