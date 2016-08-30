@@ -85,7 +85,7 @@
  * @param rule The rule used to validate the UI component.
  * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
  */
-- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule NS_DESIGNATED_INITIALIZER;
 
 /*!
  * @brief Programmatically execute a validation.

@@ -1,12 +1,12 @@
 //
-//  REDValidationRule.m
+//  REDValidationRuleType.m
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-03-04.
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidationRule.h"
+#import "REDValidationRuleType.h"
 #import "REDValidatableComponent.h"
 
 @interface REDValidationRule ()

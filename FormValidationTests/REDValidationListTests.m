@@ -47,7 +47,7 @@
 #define returnYES [REDValidationRule ruleWithBlock:^BOOL(id value) { return YES; }]
 #define returnNO [REDValidationRule ruleWithBlock:^BOOL(id value) { return NO; }]
 
-- (REDValidationComponent *)componentWithUIComponent:(id<REDValidatableComponent>)uiComponent rule:(id<REDValidationRule>)rule
+- (REDValidationComponent *)componentWithUIComponent:(id<REDValidatableComponent>)uiComponent rule:(id<REDValidationRuleType>)rule
 {
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = uiComponent;

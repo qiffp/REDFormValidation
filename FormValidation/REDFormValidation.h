@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "REDValidator.h"
-#import "REDValidationRule.h"
+#import "REDValidationRuleType.h"
 #import "REDValidatableComponent.h"
 #import "REDValidationList.h"
 

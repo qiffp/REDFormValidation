@@ -28,8 +28,8 @@
 		22DFE25B1C8A35530003FCAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22DFE2591C8A35530003FCAB /* LaunchScreen.storyboard */; };
 		22DFE2631C8A37AE0003FCAB /* REDValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2611C8A37AE0003FCAB /* REDValidator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		22DFE2641C8A37AE0003FCAB /* REDValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2621C8A37AE0003FCAB /* REDValidator.m */; };
-		22DFE2671C8A37C10003FCAB /* REDValidationRule.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2651C8A37C10003FCAB /* REDValidationRule.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		22DFE2681C8A37C10003FCAB /* REDValidationRule.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2661C8A37C10003FCAB /* REDValidationRule.m */; };
+		22DFE2671C8A37C10003FCAB /* REDValidationRuleType.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2651C8A37C10003FCAB /* REDValidationRuleType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22DFE2681C8A37C10003FCAB /* REDValidationRuleType.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE2661C8A37C10003FCAB /* REDValidationRuleType.m */; };
 		22DFE26B1C8A39D30003FCAB /* REDValidationComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DFE2691C8A39D30003FCAB /* REDValidationComponent.h */; };
 		22DFE26C1C8A39D30003FCAB /* REDValidationComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DFE26A1C8A39D30003FCAB /* REDValidationComponent.m */; };
 		22F9D5F91D73EB4D0058C0E9 /* REDValidationList+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F9D5F81D73EB470058C0E9 /* REDValidationList+Private.h */; };
@@ -73,8 +73,8 @@
 		22DFE25C1C8A35530003FCAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		22DFE2611C8A37AE0003FCAB /* REDValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = REDValidator.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		22DFE2621C8A37AE0003FCAB /* REDValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = REDValidator.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		22DFE2651C8A37C10003FCAB /* REDValidationRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = REDValidationRule.h; sourceTree = "<group>"; };
-		22DFE2661C8A37C10003FCAB /* REDValidationRule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationRule.m; sourceTree = "<group>"; };
+		22DFE2651C8A37C10003FCAB /* REDValidationRuleType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = REDValidationRuleType.h; sourceTree = "<group>"; };
+		22DFE2661C8A37C10003FCAB /* REDValidationRuleType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDValidationRuleType.m; sourceTree = "<group>"; };
 		22DFE2691C8A39D30003FCAB /* REDValidationComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = REDValidationComponent.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		22DFE26A1C8A39D30003FCAB /* REDValidationComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = REDValidationComponent.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		22F9D5F81D73EB470058C0E9 /* REDValidationList+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "REDValidationList+Private.h"; sourceTree = "<group>"; };
@@ -143,8 +143,8 @@
 				22DFE2121C8A34F10003FCAB /* Info.plist */,
 				22DFE2611C8A37AE0003FCAB /* REDValidator.h */,
 				22DFE2621C8A37AE0003FCAB /* REDValidator.m */,
-				22DFE2651C8A37C10003FCAB /* REDValidationRule.h */,
-				22DFE2661C8A37C10003FCAB /* REDValidationRule.m */,
+				22DFE2651C8A37C10003FCAB /* REDValidationRuleType.h */,
+				22DFE2661C8A37C10003FCAB /* REDValidationRuleType.m */,
 				22DFE2691C8A39D30003FCAB /* REDValidationComponent.h */,
 				22DFE26A1C8A39D30003FCAB /* REDValidationComponent.m */,
 				22BD638A1D0B1F75008793BA /* REDValidatableComponent.h */,
@@ -207,7 +207,7 @@
 				22DFE2111C8A34F10003FCAB /* REDFormValidation.h in Headers */,
 				22BD638C1D0B1F75008793BA /* REDValidatableComponent.h in Headers */,
 				22582B201D6B2CB50037A6A6 /* REDValidationList.h in Headers */,
-				22DFE2671C8A37C10003FCAB /* REDValidationRule.h in Headers */,
+				22DFE2671C8A37C10003FCAB /* REDValidationRuleType.h in Headers */,
 				22DFE2631C8A37AE0003FCAB /* REDValidator.h in Headers */,
 				22DFE26B1C8A39D30003FCAB /* REDValidationComponent.h in Headers */,
 				22F9D5F91D73EB4D0058C0E9 /* REDValidationList+Private.h in Headers */,
@@ -361,7 +361,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22DFE2681C8A37C10003FCAB /* REDValidationRule.m in Sources */,
+				22DFE2681C8A37C10003FCAB /* REDValidationRuleType.m in Sources */,
 				22DFE2641C8A37AE0003FCAB /* REDValidator.m in Sources */,
 				22DFE26C1C8A39D30003FCAB /* REDValidationComponent.m in Sources */,
 				22BD638D1D0B1F75008793BA /* REDValidatableComponent.m in Sources */,

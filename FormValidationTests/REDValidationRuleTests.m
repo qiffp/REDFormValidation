@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
-#import "REDValidationRule.h"
+#import "REDValidationRuleType.h"
 #import "REDValidatableComponent.h"
 
 @interface REDValidationRuleTests : XCTestCase

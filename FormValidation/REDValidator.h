@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidationRule.h"
+#import "REDValidationRuleType.h"
 
 @class REDValidator, REDValidationList;
 @protocol REDValidatableComponent;
@@ -95,7 +95,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  */
-- (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
+- (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
 
 /*!
  * @brief Creates a new validation.
@@ -104,7 +104,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  */
-- (void)addValidation:(id)identifier initialValue:(id)initialValue validateOn:(REDValidationEvent)event rule:(id<REDValidationRule>)rule;
+- (void)addValidation:(id)identifier initialValue:(id)initialValue validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
 
 /*!
  * @brief Removes the validation with the given identifier.

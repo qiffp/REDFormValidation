@@ -1,5 +1,5 @@
 //
-//  REDValidationRule.h
+//  REDValidationRuleType.h
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-03-04.
@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @protocol REDValidatableComponent;
-
 
 typedef BOOL (^REDValidationRuleBlock)(id value);
 
@@ -28,7 +27,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 /*!
  * @brief Protocol describing behaviour of validation rules.
  */
-@protocol REDValidationRule <NSObject>
+@protocol REDValidationRuleType <NSObject>
 
 /*!
  * @brief Validates the specified component using the validation rule.
@@ -71,7 +70,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @param result The result of the validation.
  * @param error An error that has occurred during the validation process.
  */
-- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error;
+- (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error;
 
 @end
 
@@ -79,7 +78,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 /*!
  * @brief Object that validates components based on a specified rule.
  */
-@interface REDValidationRule : NSObject <REDValidationRule>
+@interface REDValidationRule : NSObject <REDValidationRuleType>
 
 /*!
  * @brief Initializes and returns a @c REDValidationRule @c using the specified rule.
@@ -93,7 +92,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 /*!
  * @brief Object that validates components based on a specified rule that requires network calls.
  */
-@interface REDNetworkValidationRule : NSObject <REDValidationRule>
+@interface REDNetworkValidationRule : NSObject <REDValidationRuleType>
 
 /*!
  * @brief Delegate that gets notified of network validation events.

@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidationRule.h"
+#import "REDValidationRuleType.h"
 
 OBJC_EXTERN float const kUISliderDefaultValue;
 OBJC_EXTERN double const kUIStepperDefaultValue;

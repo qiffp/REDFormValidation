@@ -12,7 +12,7 @@
 @end
 
 @implementation REDValidationComponent {
-	id<REDValidationRule> _rule;
+	id<REDValidationRuleType> _rule;
 	struct {
 		BOOL change;
 		BOOL beginEditing;
@@ -27,7 +27,7 @@
 	return [self initWithInitialValue:nil validationEvent:REDValidationEventAll rule:nil];
 }
 
-- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRule>)rule
+- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
 {
 	self = [super init];
 	if (self ) {
@@ -200,7 +200,7 @@
 
 #pragma mark - NetworkValidationRuleDelegate
 
-- (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
+- (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
 {
 	_valid = result;
 	[_delegate validationComponent:self didValidateUIComponent:component result:result error:error];
