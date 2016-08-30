@@ -30,9 +30,10 @@
  * @brief Notifies the delegate when a UI component has been validated
  * @param validationComponent The object handling validation.
  * @param uiComponent The UI component whose value is being validated.
+ * @param error Error from network validation, if there is one.
  * @param result The result of the validation.
  */
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result;
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error;
 
 @end
 

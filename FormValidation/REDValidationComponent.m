@@ -140,11 +140,11 @@
 		_valid = result;
 		
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-			[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
+			[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid error:nil];
 		}
 	} else {
 		_valid = REDValidationResultValid;
-		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid];
+		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid error:nil];
 	}
 	
 	return _valid;
@@ -203,7 +203,7 @@
 - (void)validationRule:(id<REDValidationRule>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
 {
 	_valid = result;
-	[_delegate validationComponent:self didValidateUIComponent:component result:result];
+	[_delegate validationComponent:self didValidateUIComponent:component result:result error:error];
 }
 
 @end

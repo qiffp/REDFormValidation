@@ -27,9 +27,9 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	_willValidate = YES;
 }
 
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result
+- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result error:(NSError *)error
 {
-	_didValidate = YES;
+	_didValidate  = YES;
 }
 
 @end
@@ -113,7 +113,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	_willValidateComponent = YES;
 }
 
-- (void)validator:(REDValidator *)validator didValidateComponent:(UIView *)component result:(REDValidationResult)result
+- (void)validator:(REDValidator *)validator didValidateComponent:(UIView *)component result:(REDValidationResult)result error:(NSError *)error
 {
 	_didValidateComponent = YES;
 }
@@ -387,7 +387,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertTrue(_testForm.willValidateComponent, @"willValidate should have fired");
 	
 	XCTAssertFalse(_testForm.didValidateComponent, @"didValidate should not have fired yet");
-	[_testForm.validator validationComponent:nil didValidateUIComponent:nil result:0];
+	[_testForm.validator validationComponent:nil didValidateUIComponent:nil result:0 error:nil];
 	XCTAssertTrue(_testForm.didValidateComponent, @"didValidate should have fired");
 }
 
@@ -401,7 +401,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertTrue(textField.willValidate, @"willValidate should have fired");
 	
 	XCTAssertFalse(textField.didValidate, @"didValidate should not have fired yet");
-	[_testForm.validator validationComponent:nil didValidateUIComponent:textField result:0];
+	[_testForm.validator validationComponent:nil didValidateUIComponent:textField result:0 error:nil];
 	XCTAssertTrue(textField.didValidate, @"didValidate should have fired");
 }
 

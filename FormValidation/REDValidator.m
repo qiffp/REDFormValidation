@@ -153,14 +153,14 @@
 	}
 }
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result
+- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error
 {
-	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:)]) {
-		[_delegate validator:self didValidateComponent:uiComponent result:result];
+	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:error:)]) {
+		[_delegate validator:self didValidateComponent:uiComponent result:result error:error];
 	}
 	
-	if ([uiComponent respondsToSelector:@selector(validator:didValidateComponentWithResult:)]) {
-		[uiComponent validator:self didValidateComponentWithResult:result];
+	if ([uiComponent respondsToSelector:@selector(validator:didValidateComponentWithResult:error:)]) {
+		[uiComponent validator:self didValidateComponentWithResult:result error:error];
 	}
 	
 	[self revalidate:NO];

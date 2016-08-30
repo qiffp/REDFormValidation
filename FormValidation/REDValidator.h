@@ -38,9 +38,10 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @brief Notifies the delegate when a UI component has been validated.
  * @param validator The validator object managing the form.
  * @param uiComponent The UI component whose value is being validated.
+ * @param error Error from network validation, if there is one.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateComponent:(NSObject<REDValidatableComponent> *)component result:(REDValidationResult)result;
+- (void)validator:(REDValidator *)validator didValidateComponent:(NSObject<REDValidatableComponent> *)component result:(REDValidationResult)result error:(NSError *)error;
 
 /*!
  * @brief Notifies the delegate when the entire form has been validated.

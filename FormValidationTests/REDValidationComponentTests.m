@@ -138,7 +138,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
@@ -159,7 +159,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
@@ -180,7 +180,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
@@ -195,7 +195,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
@@ -216,7 +216,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
@@ -238,7 +238,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
@@ -260,7 +260,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
 	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
@@ -278,7 +278,7 @@
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
 		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
