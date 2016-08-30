@@ -127,7 +127,7 @@
 
 #pragma mark - validationEvent
 
-- (void)testValidatesOnBeginEditingWithValidationEventBeginEditing
+- (void)testTextFieldValidatesOnBeginEditingWithValidationEventBeginEditing
 {
 	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
@@ -148,7 +148,7 @@
 	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
 }
 
-- (void)testValidatesOnEndEditingWithValidationEventEndEditing
+- (void)testTextFieldValidatesOnEndEditingWithValidationEventEndEditing
 {
 	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
@@ -169,7 +169,7 @@
 	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
 }
 
-- (void)testValidatesOnChangeWithValidationEventChange
+- (void)testTextFieldValidatesOnChangeWithValidationEventChange
 {
 	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
@@ -190,7 +190,7 @@
 	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
 }
 
-- (void)testValidatesOnAllEventsWithValidationEventAll
+- (void)testTextFieldValidatesOnAllEventsWithValidationEventAll
 {
 	__block NSUInteger callCount = 0;
 	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
@@ -202,6 +202,162 @@
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
 	
 	XCTAssertEqual(callCount, 3, @"callCount should have been incremented for each event");
+}
+
+- (void)testTextViewValidatesOnBeginEditingWithValidationEventBeginEditing
+{
+	UITextView *textView = [UITextView new];
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	_component.uiComponent = textView;
+	_component.delegate = _delegate;
+	
+	__block NSUInteger callCount = 0;
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
+		callCount++;
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
+}
+
+- (void)testTextViewValidatesOnEndEditingWithValidationEventEndEditing
+{
+	UITextView *textView = [UITextView new];
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	_component.uiComponent = textView;
+	_component.delegate = _delegate;
+	
+	__block NSUInteger callCount = 0;
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
+		callCount++;
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
+}
+
+- (void)testTextViewValidatesOnChangeWithValidationEventChange
+{
+	UITextView *textView = [UITextView new];
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	_component.uiComponent = textView;
+	_component.delegate = _delegate;
+	
+	__block NSUInteger callCount = 0;
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
+		callCount++;
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
+	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
+}
+
+- (void)testTextViewValidatesOnAllEventsWithValidationEventAll
+{
+	UITextView *textView = [UITextView new];
+	_component.uiComponent = textView;
+	
+	__block NSUInteger callCount = 0;
+	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
+		callCount++;
+	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
+	
+	XCTAssertEqual(callCount, 3, @"callCount should have been incremented for each event");
+}
+
+- (void)testControlValidatesOnBeginEditingWithValidationEventBeginEditing
+{
+	UISlider *slider = [UISlider new];
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	_component.uiComponent = slider;
+	
+	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+	NSSet *targets = slider.allTargets;
+	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	
+	id target = targets.allObjects.firstObject;
+	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1, @"Target should have 1 action for EditingDidBegin");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0, @"Target should have 0 actions for EditingDidEnd");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0, @"Target should have 0 actions for ValueChanged");
+}
+
+- (void)testControlValidatesOnEndEditingWithValidationEventEndEditing
+{
+	UISlider *slider = [UISlider new];
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	_component.uiComponent = slider;
+	
+	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+	NSSet *targets = slider.allTargets;
+	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	
+	id target = targets.allObjects.firstObject;
+	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0, @"Target should have 0 actions for EditingDidBegin");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1, @"Target should have 1 action for EditingDidEnd");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0, @"Target should have 0 actions for ValueChanged");
+}
+
+- (void)testControlValidatesOnChangeWithValidationEventChange
+{
+	UISlider *slider = [UISlider new];
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	_component.uiComponent = slider;
+	
+	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+	NSSet *targets = slider.allTargets;
+	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	
+	id target = targets.allObjects.firstObject;
+	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0, @"Target should have 0 actions for EditingDidBegin");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0, @"Target should have 0 actions for EditingDidEnd");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1, @"Target should have 1 action for ValueChanged");
+}
+
+- (void)testControlValidatesOnAllEventsWithValidationEventAll
+{
+	UISlider *slider = [UISlider new];
+	_component.uiComponent = slider;
+	
+	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+	NSSet *targets = slider.allTargets;
+	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	
+	id target = targets.allObjects.firstObject;
+	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1, @"Target should have 1 action for EditingDidBegin");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1, @"Target should have 1 action for EditingDidEnd");
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1, @"Target should have 1 action for ValueChanged");
 }
 
 #pragma mark - evaluateDefaultValidity
