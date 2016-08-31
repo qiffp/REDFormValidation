@@ -1,5 +1,5 @@
 //
-//  REDValidationListTests.m
+//  REDValidationTreeTests.m
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-08-22.
@@ -8,14 +8,14 @@
 
 #import <XCTest/XCTest.h>
 
-#import "REDValidationList.h"
-#import "REDValidationList+Private.h"
+#import "REDValidationTree.h"
+#import "REDValidationTree+Private.h"
 #import "REDValidationComponent.h"
 
-@interface REDValidationListTests : XCTestCase
+@interface REDValidationTreeTests : XCTestCase
 @end
 
-@implementation REDValidationListTests {
+@implementation REDValidationTreeTests {
 	UITextField *_textField1;
 	UITextField *_textField2;
 	UITextField *_textField3;
@@ -64,9 +64,9 @@
 								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
 								 };
 	
-	REDValidationList *list = [[REDValidationList single:@1] and:@[@2, @3]];
+	REDValidationTree *tree = [[REDValidationTree single:@1] and:@[@2, @3]];
 	
-	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+	XCTAssertTrue([tree validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
 - (void)testEvaluateANDIdentifiersFailure
@@ -77,9 +77,9 @@
 								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
 								 };
 	
-	REDValidationList *list = [[REDValidationList single:@1] and:@[@2, @3]];
+	REDValidationTree *tree = [[REDValidationTree single:@1] and:@[@2, @3]];
 	
-	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+	XCTAssertFalse([tree validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
 - (void)testEvaluateORIdentifiersSuccess
@@ -90,9 +90,9 @@
 								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
 								 };
 	
-	REDValidationList *list = [[REDValidationList single:@1] or:@[@2, @3]];
+	REDValidationTree *tree = [[REDValidationTree single:@1] or:@[@2, @3]];
 	
-	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+	XCTAssertTrue([tree validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
 - (void)testEvaluateORIdentifiersFailure
@@ -103,12 +103,12 @@
 								 @3 : [self componentWithUIComponent:_textField3 rule:returnNO], // changed to cause failure
 								 };
 	
-	REDValidationList *list = [[REDValidationList single:@1] or:@[@2, @3]];
+	REDValidationTree *tree = [[REDValidationTree single:@1] or:@[@2, @3]];
 	
-	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+	XCTAssertFalse([tree validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
-- (void)testEvaluateSimpleANDSListsSuccess
+- (void)testEvaluateSimpleANDTreesSuccess
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
@@ -117,15 +117,15 @@
 								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO]
 								 };
 	
-	REDValidationList *list = [REDValidationList and:@[
-													   [REDValidationList or:@[@1, @2]],
-													   [REDValidationList or:@[@3, @4]]
+	REDValidationTree *tree = [REDValidationTree and:@[
+													   [REDValidationTree or:@[@1, @2]],
+													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+	XCTAssertTrue([tree validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
-- (void)testEvaluateSimpleANDListsFailure
+- (void)testEvaluateSimpleANDTreesFailure
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
@@ -134,15 +134,15 @@
 								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO]
 								 };
 	
-	REDValidationList *list = [REDValidationList and:@[
-													   [REDValidationList or:@[@1, @2]],
-													   [REDValidationList or:@[@3, @4]]
+	REDValidationTree *tree = [REDValidationTree and:@[
+													   [REDValidationTree or:@[@1, @2]],
+													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+	XCTAssertFalse([tree validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
-- (void)testEvaluateSimpleORListsSuccess
+- (void)testEvaluateSimpleORTreesSuccess
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
@@ -151,15 +151,15 @@
 								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO]
 								 };
 	
-	REDValidationList *list = [REDValidationList or:@[
-													   [REDValidationList and:@[@1, @2]],
-													   [REDValidationList and:@[@3, @4]]
+	REDValidationTree *tree = [REDValidationTree or:@[
+													   [REDValidationTree and:@[@1, @2]],
+													   [REDValidationTree and:@[@3, @4]]
 													   ]];
 	
-	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+	XCTAssertTrue([tree validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
-- (void)testEvaluateSimpleORListsFailure
+- (void)testEvaluateSimpleORTreesFailure
 {
 	NSDictionary *components = @{
 								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
@@ -168,15 +168,15 @@
 								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO]
 								 };
 	
-	REDValidationList *list = [REDValidationList or:@[
-													   [REDValidationList or:@[@1, @2]],
-													   [REDValidationList or:@[@3, @4]]
+	REDValidationTree *tree = [REDValidationTree or:@[
+													   [REDValidationTree or:@[@1, @2]],
+													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+	XCTAssertFalse([tree validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
-- (void)testEvaluateComplexListsSuccess
+- (void)testEvaluateComplexTreesSuccess
 {
 	UITextField *textField5 = [UITextField new];
 	UITextField *textField6 = [UITextField new];
@@ -202,25 +202,25 @@
 								 @12 : [self componentWithUIComponent:textField12 rule:returnYES]
 								 };
 	
-	REDValidationList *list = [REDValidationList and:@[
-													   [REDValidationList and:@[
-																				[REDValidationList or:@[@1, @2]],
-																				[REDValidationList or:@[@3, @4]]
+	REDValidationTree *tree = [REDValidationTree and:@[
+													   [REDValidationTree and:@[
+																				[REDValidationTree or:@[@1, @2]],
+																				[REDValidationTree or:@[@3, @4]]
 																				]],
-													   [REDValidationList and:@[
-																				[REDValidationList or:@[@5, @6]],
-																				[REDValidationList or:@[@7, @8]]
+													   [REDValidationTree and:@[
+																				[REDValidationTree or:@[@5, @6]],
+																				[REDValidationTree or:@[@7, @8]]
 																				]],
-													   [REDValidationList or:@[
-																			   [REDValidationList and:@[@9, @10]],
-																			   [REDValidationList and:@[@11, @12]]
+													   [REDValidationTree or:@[
+																			   [REDValidationTree and:@[@9, @10]],
+																			   [REDValidationTree and:@[@11, @12]]
 																			   ]]
 													   ]];
 	
-	XCTAssertTrue([list validateComponents:components revalidate:YES], @"Validation should succeed");
+	XCTAssertTrue([tree validateComponents:components revalidate:YES], @"Validation should succeed");
 }
 
-- (void)testEvaluateComplexListsFailure
+- (void)testEvaluateComplexTreesFailure
 {
 	UITextField *textField5 = [UITextField new];
 	UITextField *textField6 = [UITextField new];
@@ -246,22 +246,22 @@
 								 @12 : [self componentWithUIComponent:textField12 rule:returnYES]
 								 };
 	
-	REDValidationList *list = [REDValidationList and:@[
-													   [REDValidationList and:@[
-																				[REDValidationList or:@[@1, @2]],
-																				[REDValidationList or:@[@3, @4]]
+	REDValidationTree *tree = [REDValidationTree and:@[
+													   [REDValidationTree and:@[
+																				[REDValidationTree or:@[@1, @2]],
+																				[REDValidationTree or:@[@3, @4]]
 																				]],
-													   [REDValidationList and:@[
-																				[REDValidationList or:@[@5, @6]],
-																				[REDValidationList or:@[@7, @8]]
+													   [REDValidationTree and:@[
+																				[REDValidationTree or:@[@5, @6]],
+																				[REDValidationTree or:@[@7, @8]]
 																				]],
-													   [REDValidationList or:@[
-																			   [REDValidationList and:@[@9, @10]],
-																			   [REDValidationList and:@[@11, @12]]
+													   [REDValidationTree or:@[
+																			   [REDValidationTree and:@[@9, @10]],
+																			   [REDValidationTree and:@[@11, @12]]
 																			   ]]
 													   ]];
 	
-	XCTAssertFalse([list validateComponents:components revalidate:YES], @"Validation should fail");
+	XCTAssertFalse([tree validateComponents:components revalidate:YES], @"Validation should fail");
 }
 
 #pragma mark - evaluateComponents:
@@ -278,21 +278,21 @@
 								 @5 : [self componentWithUIComponent:textField5 rule:returnYES]
 								 };
 	
-	REDValidationList *list = [REDValidationList and:@[
-														 [REDValidationList or:@[
-																				 [REDValidationList and:@[@1, @2]],
-																				 [REDValidationList single:@3]
+	REDValidationTree *tree = [REDValidationTree and:@[
+														 [REDValidationTree or:@[
+																				 [REDValidationTree and:@[@1, @2]],
+																				 [REDValidationTree single:@3]
 																				 ]],
-														 [REDValidationList single:@4]
+														 [REDValidationTree single:@4]
 														 ]];
 	
-	[list evaluateComponents:components];
+	[tree evaluateComponents:components];
 	
-	XCTAssertTrue(components[@1].validatedInValidationList);
-	XCTAssertTrue(components[@2].validatedInValidationList);
-	XCTAssertTrue(components[@3].validatedInValidationList);
-	XCTAssertTrue(components[@4].validatedInValidationList);
-	XCTAssertFalse(components[@5].validatedInValidationList);
+	XCTAssertTrue(components[@1].validatedInValidationTree);
+	XCTAssertTrue(components[@2].validatedInValidationTree);
+	XCTAssertTrue(components[@3].validatedInValidationTree);
+	XCTAssertTrue(components[@4].validatedInValidationTree);
+	XCTAssertFalse(components[@5].validatedInValidationTree);
 }
 
 @end

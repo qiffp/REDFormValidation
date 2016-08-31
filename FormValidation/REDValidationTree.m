@@ -1,12 +1,12 @@
 //
-//  REDValidationList.m
+//  REDValidationTree.m
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-08-22.
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidationList.h"
+#import "REDValidationTree.h"
 #import "REDValidationComponent.h"
 
 typedef NS_ENUM(NSUInteger, REDValidationOperation) {
@@ -14,13 +14,13 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 	REDValidationOperationOR
 };
 
-@interface REDValidationListNode : NSObject
+@interface REDValidationTreeNode : NSObject
 @property (nonatomic, strong, readonly) NSNumber *operation;
 @property (nonatomic, strong, readonly) NSArray *identifiers;
-@property (nonatomic, strong, readonly) NSArray<REDValidationList *> *lists;
+@property (nonatomic, strong, readonly) NSArray<REDValidationTree *> *trees;
 @end
 
-@implementation REDValidationListNode
+@implementation REDValidationTreeNode
 
 - (instancetype)initWithOperation:(REDValidationOperation)operation objects:(NSArray *)objects
 {
@@ -29,8 +29,8 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 		_operation = @(operation);
 		
 		id obj = objects.firstObject;
-		if ([obj isKindOfClass:[REDValidationList class]]) {
-			_lists = objects;
+		if ([obj isKindOfClass:[REDValidationTree class]]) {
+			_trees = objects;
 		} else {
 			_identifiers = objects;
 		}
@@ -40,8 +40,8 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 
 @end
 
-@implementation REDValidationList {
-	NSMutableArray<REDValidationListNode *> *_nodes;
+@implementation REDValidationTree {
+	NSMutableArray<REDValidationTreeNode *> *_nodes;
 }
 
 - (instancetype)initWithOperation:(REDValidationOperation)operation objects:(NSArray *)objects
@@ -49,35 +49,35 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 	self = [super init];
 	if (self) {
 		_nodes = [NSMutableArray new];
-		[_nodes addObject:[[REDValidationListNode alloc] initWithOperation:operation objects:objects]];
+		[_nodes addObject:[[REDValidationTreeNode alloc] initWithOperation:operation objects:objects]];
 	}
 	return self;
 }
 
-+ (REDValidationList *)single:(id)identifier
++ (REDValidationTree *)single:(id)identifier
 {
-	return [[REDValidationList alloc] initWithOperation:REDValidationOperationOR objects:@[identifier]];
+	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationOR objects:@[identifier]];
 }
 
-+ (REDValidationList *)and:(NSArray *)objects
++ (REDValidationTree *)and:(NSArray *)objects
 {
-	return [[REDValidationList alloc] initWithOperation:REDValidationOperationAND objects:objects];
+	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationAND objects:objects];
 }
 
-+ (REDValidationList *)or:(NSArray *)objects
++ (REDValidationTree *)or:(NSArray *)objects
 {
-	return [[REDValidationList alloc] initWithOperation:REDValidationOperationOR objects:objects];
+	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationOR objects:objects];
 }
 
-- (REDValidationList *)and:(NSArray *)objects
+- (REDValidationTree *)and:(NSArray *)objects
 {
-	[_nodes addObject:[[REDValidationListNode alloc] initWithOperation:REDValidationOperationAND objects:objects]];
+	[_nodes addObject:[[REDValidationTreeNode alloc] initWithOperation:REDValidationOperationAND objects:objects]];
 	return self;
 }
 
-- (REDValidationList *)or:(NSArray *)objects
+- (REDValidationTree *)or:(NSArray *)objects
 {
-	[_nodes addObject:[[REDValidationListNode alloc] initWithOperation:REDValidationOperationOR objects:objects]];
+	[_nodes addObject:[[REDValidationTreeNode alloc] initWithOperation:REDValidationOperationOR objects:objects]];
 	return self;
 }
 
@@ -86,7 +86,7 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 	BOOL finalResult = YES;
 	BOOL hasInitializedFinalResult = NO;
 	
-	BOOL (^operation)(REDValidationListNode *, BOOL, BOOL) = ^BOOL (REDValidationListNode *node, BOOL previousResult, BOOL result) {
+	BOOL (^operation)(REDValidationTreeNode *, BOOL, BOOL) = ^BOOL (REDValidationTreeNode *node, BOOL previousResult, BOOL result) {
 		BOOL operationResult = YES;
 		
 		switch (node.operation.unsignedIntegerValue) {
@@ -101,7 +101,7 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 		return operationResult;
 	};
 	
-	for (REDValidationListNode *node in _nodes) {
+	for (REDValidationTreeNode *node in _nodes) {
 		if (!hasInitializedFinalResult) {
 			switch (node.operation.unsignedIntegerValue) {
 				case REDValidationOperationAND:
@@ -126,8 +126,8 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 				finalResult = operation(node, finalResult, result == REDValidationResultValid || result == REDValidationResultDefaultValid);
 			}
 		} else {
-			for (REDValidationList *list in node.lists) {
-				BOOL result = [list validateComponents:components revalidate:revalidate];
+			for (REDValidationTree *tree in node.trees) {
+				BOOL result = [tree validateComponents:components revalidate:revalidate];
 				finalResult = operation(node, finalResult, result);
 			}
 		}
@@ -145,18 +145,18 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 {
 	if (resetValues) {
 		for (REDValidationComponent *component in components.allValues) {
-			component.validatedInValidationList = NO;
+			component.validatedInValidationTree = NO;
 		}
 	}
 	
-	for (REDValidationListNode *node in _nodes) {
+	for (REDValidationTreeNode *node in _nodes) {
 		if (node.identifiers) {
 			for (id identifier in node.identifiers) {
-				components[identifier].validatedInValidationList = YES;
+				components[identifier].validatedInValidationTree = YES;
 			}
 		} else {
-			for (REDValidationList *list in node.lists) {
-				[list evaluateComponents:components resetValues:NO];
+			for (REDValidationTree *tree in node.trees) {
+				[tree evaluateComponents:components resetValues:NO];
 			}
 		}
 	}

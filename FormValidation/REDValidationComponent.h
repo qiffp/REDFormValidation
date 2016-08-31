@@ -59,11 +59,11 @@
 @property (nonatomic, assign, readonly) REDValidationResult valid;
 
 /*!
- * @brief Describes whether the UI component is being used in the validation list of the @c REDValidator @c.
+ * @brief Describes whether the UI component is being used in the validation tree of the @c REDValidator @c.
  * @discussion If false, the component's validation will be ANDed with the rest of the components that are false.
- * @see @c REDValidator.validationList @c
+ * @see @c REDValidator.validationTree @c
  */
-@property (nonatomic, assign) BOOL validatedInValidationList;
+@property (nonatomic, assign) BOOL validatedInValidationTree;
 
 /*!
  * @brief Whether the UI component should be validated. Allows temporary enabling and disabling the validation.

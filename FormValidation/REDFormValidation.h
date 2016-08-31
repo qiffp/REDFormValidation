@@ -11,7 +11,7 @@
 #import "REDValidator.h"
 #import "REDValidationRuleType.h"
 #import "REDValidatableComponent.h"
-#import "REDValidationList.h"
+#import "REDValidationTree.h"
 
 //! Project version number for FormValidation.
 FOUNDATION_EXPORT double FormValidationVersionNumber;

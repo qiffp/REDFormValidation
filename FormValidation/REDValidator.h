@@ -8,7 +8,7 @@
 
 #import "REDValidationRuleType.h"
 
-@class REDValidator, REDValidationList;
+@class REDValidator, REDValidationTree;
 @protocol REDValidatableComponent;
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
@@ -70,7 +70,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  *	If this is nil, all of the component validations are ANDed.
  *	If this is not nil but doesn't include all of the component validations, the remaining ones are ANDed.
  */
-@property (nonatomic, strong) REDValidationList *validationList;
+@property (nonatomic, strong) REDValidationTree *validationTree;
 
 /*!
  * @brief The current validity of the form.

@@ -9,8 +9,8 @@
 #import "REDValidator.h"
 #import "REDValidationComponent.h"
 #import "REDValidatableComponent.h"
-#import "REDValidationList.h"
-#import "REDValidationList+Private.h"
+#import "REDValidationTree.h"
+#import "REDValidationTree+Private.h"
 
 @interface REDValidator () <REDValidationComponentDelegate>
 @end
@@ -29,9 +29,9 @@
 	return self;
 }
 
-- (void)setValidationList:(REDValidationList *)validationList
+- (void)setValidationTree:(REDValidationTree *)validationTree
 {
-	_validationList = validationList;
+	_validationTree = validationTree;
 	[self evaluateComponents];
 }
 
@@ -47,7 +47,7 @@
 
 - (BOOL)removeValidation:(id)identifier
 {
-	if (_validationComponents[identifier].validatedInValidationList) {
+	if (_validationComponents[identifier].validatedInValidationTree) {
 		return NO;
 	} else {
 		[_validationComponents removeObjectForKey:identifier];
@@ -85,10 +85,10 @@
 
 - (REDValidationResult)revalidate:(BOOL)revalidate
 {
-	REDValidationResult result = [self revalidateValidationList:revalidate];
+	REDValidationResult result = [self revalidateValidationTree:revalidate];
 	
 	for (REDValidationComponent *component in _validationComponents.allValues) {
-		if (component.validatedInValidationList == NO) {
+		if (component.validatedInValidationTree == NO) {
 			result &= revalidate ? [component validate] : component.valid;
 			if (result == 0) {
 				result = REDValidationResultInvalid;
@@ -108,23 +108,23 @@
 
 - (void)evaluateComponent:(REDValidationComponent *)component identifier:(id)identifier
 {
-	[_validationList evaluateComponents:@{ identifier : component }];
+	[_validationTree evaluateComponents:@{ identifier : component }];
 	[self evaluateDefaultValidity:@[component]];
 }
 
 - (void)evaluateComponents
 {
-	[_validationList evaluateComponents:_validationComponents];
+	[_validationTree evaluateComponents:_validationComponents];
 	[self evaluateDefaultValidity];
 }
 
-- (REDValidationResult)revalidateValidationList:(BOOL)revalidate
+- (REDValidationResult)revalidateValidationTree:(BOOL)revalidate
 {
-	if (_validationList == nil) {
+	if (_validationTree == nil) {
 		return REDValidationResultValid;
 	}
 	
-	BOOL result = [_validationList validateComponents:_validationComponents revalidate:revalidate];
+	BOOL result = [_validationTree validateComponents:_validationComponents revalidate:revalidate];
 	return result ? REDValidationResultValid : REDValidationResultInvalid;
 }
 

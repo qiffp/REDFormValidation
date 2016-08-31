@@ -135,12 +135,12 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	noteRule.allowDefault = YES;
 	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:noteRule];
 	
-	_validator.validationList = [REDValidationList and:@[
-														 [REDValidationList or:@[
-																				 [REDValidationList and:@[@(FormCellFirstName), @(FormCellLastName)]],
-																				 [REDValidationList single:@(FormCellEmail)]
+	_validator.validationTree = [REDValidationTree and:@[
+														 [REDValidationTree or:@[
+																				 [REDValidationTree and:@[@(FormCellFirstName), @(FormCellLastName)]],
+																				 [REDValidationTree single:@(FormCellEmail)]
 																				 ]],
-														 [REDValidationList single:@(FormCellAddress)]
+														 [REDValidationTree single:@(FormCellAddress)]
 														 ]];
 }
 
