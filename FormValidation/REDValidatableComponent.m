@@ -60,12 +60,7 @@ NSString *const kUITextViewDefaultValue = @"";
 
 - (id)defaultValue
 {
-	static NSString *value = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		value = kUITextFieldDefaultValue;
-	});
-	return value;
+	return kUITextFieldDefaultValue;
 }
 
 @end
@@ -79,12 +74,7 @@ NSString *const kUITextViewDefaultValue = @"";
 
 - (id)defaultValue
 {
-	static NSString *value = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		value = kUITextViewDefaultValue;
-	});
-	return value;
+	return kUITextViewDefaultValue;
 }
 
 @end
