@@ -39,7 +39,6 @@
 {
 	REDValidationComponent *validationComponent = _validationComponents[identifier];
 	if (validationComponent) {
-		[validationComponent reset];
 		validationComponent.uiComponent = component;
 		[self evaluateComponent:validationComponent identifier:identifier];
 	}

@@ -31,7 +31,7 @@
 {
 	self = [super init];
 	if (self ) {
-		[self reset];
+		_valid = REDValidationResultUnvalidated;
 		_shouldValidate = YES;
 		_initialValue = initialValue;
 		
@@ -148,11 +148,6 @@
 	}
 	
 	return _valid;
-}
-
-- (void)reset
-{
-	_valid = REDValidationResultUnvalidated;
 }
 
 - (REDValidationResult)evaluateDefaultValidity

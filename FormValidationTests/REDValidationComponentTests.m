@@ -65,15 +65,6 @@
 	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
 }
 
-#pragma mark - reset
-
-- (void)testResetReinitializesValid
-{
-	_component.valid = REDValidationResultValid;
-	[_component reset];
-	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
-}
-
 #pragma mark - validate
 
 - (void)testValidateReturnsValidResultIfShouldValidateIsFalse

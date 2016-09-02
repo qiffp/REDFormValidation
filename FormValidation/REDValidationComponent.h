@@ -94,12 +94,6 @@
 - (REDValidationResult)validate;
 
 /*!
- * @brief Resets the valid state of the validation object.
- * @see @c valid @c
- */
-- (void)reset;
-
-/*!
  * @brief Determines whether the component is valid upon creation.
  * @return Whether the component is unvalidated and has the default value of its class.
  */
