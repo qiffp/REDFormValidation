@@ -63,7 +63,7 @@
 
 - (void)testNewComponentIsUnvalidated
 {
-	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated, @"Component should be unvalidated");
+	XCTAssertEqual(_component.valid, REDValidationResultUnvalidated);
 }
 
 #pragma mark - validate
@@ -72,14 +72,14 @@
 {
 	_component.shouldValidate = NO;
 	_component.valid = REDValidationResultUnvalidated;
-	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validate should return valid if shouldValidate is false");
+	XCTAssertEqual([_component validate], REDValidationResultValid);
 }
 
 - (void)testValidateValidatesUIComponentIfThereIsOne
 {
-	XCTAssertNotNil(_component.uiComponent, @"Should have a uiComponent");
-	XCTAssertTrue(_component.shouldValidate, @"Should validate");
-	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertNotNil(_component.uiComponent);
+	XCTAssertTrue(_component.shouldValidate);
+	XCTAssertEqual([_component validate], REDValidationResultValid);
 }
 
 - (void)testValidateReturnsExistingValidValueIfComponentHasNoUIComponentAndHasNoInitialValue
@@ -87,10 +87,10 @@
 	_component.uiComponent = nil;
 	
 	_component.valid = REDValidationResultValid;
-	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validate should return previous `valid` value if there is no uiComponent");
+	XCTAssertEqual([_component validate], REDValidationResultValid);
 	
 	_component.valid = REDValidationResultInvalid;
-	XCTAssertEqual([_component validate], REDValidationResultInvalid, @"Validate should return previous `valid` value if there is no uiCompnent");
+	XCTAssertEqual([_component validate], REDValidationResultInvalid);
 }
 
 - (void)testValidateValidatesInitialValueIfComponentHasNoUIComponentAndIsUnvalidated
@@ -99,13 +99,13 @@
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultUnvalidated;
-	XCTAssertEqual([_component validate], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([_component validate], REDValidationResultInvalid);
 	
 	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hello" validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultUnvalidated;
-	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([_component validate], REDValidationResultValid);
 }
 
 - (void)testValidateDoesNotValidateInitialValueIfComponentHasNoUIComponentAndIsValidated
@@ -114,7 +114,7 @@
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultValid;
-	XCTAssertEqual([_component validate], REDValidationResultValid, @"Validation should return previous `valid` value if it has already been validated");
+	XCTAssertEqual([_component validate], REDValidationResultValid);
 }
 
 #pragma mark - validationEvent
@@ -293,13 +293,13 @@
 	
 	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
 	NSSet *targets = slider.allTargets;
-	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	XCTAssertEqual(targets.count, 1);
 	
 	id target = targets.allObjects.firstObject;
-	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1, @"Target should have 1 action for EditingDidBegin");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0, @"Target should have 0 actions for EditingDidEnd");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0, @"Target should have 0 actions for ValueChanged");
+	XCTAssertEqualObjects(target, _component);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0);
 }
 
 - (void)testControlValidatesOnEndEditingWithValidationEventEndEditing
@@ -312,13 +312,13 @@
 	
 	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
 	NSSet *targets = slider.allTargets;
-	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	XCTAssertEqual(targets.count, 1);
 	
 	id target = targets.allObjects.firstObject;
-	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0, @"Target should have 0 actions for EditingDidBegin");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1, @"Target should have 1 action for EditingDidEnd");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0, @"Target should have 0 actions for ValueChanged");
+	XCTAssertEqualObjects(target, _component);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0);
 }
 
 - (void)testControlValidatesOnChangeWithValidationEventChange
@@ -331,13 +331,13 @@
 	
 	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
 	NSSet *targets = slider.allTargets;
-	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	XCTAssertEqual(targets.count, 1);
 	
 	id target = targets.allObjects.firstObject;
-	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0, @"Target should have 0 actions for EditingDidBegin");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0, @"Target should have 0 actions for EditingDidEnd");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1, @"Target should have 1 action for ValueChanged");
+	XCTAssertEqualObjects(target, _component);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
 }
 
 - (void)testControlValidatesOnAllEventsWithValidationEventAll
@@ -347,13 +347,13 @@
 	
 	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
 	NSSet *targets = slider.allTargets;
-	XCTAssertEqual(targets.count, 1, @"There should be a single target");
+	XCTAssertEqual(targets.count, 1);
 	
 	id target = targets.allObjects.firstObject;
-	XCTAssertEqualObjects(target, _component, @"_component should be the single target");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1, @"Target should have 1 action for EditingDidBegin");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1, @"Target should have 1 action for EditingDidEnd");
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1, @"Target should have 1 action for ValueChanged");
+	XCTAssertEqualObjects(target, _component);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
 }
 
 #pragma mark - evaluateDefaultValidity
@@ -370,10 +370,10 @@
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = textField;
 	
-	XCTAssertTrue(rule.allowDefault, @"Rule should allow default value");
-	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should be default value");
+	XCTAssertTrue(rule.allowDefault);
+	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue);
 	
-	XCTAssertEqual([component evaluateDefaultValidity], REDValidationResultDefaultValid, @"Should be default valid");
+	XCTAssertEqual([component evaluateDefaultValidity], REDValidationResultDefaultValid);
 }
 
 - (void)testEvaluateDefaultValidityReturnsDefaulValidIfAndAllowsDefaultValidAndUIComponentIsNil
@@ -385,10 +385,10 @@
 	
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
 	
-	XCTAssertTrue(rule.allowDefault, @"Rule should allow default value");
-	XCTAssertNil(component.uiComponent, @"UIComponent should be nil");
+	XCTAssertTrue(rule.allowDefault);
+	XCTAssertNil(component.uiComponent);
 	
-	XCTAssertEqual([component evaluateDefaultValidity], REDValidationResultDefaultValid, @"Should be default valid");
+	XCTAssertEqual([component evaluateDefaultValidity], REDValidationResultDefaultValid);
 }
 
 - (void)testEvaluateDefaultValidityReturnsExistingValidValueIfRuleDoesNotAllowDefault
@@ -402,10 +402,10 @@
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = textField;
 	
-	XCTAssertFalse(rule.allowDefault, @"Rule should not allow default value");
-	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should be default value");
+	XCTAssertFalse(rule.allowDefault);
+	XCTAssertEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue);
 	
-	XCTAssertEqual([component evaluateDefaultValidity], component.valid, @"Should be equal to existing `valid` value");
+	XCTAssertEqual([component evaluateDefaultValidity], component.valid);
 }
 
 - (void)testEvaluateDefaultValidityReturnsExistingValidValueIfComponentValueIsNotDefaultValue
@@ -421,10 +421,10 @@
 	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
 	component.uiComponent = textField;
 	
-	XCTAssertTrue(rule.allowDefault, @"Rule should allow default value");
-	XCTAssertNotEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue, @"Validated value should not be default value");
+	XCTAssertTrue(rule.allowDefault);
+	XCTAssertNotEqualObjects([component.uiComponent validatedValue], kUITextFieldDefaultValue);
 	
-	XCTAssertEqual([component evaluateDefaultValidity], component.valid, @"Should be equal to existing `valid` value");
+	XCTAssertEqual([component evaluateDefaultValidity], component.valid);
 }
 
 @end

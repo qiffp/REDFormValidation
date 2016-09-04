@@ -24,7 +24,7 @@
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	XCTAssertEqual([rule validate:nil], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([rule validate:nil], REDValidationResultValid);
 }
 
 - (void)testRuleFailingValidation
@@ -32,13 +32,13 @@
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}];
-	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid);
 }
 
 - (void)testRuleFailsValidationWithoutABlock
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:nil];
-	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid);
 }
 
 - (void)testNetworkRulePassingValidation
@@ -104,7 +104,7 @@
 - (void)testNetworkRuleFailsValidationWithoutABlock
 {
 	REDNetworkValidationRule *rule = [REDNetworkValidationRule ruleWithBlock:nil];
-	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([rule validate:nil], REDValidationResultInvalid);
 }
 
 #pragma mark - allowDefault

@@ -18,25 +18,25 @@
 - (void)testUISliderDefaultValue
 {
 	UISlider *slider = [UISlider new];
-	XCTAssertEqualObjects([slider validatedValue], [slider defaultValue], @"UISlider default value should be correct");
+	XCTAssertEqualObjects([slider validatedValue], [slider defaultValue]);
 }
 
 - (void)testUIStepperDefaultValue
 {
 	UIStepper *stepper = [UIStepper new];
-	XCTAssertEqualObjects([stepper validatedValue], [stepper defaultValue], @"UIStepper default value should be correct");
+	XCTAssertEqualObjects([stepper validatedValue], [stepper defaultValue]);
 }
 
 - (void)testUITextFieldDefaultValue
 {
 	UITextField *textField = [UITextField new];
-	XCTAssertEqualObjects([textField validatedValue], [textField defaultValue], @"UITextField default value should be correct");
+	XCTAssertEqualObjects([textField validatedValue], [textField defaultValue]);
 }
 
 - (void)testUITextViewDefaultValue
 {
 	UITextView *textView = [UITextView new];
-	XCTAssertEqualObjects([textView validatedValue], [textView defaultValue], @"UITextView default value should be correct");
+	XCTAssertEqualObjects([textView validatedValue], [textView defaultValue]);
 }
 
 @end

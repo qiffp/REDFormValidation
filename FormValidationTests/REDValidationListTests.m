@@ -74,7 +74,7 @@
 	
 	REDValidationTree *tree = [REDValidationTree and:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateANDIdentifiersFailure
@@ -86,7 +86,7 @@
 	
 	REDValidationTree *tree = [REDValidationTree and:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateORIdentifiersSuccess
@@ -98,7 +98,7 @@
 	
 	REDValidationTree *tree = [REDValidationTree or:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateORIdentifiersFailure
@@ -110,7 +110,7 @@
 	
 	REDValidationTree *tree = [REDValidationTree or:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateSimpleANDTreesSuccess
@@ -127,7 +127,7 @@
 													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateSimpleANDTreesFailure
@@ -144,7 +144,7 @@
 													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateSimpleORTreesSuccess
@@ -161,7 +161,7 @@
 													   [REDValidationTree and:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateSimpleORTreesFailure
@@ -178,7 +178,7 @@
 													   [REDValidationTree and:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateComplexTreesSuccess
@@ -230,7 +230,7 @@
 																			   ]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid, @"Validation should succeed");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateComplexTreesFailure
@@ -282,7 +282,7 @@
 																			   ]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid, @"Validation should fail");
+	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
 }
 
 #pragma mark - evaluateComponents:
