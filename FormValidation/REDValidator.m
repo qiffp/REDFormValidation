@@ -88,13 +88,11 @@
 	
 	for (REDValidationComponent *component in _validationComponents.allValues) {
 		if (component.validatedInValidationTree == NO) {
-			result &= revalidate ? [component validate] : component.valid;
-			if (result == 0) {
-				result = REDValidationResultInvalid;
-				break;
-			}
+			result |= revalidate ? [component validate] : component.valid;
 		}
 	}
+	
+	result = [REDValidationTree resultForMask:result operation:REDValidationOperationAND];
 	
 	if ([_delegate respondsToSelector:@selector(validator:didValidateFormWithResult:)]) {
 		[_delegate validator:self didValidateFormWithResult:result];
@@ -123,8 +121,7 @@
 		return REDValidationResultValid;
 	}
 	
-	BOOL result = [_validationTree validateComponents:_validationComponents revalidate:revalidate];
-	return result ? REDValidationResultValid : REDValidationResultInvalid;
+	return [_validationTree validateComponents:_validationComponents revalidate:revalidate];
 }
 
 - (void)evaluateDefaultValidity

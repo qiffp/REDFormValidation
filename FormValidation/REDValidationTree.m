@@ -7,20 +7,14 @@
 //
 
 #import "REDValidationTree.h"
+#import "REDValidationTree+Private.h"
 #import "REDValidationComponent.h"
 
-typedef NS_ENUM(NSUInteger, REDValidationOperation) {
-	REDValidationOperationAND,
-	REDValidationOperationOR
-};
-
-@interface REDValidationTreeNode : NSObject
-@property (nonatomic, strong, readonly) NSNumber *operation;
-@property (nonatomic, strong, readonly) NSArray *identifiers;
-@property (nonatomic, strong, readonly) NSArray<REDValidationTree *> *trees;
-@end
-
-@implementation REDValidationTreeNode
+@implementation REDValidationTree {
+	NSNumber *_operation;
+	NSArray *_identifiers;
+	NSArray<REDValidationTree *> *_trees;
+}
 
 - (instancetype)initWithOperation:(REDValidationOperation)operation objects:(NSArray *)objects
 {
@@ -38,25 +32,9 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 	return self;
 }
 
-@end
-
-@implementation REDValidationTree {
-	NSMutableArray<REDValidationTreeNode *> *_nodes;
-}
-
-- (instancetype)initWithOperation:(REDValidationOperation)operation objects:(NSArray *)objects
-{
-	self = [super init];
-	if (self) {
-		_nodes = [NSMutableArray new];
-		[_nodes addObject:[[REDValidationTreeNode alloc] initWithOperation:operation objects:objects]];
-	}
-	return self;
-}
-
 + (REDValidationTree *)single:(id)identifier
 {
-	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationOR objects:@[identifier]];
+	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationNone objects:@[identifier]];
 }
 
 + (REDValidationTree *)and:(NSArray *)objects
@@ -69,71 +47,36 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationOR objects:objects];
 }
 
-- (REDValidationTree *)and:(NSArray *)objects
+- (REDValidationResult)validateComponents:(NSDictionary<id, REDValidationComponent *> *)components revalidate:(BOOL)revalidate
 {
-	[_nodes addObject:[[REDValidationTreeNode alloc] initWithOperation:REDValidationOperationAND objects:objects]];
-	return self;
+	if (_identifiers) {
+		REDValidationResult result = [self validateComponents:components withIdentifiers:_identifiers revalidate:revalidate];
+		return [REDValidationTree resultForMask:result operation:_operation.unsignedIntegerValue];
+	} else {
+		REDValidationResult result = 0;
+		
+		for (REDValidationTree *tree in _trees) {
+			result |= [tree validateComponents:components revalidate:revalidate];
+		}
+		
+		return [REDValidationTree resultForMask:result operation:_operation.unsignedIntegerValue];
+	}
 }
 
-- (REDValidationTree *)or:(NSArray *)objects
+- (REDValidationResult)validateComponents:(NSDictionary<id, REDValidationComponent *> *)components withIdentifiers:(NSArray *)identifiers revalidate:(BOOL)revalidate
 {
-	[_nodes addObject:[[REDValidationTreeNode alloc] initWithOperation:REDValidationOperationOR objects:objects]];
-	return self;
-}
-
-- (BOOL)validateComponents:(NSDictionary<id, REDValidationComponent *> *)components revalidate:(BOOL)revalidate
-{
-	BOOL finalResult = YES;
-	BOOL hasInitializedFinalResult = NO;
+	REDValidationResult result = 0;
 	
-	BOOL (^operation)(REDValidationTreeNode *, BOOL, BOOL) = ^BOOL (REDValidationTreeNode *node, BOOL previousResult, BOOL result) {
-		BOOL operationResult = YES;
-		
-		switch (node.operation.unsignedIntegerValue) {
-			case REDValidationOperationAND:
-				operationResult = previousResult && result;
-				break;
-			case REDValidationOperationOR:
-				operationResult = previousResult || result;
-				break;
+	for (id identifier in identifiers) {
+		REDValidationComponent *component = components[identifier];
+		if (component == nil) {
+			NSLog(@"<REDFormValidation WARNING> Identifier '%@' used in the validation tree is not associated with a component. This will always validate as REDValidationResultUnvalidated", identifier);
 		}
 		
-		return operationResult;
-	};
-	
-	for (REDValidationTreeNode *node in _nodes) {
-		if (!hasInitializedFinalResult) {
-			switch (node.operation.unsignedIntegerValue) {
-				case REDValidationOperationAND:
-					finalResult = YES;
-					break;
-				case REDValidationOperationOR:
-					finalResult = NO;
-					break;
-			}
-			
-			hasInitializedFinalResult = YES;
-		}
-		
-		if (node.identifiers) {
-			for (id identifier in node.identifiers) {
-				REDValidationComponent *component = components[identifier];
-				if (component == nil) {
-					NSLog(@"<REDFormValidation WARNING> Identifier '%@' used in the validation tree is not associated with a component. This will always validate as REDValidationResultUnvalidated", identifier);
-				}
-				
-				REDValidationResult result = revalidate ? [component validate] : component.valid;
-				finalResult = operation(node, finalResult, result == REDValidationResultValid || result == REDValidationResultDefaultValid);
-			}
-		} else {
-			for (REDValidationTree *tree in node.trees) {
-				BOOL result = [tree validateComponents:components revalidate:revalidate];
-				finalResult = operation(node, finalResult, result);
-			}
-		}
+		result |= revalidate ? [component validate] : component.valid;
 	}
 	
-	return finalResult;
+	return result;
 }
 
 - (void)evaluateComponents:(NSDictionary<id, REDValidationComponent *> *)components
@@ -149,16 +92,41 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 		}
 	}
 	
-	for (REDValidationTreeNode *node in _nodes) {
-		if (node.identifiers) {
-			for (id identifier in node.identifiers) {
-				components[identifier].validatedInValidationTree = YES;
-			}
+	if (_identifiers) {
+		for (id identifier in _identifiers) {
+			components[identifier].validatedInValidationTree = YES;
+		}
+	} else {
+		for (REDValidationTree *tree in _trees) {
+			[tree evaluateComponents:components resetValues:NO];
+		}
+	}
+}
+
++ (REDValidationResult)resultForMask:(REDValidationResult)mask operation:(REDValidationOperation)operation
+{
+	if (mask & REDValidationResultInvalid) {
+		return REDValidationResultInvalid;
+	} else if (mask & REDValidationResultPending) {
+		return REDValidationResultPending;
+	} else if (mask & REDValidationResultUnvalidated) {
+		if (mask == REDValidationResultUnvalidated) {
+			return REDValidationResultUnvalidated;
 		} else {
-			for (REDValidationTree *tree in node.trees) {
-				[tree evaluateComponents:components resetValues:NO];
+			switch (operation) {
+				case REDValidationOperationNone:
+					return REDValidationResultUnvalidated;
+					break;
+				case REDValidationOperationAND:
+					return REDValidationResultInvalid;
+					break;
+				default:
+					return REDValidationResultValid;
+					break;
 			}
 		}
+	} else {
+		return REDValidationResultValid;
 	}
 }
 

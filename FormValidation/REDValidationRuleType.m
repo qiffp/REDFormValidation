@@ -35,8 +35,8 @@
 {
 	id value = [component validatedValue];
 	
-	if (_allowDefault && [value isEqual:[component defaultValue]]) {
-		return REDValidationResultDefaultValid;
+	if ([value isEqual:[component defaultValue]]) {
+		return _allowDefault ? REDValidationResultDefaultValid : REDValidationResultUnvalidated;
 	}
 	
 	return [self validateValue:value];

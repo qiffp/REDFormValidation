@@ -22,6 +22,15 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 @implementation TestTextField
 
+- (instancetype)init
+{
+	self = [super init];
+	if (self) {
+		self.text = @"test";
+	}
+	return self;
+}
+
 - (void)validatorWillValidateComponent:(REDValidator *)validator
 {
 	_willValidate = YES;
@@ -174,10 +183,10 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	}]];
 	
 	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return NO;
+		return YES;
 	}]];
 	
-	_testForm.validator.validationTree = [REDValidationTree or:@[@(kTestValidationTextField1), @(kTestValidationTextField2)]];
+	_testForm.validator.validationTree = [REDValidationTree and:@[@(kTestValidationTextField1), @(kTestValidationTextField2)]];
 	
 	[self loadCells];
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultValid, @"Validation should pass");
@@ -261,7 +270,6 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(YES, nil);
-			
 			[validationExpectation fulfill];
 		}];
 		[task resume];
@@ -269,7 +277,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	}]];
 	
 	[self loadCells];
-	XCTAssertEqual([_testForm.validator validate], REDValidationResultInvalid, @"Validation should be invalid before completing");
+	XCTAssertEqual([_testForm.validator validate], REDValidationResultPending, @"Validation should be invalid before completing");
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 	
@@ -282,7 +290,6 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(NO, nil);
-			
 			[validationExpectation fulfill];
 		}];
 		[task resume];
@@ -290,7 +297,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	}]];
 	
 	[self loadCells];
-	XCTAssertEqual([_testForm.validator validate], REDValidationResultInvalid, @"Validation should be invalid before completing");
+	XCTAssertEqual([_testForm.validator validate], REDValidationResultPending, @"Validation should be invalid before completing");
 	
 	[self waitForExpectationsWithTimeout:5.0 handler:nil];
 	
