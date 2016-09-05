@@ -11,12 +11,16 @@
 #import "REDValidatableComponent.h"
 #import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
+#import "REDValidationRuleType.h"
 
 @interface REDValidator () <REDValidationComponentDelegate>
 @end
 
 @implementation REDValidator {
 	NSMutableDictionary<id, REDValidationComponent *> *_validationComponents;
+	
+	dispatch_block_t _delayedValidationBlock;
+	REDValidationComponent *_firstResponderComponent;
 }
 
 - (instancetype)init
@@ -137,6 +141,34 @@
 }
 
 #pragma mark - REDValidationComponentDelegate
+
+- (void)validationComponentReceivedInput:(REDValidationComponent *)validationComponent
+{
+	if (_delayedValidationBlock) {
+		dispatch_block_cancel(_delayedValidationBlock);
+	}
+	
+	_firstResponderComponent = validationComponent;
+	_delayedValidationBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
+		[_firstResponderComponent validate];
+	});
+	
+	NSTimeInterval delay = [validationComponent.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
+	if (delay > 0.0) {
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), _delayedValidationBlock);
+	} else {
+		[_firstResponderComponent validate];
+	}
+}
+
+- (void)validationComponentEndedEditing:(REDValidationComponent *)validationComponent
+{
+	_firstResponderComponent = nil;
+	if (_delayedValidationBlock) {
+		dispatch_block_cancel(_delayedValidationBlock);
+		_delayedValidationBlock = nil;
+	}
+}
 
 - (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent
 {

@@ -112,6 +112,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	
 	_validator = [[REDValidator alloc] init];
 	_validator.delegate = self;
+	_validator.inputDelay = 1.0;
 	[self setUpValidationRules];
 }
 
@@ -120,12 +121,12 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	REDValidationRule *lengthRule = [REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 0;
 	}];
-	[_validator addValidation:@(FormCellFirstName) validateOn:REDValidationEventChange rule:lengthRule];
-	[_validator addValidation:@(FormCellLastName) validateOn:REDValidationEventChange rule:lengthRule];
-	[_validator addValidation:@(FormCellEmail) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+	[_validator addValidation:@(FormCellFirstName) validateOn:REDValidationEventDefault rule:lengthRule];
+	[_validator addValidation:@(FormCellLastName) validateOn:REDValidationEventDefault rule:lengthRule];
+	[_validator addValidation:@(FormCellEmail) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 0 && [text containsString:@"@"];
 	}]];
-	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 5;
 	}]];
 	
@@ -133,7 +134,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 		return YES;
 	}];
 	noteRule.allowDefault = YES;
-	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventChange rule:noteRule];
+	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventDefault rule:noteRule];
 	
 	_validator.validationTree = [REDValidationTree and:@[
 														 [REDValidationTree or:@[

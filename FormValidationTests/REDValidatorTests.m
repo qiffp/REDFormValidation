@@ -178,11 +178,11 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testPassingValidationTree
 {
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
@@ -195,11 +195,11 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testFailingValidationTree
 {
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]];
 	
@@ -214,15 +214,15 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 {
 	_testForm.validator.validationTree = [REDValidationTree single:@(kTestValidationTextField3)];
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField3) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField3) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
@@ -230,7 +230,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultValid);
 	XCTAssertEqual(_testForm.valid, REDValidationResultValid);
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]];
 	
@@ -243,11 +243,11 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 {
 	_testForm.validator.validationTree = nil;
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
@@ -255,7 +255,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultValid);
 	XCTAssertEqual(_testForm.valid, REDValidationResultValid);
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]];
 	
@@ -267,7 +267,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 - (void)testPassingNetworkComponentValidation
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(YES, nil);
 			[validationExpectation fulfill];
@@ -287,7 +287,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 - (void)testFailingNetworkComponentValidation
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(NO, nil);
 			[validationExpectation fulfill];
@@ -308,7 +308,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 {
 	_testForm.validator.shouldValidate = NO;
 	
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]];
 	
@@ -323,8 +323,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:rule];
-	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventAll rule:rule];
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:rule];
+	[_testForm.validator addValidation:@(kTestValidationTextField2) validateOn:REDValidationEventDefault rule:rule];
 	
 	[self loadCells];
 	
@@ -348,7 +348,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testRemoveValidationRemovesValidation
 {
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField1)]);
@@ -359,7 +359,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testRemoveValidationDoesNotRemoveValidationIfItIsInValidationTree
 {
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_testForm.validator.validationTree = [REDValidationTree single:@(kTestValidationTextField1)];
@@ -373,7 +373,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testFormIsReEvaluatedAfterSettingShouldValidateComponent
 {
-	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:@(kTestValidationTextField1) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]];
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultInvalid, @"Initial validation should fail");

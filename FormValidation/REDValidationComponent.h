@@ -20,6 +20,18 @@
 @protocol REDValidationComponentDelegate <NSObject>
 
 /*!
+ * @brief Notifies the delegate when a UI component has received an input.
+ * @param validationComponent The object handling validation.
+ */
+- (void)validationComponentReceivedInput:(REDValidationComponent *)validationComponent;
+
+/*!
+ * @brief Notifies the delegate when a UI component has resigned first responder status.
+ * @param validationComponent The object handling validation.
+ */
+- (void)validationComponentEndedEditing:(REDValidationComponent *)validationComponent;
+
+/*!
  * @brief Notifies the delegate when a UI component is about to be validated.
  * @param validationComponent The object handling validation.
  * @param uiComponent The UI component whose value is being validated.
@@ -57,6 +69,11 @@
  * @brief The current validity of the UI component based on the validation rule.
  */
 @property (nonatomic, assign, readonly) REDValidationResult valid;
+
+/*!
+ * @brief A rule describing the validation of the UI component.
+ */
+@property (nonatomic, strong, readonly) id<REDValidationRuleType> rule;
 
 /*!
  * @brief Describes whether the UI component is being used in the validation tree of the @c REDValidator @c.

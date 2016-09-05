@@ -11,6 +11,11 @@
 
 #import "REDValidationComponent.h"
 
+@interface REDValidationComponent (TestExpose)
+- (void)textDidChange:(NSNotification *)notification;
+- (void)textDidEndEditing:(NSNotification *)notification;
+@end
+
 @interface REDValidationComponent (TestHelper)
 @property (nonatomic, assign, readwrite) REDValidationResult valid;
 @end
@@ -30,31 +35,25 @@
 @implementation REDValidationComponentTests {
 	UITextField *_textField;
 	REDValidationComponent *_component;
-	id _delegate;
 }
 
 - (void)setUp
 {
     [super setUp];
 	
-	_delegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationComponentDelegate)];
 	_textField = [UITextField new];
 	_textField.text = @"test";
 	
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
-	_component.delegate = _delegate;
 }
 
 - (void)tearDown
 {
-	[_delegate verify];
-	
 	_textField = nil;
 	_component = nil;
-	_delegate = nil;
 	
     [super tearDown];
 }
@@ -95,13 +94,13 @@
 
 - (void)testValidateValidatesInitialValueIfComponentHasNoUIComponentAndIsUnvalidated
 {
-	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hi" validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultUnvalidated;
 	XCTAssertEqual([_component validate], REDValidationResultInvalid);
 	
-	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hello" validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hello" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultUnvalidated;
@@ -110,7 +109,7 @@
 
 - (void)testValidateDoesNotValidateInitialValueIfComponentHasNoUIComponentAndIsValidated
 {
-	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hi" validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultValid;
@@ -119,104 +118,33 @@
 
 #pragma mark - validationEvent
 
-- (void)testTextFieldValidatesOnBeginEditingWithValidationEventBeginEditing
-{
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]];
-	_component.uiComponent = _textField;
-	_component.delegate = _delegate;
-	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
-}
-
 - (void)testTextFieldValidatesOnEndEditingWithValidationEventEndEditing
 {
 	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
-	_component.delegate = _delegate;
 	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
+	id componentMock = [OCMockObject partialMockForObject:_component];
+	[[componentMock reject] textDidChange:[OCMArg any]];
+	[[componentMock expect] textDidEndEditing:[OCMArg any]];
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
-}
-
-- (void)testTextFieldValidatesOnChangeWithValidationEventChange
-{
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]];
-	_component.uiComponent = _textField;
-	_component.delegate = _delegate;
-	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
-}
-
-- (void)testTextFieldValidatesOnAllEventsWithValidationEventAll
-{
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
 	
-	XCTAssertEqual(callCount, 3, @"callCount should have been incremented for each event");
+	[componentMock verify];
 }
 
-- (void)testTextViewValidatesOnBeginEditingWithValidationEventBeginEditing
+- (void)testTextFieldValidatesOnAllEventsWithValidationEventDefault
 {
-	UITextView *textView = [UITextView new];
-	textView.text = @"test";
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]];
-	_component.uiComponent = textView;
-	_component.delegate = _delegate;
+	id componentMock = [OCMockObject partialMockForObject:_component];
+	[[componentMock expect] textDidChange:[OCMArg any]];
+	[[componentMock expect] textDidEndEditing:[OCMArg any]];
 	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_component.uiComponent];
+	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidChangeNotification object:_component.uiComponent];
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after begin editing");
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
+	[componentMock verify];
 }
 
 - (void)testTextViewValidatesOnEndEditingWithValidationEventEndEditing
@@ -227,79 +155,31 @@
 		return YES;
 	}]];
 	_component.uiComponent = textView;
-	_component.delegate = _delegate;
 	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
+	id componentMock = [OCMockObject partialMockForObject:_component];
+	[[componentMock reject] textDidChange:[OCMArg any]];
+	[[componentMock expect] textDidEndEditing:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after end editing notification");
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
+	
+	[componentMock verify];
 }
 
-- (void)testTextViewValidatesOnChangeWithValidationEventChange
-{
-	UITextView *textView = [UITextView new];
-	textView.text = @"test";
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]];
-	_component.uiComponent = textView;
-	_component.delegate = _delegate;
-	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should increment after change notification");
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
-	XCTAssertEqual(callCount, 1, @"callCount should not increase after other notifications");
-}
-
-- (void)testTextViewValidatesOnAllEventsWithValidationEventAll
+- (void)testTextViewValidatesOnAllEventsWithValidationEventDefault
 {
 	UITextView *textView = [UITextView new];
 	textView.text = @"test";
 	_component.uiComponent = textView;
 	
-	__block NSUInteger callCount = 0;
-	[[[_delegate stub] andDo:^(NSInvocation *invocation) {
-		callCount++;
-	}] validationComponent:[OCMArg any] didValidateUIComponent:[OCMArg any] result:REDValidationResultValid error:[OCMArg any]];
+	id componentMock = [OCMockObject partialMockForObject:_component];
+	[[componentMock expect] textDidChange:[OCMArg any]];
+	[[componentMock expect] textDidEndEditing:[OCMArg any]];
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidBeginEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_component.uiComponent];
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:_component.uiComponent];
 	
-	XCTAssertEqual(callCount, 3, @"callCount should have been incremented for each event");
-}
-
-- (void)testControlValidatesOnBeginEditingWithValidationEventBeginEditing
-{
-	UISlider *slider = [UISlider new];
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventBeginEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]];
-	_component.uiComponent = slider;
-	
-	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
-	NSSet *targets = slider.allTargets;
-	XCTAssertEqual(targets.count, 1);
-	
-	id target = targets.allObjects.firstObject;
-	XCTAssertEqualObjects(target, _component);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0);
+	[componentMock verify];
 }
 
 - (void)testControlValidatesOnEndEditingWithValidationEventEndEditing
@@ -316,31 +196,11 @@
 	
 	id target = targets.allObjects.firstObject;
 	XCTAssertEqualObjects(target, _component);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0);
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1);
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0);
 }
 
-- (void)testControlValidatesOnChangeWithValidationEventChange
-{
-	UISlider *slider = [UISlider new];
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventChange rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]];
-	_component.uiComponent = slider;
-	
-	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
-	NSSet *targets = slider.allTargets;
-	XCTAssertEqual(targets.count, 1);
-	
-	id target = targets.allObjects.firstObject;
-	XCTAssertEqualObjects(target, _component);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 0);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 0);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
-}
-
-- (void)testControlValidatesOnAllEventsWithValidationEventAll
+- (void)testControlValidatesOnAllEventsWithValidationEventDefault
 {
 	UISlider *slider = [UISlider new];
 	_component.uiComponent = slider;
@@ -351,7 +211,6 @@
 	
 	id target = targets.allObjects.firstObject;
 	XCTAssertEqualObjects(target, _component);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidBegin].count, 1);
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1);
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
 }
@@ -367,7 +226,7 @@
 	
 	UITextField *textField = [UITextField new];
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertTrue(rule.allowDefault);
@@ -383,7 +242,7 @@
 	}];
 	rule.allowDefault = YES;
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	
 	XCTAssertTrue(rule.allowDefault);
 	XCTAssertNil(component.uiComponent);
@@ -399,7 +258,7 @@
 	
 	UITextField *textField = [UITextField new];
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertFalse(rule.allowDefault);
@@ -418,7 +277,7 @@
 	UITextField *textField = [UITextField new];
 	textField.text = @"test";
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventAll rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertTrue(rule.allowDefault);

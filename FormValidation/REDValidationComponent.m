@@ -12,19 +12,12 @@
 @end
 
 @implementation REDValidationComponent {
-	id<REDValidationRuleType> _rule;
-	struct {
-		BOOL change;
-		BOOL beginEditing;
-		BOOL endEditing;
-	} _validationEvents;
-	
-	REDValidationResult _valid;
+	REDValidationEvent _event;
 }
 
 - (instancetype)init
 {
-	return [self initWithInitialValue:nil validationEvent:REDValidationEventAll rule:nil];
+	return [self initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:nil];
 }
 
 - (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
@@ -33,17 +26,8 @@
 	if (self ) {
 		_valid = REDValidationResultUnvalidated;
 		_shouldValidate = YES;
-		_initialValue = initialValue;
-		
-		if (event & REDValidationEventAll) {
-			_validationEvents.change = YES;
-			_validationEvents.beginEditing = YES;
-			_validationEvents.endEditing = YES;
-		} else {
-			_validationEvents.change = event & REDValidationEventChange;
-			_validationEvents.beginEditing = event & REDValidationEventBeginEditing;
-			_validationEvents.endEditing = event & REDValidationEventEndEditing;
-		}
+		_initialValue = [initialValue copy];
+		_event = event;
 		
 		_rule = rule;
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]]) {
@@ -91,36 +75,21 @@
 - (void)setupComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
-		if (_validationEvents.change) {
+		if (_event == REDValidationEventDefault) {
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
 		}
-		if (_validationEvents.beginEditing) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidBeginEditing:) name:UITextFieldTextDidBeginEditingNotification object:_uiComponent];
-		}
-		if (_validationEvents.endEditing) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_uiComponent];
-		}
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
-		if (_validationEvents.change) {
+		if (_event == REDValidationEventDefault) {
 			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextViewTextDidChangeNotification object:_uiComponent];
 		}
-		if (_validationEvents.beginEditing) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidBeginEditing:) name:UITextViewTextDidBeginEditingNotification object:_uiComponent];
-		}
-		if (_validationEvents.endEditing) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
-		}
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UIControl class]]) {
 		UIControl *component = (UIControl *)_uiComponent;
-		if (_validationEvents.change) {
+		if (_event == REDValidationEventDefault) {
 			[component addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
-		if (_validationEvents.beginEditing) {
-			[component addTarget:self action:@selector(componentDidBeginEditing:) forControlEvents:UIControlEventEditingDidBegin];
-		}
-		if (_validationEvents.endEditing) {
-			[component addTarget:self action:@selector(componentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
-		}
+		[component addTarget:self action:@selector(componentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
 	}
 }
 
@@ -163,34 +132,26 @@
 
 - (void)componentValueChanged:(NSObject<REDValidatableComponent> *)component
 {
-	[self validate];
-}
-
-- (void)componentDidBeginEditing:(NSObject<REDValidatableComponent> *)component
-{
-	[self validate];
+	[_delegate validationComponentReceivedInput:self];
 }
 
 - (void)componentDidEndEditing:(NSObject<REDValidatableComponent> *)component
 {
 	[self validate];
+	[_delegate validationComponentEndedEditing:self];
 }
 
 #pragma mark - Notifications
 
 - (void)textDidChange:(NSNotification *)notification
 {
-	[self validate];
-}
-
-- (void)textDidBeginEditing:(NSNotification *)notification
-{
-	[self validate];
+	[_delegate validationComponentReceivedInput:self];
 }
 
 - (void)textDidEndEditing:(NSNotification *)notification
 {
 	[self validate];
+	[_delegate validationComponentEndedEditing:self];
 }
 
 #pragma mark - NetworkValidationRuleDelegate

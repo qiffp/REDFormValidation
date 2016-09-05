@@ -12,10 +12,8 @@
 @protocol REDValidatableComponent;
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
-	REDValidationEventChange = (1 << 0),
-	REDValidationEventBeginEditing = (1 << 1),
-	REDValidationEventEndEditing = (1 << 2),
-	REDValidationEventAll = (1 << 3)
+	REDValidationEventDefault,
+	REDValidationEventEndEditing
 };
 
 
@@ -82,6 +80,16 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @discussion When false, no further form validations will occur (the individual components will still be validated).
  */
 @property (nonatomic, assign) BOOL shouldValidate;
+
+/*!
+ * @brief A time to delay prior to performing validation of a component when it is changed. This only applies to non-network validations.
+ */
+@property (nonatomic, assign) NSTimeInterval inputDelay;
+
+/*!
+ * @brief A time to delay prior to performing network validation of a component when it is changed. This only applies to network validations.
+ */
+@property (nonatomic, assign) NSTimeInterval networkInputDelay;
 
 /*!
  * @brief Programmatically execute a validation. Generally not necessary.
