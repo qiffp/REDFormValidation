@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 - (void)cancel;
 
 /*!
- * @brief If enabled, the component value can be its default value and the component is considered valid.
+ * @brief If enabled, the component value can be its default value and the component is considered valid. Default is NO for REDValidationRule and REDNetworkValidationRule.
  * @discussion This is used for fields that do not require a value. Generally  all of the fields of the form are not validated
  * at once, so this allows determining the validity of the form by evaluating fields without performing their validations.
  */

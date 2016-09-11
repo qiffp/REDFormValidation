@@ -76,18 +76,18 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, assign, readonly) REDValidationResult valid;
 
 /*!
- * @brief Whether the form should be validated.
+ * @brief Whether the form should be validated. Default is YES.
  * @discussion When false, no further form validations will occur (the individual components will still be validated).
  */
 @property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
- * @brief A time to delay prior to performing validation of a component when it is changed. This only applies to non-network validations.
+ * @brief A time to delay prior to performing validation of a component when it is changed. This only applies to non-network validations. Default is 0.0.
  */
 @property (nonatomic, assign) NSTimeInterval inputDelay;
 
 /*!
- * @brief A time to delay prior to performing network validation of a component when it is changed. This only applies to network validations.
+ * @brief A time to delay prior to performing network validation of a component when it is changed. This only applies to network validations. Default is 0.0.
  */
 @property (nonatomic, assign) NSTimeInterval networkInputDelay;
 

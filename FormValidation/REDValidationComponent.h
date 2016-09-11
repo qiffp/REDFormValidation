@@ -83,7 +83,7 @@
 @property (nonatomic, assign) BOOL validatedInValidationTree;
 
 /*!
- * @brief Whether the UI component should be validated. Allows temporary enabling and disabling the validation.
+ * @brief Whether the UI component should be validated. Allows temporary enabling and disabling the validation. Default is YES.
  */
 @property (nonatomic, assign) BOOL shouldValidate;
 
