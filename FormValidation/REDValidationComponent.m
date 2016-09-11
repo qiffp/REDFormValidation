@@ -132,26 +132,26 @@
 
 - (void)componentValueChanged:(NSObject<REDValidatableComponent> *)component
 {
-	[_delegate validationComponentReceivedInput:self];
+	[_delegate validationComponentDidReceiveInput:self];
 }
 
 - (void)componentDidEndEditing:(NSObject<REDValidatableComponent> *)component
 {
 	[self validate];
-	[_delegate validationComponentEndedEditing:self];
+	[_delegate validationComponentDidEndEditing:self];
 }
 
 #pragma mark - Notifications
 
 - (void)textDidChange:(NSNotification *)notification
 {
-	[_delegate validationComponentReceivedInput:self];
+	[_delegate validationComponentDidReceiveInput:self];
 }
 
 - (void)textDidEndEditing:(NSNotification *)notification
 {
 	[self validate];
-	[_delegate validationComponentEndedEditing:self];
+	[_delegate validationComponentDidEndEditing:self];
 }
 
 #pragma mark - NetworkValidationRuleDelegate

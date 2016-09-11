@@ -142,7 +142,7 @@
 
 #pragma mark - REDValidationComponentDelegate
 
-- (void)validationComponentReceivedInput:(REDValidationComponent *)validationComponent
+- (void)validationComponentDidReceiveInput:(REDValidationComponent *)validationComponent
 {
 	if (_delayedValidationBlock) {
 		dispatch_block_cancel(_delayedValidationBlock);
@@ -161,7 +161,7 @@
 	}
 }
 
-- (void)validationComponentEndedEditing:(REDValidationComponent *)validationComponent
+- (void)validationComponentDidEndEditing:(REDValidationComponent *)validationComponent
 {
 	_firstResponderComponent = nil;
 	if (_delayedValidationBlock) {

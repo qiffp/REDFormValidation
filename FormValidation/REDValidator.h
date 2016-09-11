@@ -12,8 +12,8 @@
 @protocol REDValidatableComponent;
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
-	REDValidationEventDefault,
-	REDValidationEventEndEditing
+	REDValidationEventDefault, // validates on change and end editing
+	REDValidationEventEndEditing // validates on end editing
 };
 
 

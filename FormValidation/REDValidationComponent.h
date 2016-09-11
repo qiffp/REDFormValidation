@@ -23,13 +23,13 @@
  * @brief Notifies the delegate when a UI component has received an input.
  * @param validationComponent The object handling validation.
  */
-- (void)validationComponentReceivedInput:(REDValidationComponent *)validationComponent;
+- (void)validationComponentDidReceiveInput:(REDValidationComponent *)validationComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component has resigned first responder status.
  * @param validationComponent The object handling validation.
  */
-- (void)validationComponentEndedEditing:(REDValidationComponent *)validationComponent;
+- (void)validationComponentDidEndEditing:(REDValidationComponent *)validationComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component is about to be validated.
