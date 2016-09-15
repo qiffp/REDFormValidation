@@ -91,6 +91,13 @@
 @property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
+ * @brief If enabled, the component value can be its default value and the component is considered valid. Default is NO for REDValidationRule and REDNetworkValidationRule.
+ * @discussion This is used for fields that do not require a value. Generally  all of the fields of the form are not validated
+ * at once, so this allows determining the validity of the form by evaluating fields without performing their validations.
+ */
+@property (nonatomic, assign) BOOL allowDefault;
+
+/*!
  * @brief An initial value to be validated.
  * @discussion This is used with UITableView forms. If a cell contains a form element but is offscreen and
  * hasn't been loaded, its value can't be validated. If the cell is being pre-filled with a value that may be

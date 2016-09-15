@@ -15,8 +15,6 @@
 
 @implementation REDValidationRule
 
-@synthesize allowDefault = _allowDefault;
-
 + (instancetype)ruleWithBlock:(REDValidationRuleBlock)block
 {
 	return [[self alloc] initWithBlock:block];
@@ -31,12 +29,12 @@
 	return self;
 }
 
-- (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component
+- (REDValidationResult)validate:(id<REDValidatableComponent>)uiComponent allowDefault:(BOOL)allowDefault
 {
-	id value = [component validatedValue];
+	id value = [uiComponent validatedValue];
 	
-	if ([value isEqual:[component defaultValue]]) {
-		return _allowDefault ? REDValidationResultDefaultValid : REDValidationResultUnvalidated;
+	if ([value isEqual:[uiComponent defaultValue]]) {
+		return allowDefault ? REDValidationResultDefaultValid : REDValidationResultUnvalidated;
 	}
 	
 	return [self validateValue:value];
@@ -65,8 +63,6 @@
 	__weak NSURLSessionTask *_task;
 }
 
-@synthesize allowDefault = _allowDefault;
-
 + (instancetype)ruleWithBlock:(REDNetworkValidationRuleBlock)block
 {
 	return [[self alloc] initWithBlock:block];
@@ -81,34 +77,34 @@
 	return self;
 }
 
-- (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component
+- (REDValidationResult)validate:(id<REDValidatableComponent>)uiComponent allowDefault:(BOOL)allowDefault
 {
 	[self cancel];
 	
-	id value = [component validatedValue];
+	id value = [uiComponent validatedValue];
 	
-	if (_allowDefault && [value isEqual:[component defaultValue]]) {
+	if (allowDefault && [value isEqual:[uiComponent defaultValue]]) {
 		REDValidationResult result = REDValidationResultDefaultValid;
-		[_delegate validationRule:self completedNetworkValidationOfComponent:component withResult:result error:nil];
+		[_delegate validationRule:self completedNetworkValidationOfUIComponent:uiComponent withResult:result error:nil];
 		return result;
 	}
 	
-	return [self validateComponent:component value:value];
+	return [self validateUIComponent:uiComponent value:value];
 }
 
 - (REDValidationResult)validateValue:(id)value
 {
-	return [self validateComponent:nil value:value];
+	return [self validateUIComponent:nil value:value];
 }
 
-- (REDValidationResult)validateComponent:(NSObject<REDValidatableComponent> *)component value:(id)value
+- (REDValidationResult)validateUIComponent:(NSObject<REDValidatableComponent> *)component value:(id)value
 {
 	if (_block) {
 		__weak typeof(self) weakSelf = self;
 		_task = _block(value, ^void(BOOL result, NSError *error) {
 			__strong typeof(weakSelf) strongSelf = weakSelf;
 			REDValidationResult validationResult = result ? REDValidationResultValid : REDValidationResultInvalid;
-			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfComponent:component withResult:validationResult error:error];
+			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfUIComponent:component withResult:validationResult error:error];
 		});
 		
 		return REDValidationResultPending;

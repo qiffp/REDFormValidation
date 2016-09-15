@@ -31,10 +31,11 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
 
 /*!
  * @brief Validates the specified component using the validation rule.
- * @param component The component that is being validated.
+ * @param uiComponent The UI component that is being validated.
+ * @param allowDefault Whether the default value of the uiComponent is considered valid.
  * @return The result of the validation.
  */
-- (REDValidationResult)validate:(NSObject<REDValidatableComponent> *)component;
+- (REDValidationResult)validate:(id<REDValidatableComponent>)uiComponent allowDefault:(BOOL)allowDefault;
 
 /*!
  * @brief Validates the specified value using the validation rule.
@@ -47,13 +48,6 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @brief Cancel the validation that is currently in progress. Intended for network validations.
  */
 - (void)cancel;
-
-/*!
- * @brief If enabled, the component value can be its default value and the component is considered valid. Default is NO for REDValidationRule and REDNetworkValidationRule.
- * @discussion This is used for fields that do not require a value. Generally  all of the fields of the form are not validated
- * at once, so this allows determining the validity of the form by evaluating fields without performing their validations.
- */
-@property (nonatomic, assign) BOOL allowDefault;
 
 @end
 
@@ -70,7 +64,7 @@ typedef NS_ENUM(NSInteger, REDValidationResult) {
  * @param result The result of the validation.
  * @param error An error that has occurred during the validation process.
  */
-- (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error;
+- (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfUIComponent:(NSObject<REDValidatableComponent> *)uiComponent withResult:(REDValidationResult)result error:(NSError *)error;
 
 @end
 

@@ -130,11 +130,11 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 		return text.length > 5;
 	}]]];
 	
-	REDValidationRule *noteRule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *noteValidation = [REDValidation validationWithIdentifier:@(FormCellNote) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
-	}];
-	noteRule.allowDefault = YES;
-	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellNote) rule:noteRule]];
+	}]];
+	noteValidation.allowDefault = YES;
+	[_validator addValidation:noteValidation];
 	
 	_validator.validationTree = [REDValidationTree and:@[
 														 [REDValidationTree or:@[

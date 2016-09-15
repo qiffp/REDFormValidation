@@ -109,7 +109,7 @@
 		REDValidationResult result = _valid;
 		
 		if (_uiComponent) {
-			result = [_rule validate:_uiComponent];
+			result = [_rule validate:_uiComponent allowDefault:_allowDefault];
 		} else if (_initialValue && _valid == REDValidationResultUnvalidated) {
 			result = [_rule validateValue:_initialValue];
 		}
@@ -129,7 +129,7 @@
 
 - (REDValidationResult)evaluateDefaultValidity
 {
-	if (_rule.allowDefault && (_uiComponent == nil || [[_uiComponent validatedValue] isEqual:[_uiComponent defaultValue]])) {
+	if (_allowDefault && (_uiComponent == nil || [[_uiComponent validatedValue] isEqual:[_uiComponent defaultValue]])) {
 		_valid = REDValidationResultDefaultValid;
 	}
 	
@@ -164,10 +164,10 @@
 
 #pragma mark - NetworkValidationRuleDelegate
 
-- (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
+- (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfUIComponent:(NSObject<REDValidatableComponent> *)uiComponent withResult:(REDValidationResult)result error:(NSError *)error
 {
 	_valid = result;
-	[_delegate validation:self didValidateUIComponent:component result:result error:error];
+	[_delegate validation:self didValidateUIComponent:uiComponent result:result error:error];
 }
 
 @end

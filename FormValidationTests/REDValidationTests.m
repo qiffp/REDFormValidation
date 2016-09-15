@@ -217,51 +217,45 @@
 
 #pragma mark - evaluateDefaultValidity
 
-- (void)testEvaluateDefaultValidityReturnsDefaultValidIfAllowsDefaultAndUIComponentValueIsDefaultValue
+- (void)testEvaluateDefaultValidityReturnsDefaultValidIfValidationAllowsDefaultAndUIComponentValueIsDefaultValue
 {
-	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}];
-	rule.allowDefault = YES;
-	
 	UITextField *textField = [UITextField new];
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	validation.allowDefault = YES;
 	validation.uiComponent = textField;
 	
-	XCTAssertTrue(rule.allowDefault);
+	XCTAssertTrue(validation.allowDefault);
 	XCTAssertEqualObjects([validation.uiComponent validatedValue], kUITextFieldDefaultValue);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], REDValidationResultDefaultValid);
 }
 
-- (void)testEvaluateDefaultValidityReturnsDefaulValidIfAndAllowsDefaultValidAndUIComponentIsNil
+- (void)testEvaluateDefaultValidityReturnsDefaultValidIfValidationAllowsDefaultValidAndUIComponentIsNil
 {
-	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
-	}];
-	rule.allowDefault = YES;
+	}]];
+	validation.allowDefault = YES;
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
-	
-	XCTAssertTrue(rule.allowDefault);
+	XCTAssertTrue(validation.allowDefault);
 	XCTAssertNil(validation.uiComponent);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], REDValidationResultDefaultValid);
 }
 
-- (void)testEvaluateDefaultValidityReturnsExistingValidValueIfRuleDoesNotAllowDefault
+- (void)testEvaluateDefaultValidityReturnsExistingValidValueIfValidationDoesNotAllowDefault
 {
-	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}];
-	
 	UITextField *textField = [UITextField new];
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
 	validation.uiComponent = textField;
 	
-	XCTAssertFalse(rule.allowDefault);
+	XCTAssertFalse(validation.allowDefault);
 	XCTAssertEqualObjects([validation.uiComponent validatedValue], kUITextFieldDefaultValue);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], validation.valid);
@@ -269,18 +263,16 @@
 
 - (void)testEvaluateDefaultValidityReturnsExistingValidValueIfUIComponentValueIsNotDefaultValue
 {
-	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}];
-	rule.allowDefault = YES;
-	
 	UITextField *textField = [UITextField new];
 	textField.text = @"test";
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
+	validation.allowDefault = YES;
 	validation.uiComponent = textField;
 	
-	XCTAssertTrue(rule.allowDefault);
+	XCTAssertTrue(validation.allowDefault);
 	XCTAssertNotEqualObjects([validation.uiComponent validatedValue], kUITextFieldDefaultValue);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], validation.valid);
