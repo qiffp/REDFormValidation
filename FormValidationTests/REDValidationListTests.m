@@ -58,7 +58,7 @@
 
 - (REDValidationComponent *)componentWithUIComponent:(id<REDValidatableComponent>)uiComponent rule:(id<REDValidationRuleType>)rule
 {
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithIdentifier:@0 rule:rule];
 	component.uiComponent = uiComponent;
 	return component;
 }

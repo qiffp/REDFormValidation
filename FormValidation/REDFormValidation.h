@@ -6,9 +6,8 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 #import "REDValidator.h"
+#import "REDValidationComponent.h"
 #import "REDValidationRuleType.h"
 #import "REDValidatableComponent.h"
 #import "REDValidationTree.h"

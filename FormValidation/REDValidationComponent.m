@@ -15,17 +15,18 @@
 	REDValidationEvent _event;
 }
 
-- (instancetype)init
+- (instancetype)initWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule
 {
-	return [self initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:nil];
+	return [self initWithIdentifier:identifier initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 }
 
-- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
+- (instancetype)initWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
 {
 	self = [super init];
 	if (self ) {
 		_valid = REDValidationResultUnvalidated;
 		_shouldValidate = YES;
+		_identifier = [identifier copy];
 		_initialValue = [initialValue copy];
 		_event = event;
 		
@@ -51,6 +52,8 @@
 	[self removeComponentEventActions];
 	_uiComponent = uiComponent;
 	[self setupComponentEventActions];
+	
+	[_delegate validationComponentDidUpdateUIComponent:self];
 }
 
 - (void)setShouldValidate:(BOOL)shouldValidate

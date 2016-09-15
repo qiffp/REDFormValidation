@@ -39,16 +39,12 @@
 	[self evaluateComponents];
 }
 
-- (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier
+- (NSDictionary<id, REDValidationComponent *> *)validationComponents
 {
-	REDValidationComponent *validationComponent = _validationComponents[identifier];
-	if (validationComponent) {
-		validationComponent.uiComponent = component;
-		[self evaluateComponent:validationComponent identifier:identifier];
-	}
+	return [_validationComponents copy];
 }
 
-- (BOOL)removeValidation:(id)identifier
+- (BOOL)removeValidationWithIdentifier:(id)identifier
 {
 	if (_validationComponents[identifier].validatedInValidationTree) {
 		return NO;
@@ -58,22 +54,11 @@
 	}
 }
 
-- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(id)identifier
+- (void)addValidation:(REDValidationComponent *)validationComponent
 {
-	_validationComponents[identifier].shouldValidate = shouldValidate;
-}
-
-- (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
-{
-	[self addValidation:identifier initialValue:nil validateOn:event rule:rule];
-}
-
-- (void)addValidation:(id)identifier initialValue:(id)initialValue validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
-{
-	REDValidationComponent *validationComponent = [[REDValidationComponent alloc] initWithInitialValue:initialValue validationEvent:event rule:rule];
 	validationComponent.delegate = self;
-	_validationComponents[identifier] = validationComponent;
-	[self evaluateComponent:validationComponent identifier:identifier];
+	_validationComponents[validationComponent.identifier] = validationComponent;
+	[self evaluateComponent:validationComponent];
 }
 
 - (REDValidationResult)valid
@@ -107,9 +92,9 @@
 
 #pragma mark - Helpers
 
-- (void)evaluateComponent:(REDValidationComponent *)component identifier:(id)identifier
+- (void)evaluateComponent:(REDValidationComponent *)component
 {
-	[_validationTree evaluateComponents:@{ identifier : component }];
+	[_validationTree evaluateComponents:@{ component.identifier : component }];
 	[self evaluateDefaultValidity:@[component]];
 }
 
@@ -141,6 +126,11 @@
 }
 
 #pragma mark - REDValidationComponentDelegate
+
+- (void)validationComponentDidUpdateUIComponent:(REDValidationComponent *)validationComponent
+{
+	[self evaluateComponent:validationComponent];
+}
 
 - (void)validationComponentDidReceiveInput:(REDValidationComponent *)validationComponent
 {

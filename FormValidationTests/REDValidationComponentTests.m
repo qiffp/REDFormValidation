@@ -44,7 +44,7 @@
 	_textField = [UITextField new];
 	_textField.text = @"test";
 	
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
@@ -94,13 +94,13 @@
 
 - (void)testValidateValidatesInitialValueIfComponentHasNoUIComponentAndIsUnvalidated
 {
-	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultUnvalidated;
 	XCTAssertEqual([_component validate], REDValidationResultInvalid);
 	
-	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hello" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:@"hello" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultUnvalidated;
@@ -109,7 +109,7 @@
 
 - (void)testValidateDoesNotValidateInitialValueIfComponentHasNoUIComponentAndIsValidated
 {
-	_component = [[REDValidationComponent alloc] initWithInitialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_component.valid = REDValidationResultValid;
@@ -120,7 +120,7 @@
 
 - (void)testTextFieldValidatesOnEndEditingWithValidationEventEndEditing
 {
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = _textField;
@@ -151,7 +151,7 @@
 {
 	UITextView *textView = [UITextView new];
 	textView.text = @"test";
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = textView;
@@ -185,7 +185,7 @@
 - (void)testControlValidatesOnEndEditingWithValidationEventEndEditing
 {
 	UISlider *slider = [UISlider new];
-	_component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_component.uiComponent = slider;
@@ -226,7 +226,7 @@
 	
 	UITextField *textField = [UITextField new];
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertTrue(rule.allowDefault);
@@ -242,7 +242,7 @@
 	}];
 	rule.allowDefault = YES;
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	
 	XCTAssertTrue(rule.allowDefault);
 	XCTAssertNil(component.uiComponent);
@@ -258,7 +258,7 @@
 	
 	UITextField *textField = [UITextField new];
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertFalse(rule.allowDefault);
@@ -277,7 +277,7 @@
 	UITextField *textField = [UITextField new];
 	textField.text = @"test";
 	
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithInitialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	REDValidationComponent *component = [[REDValidationComponent alloc] initWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
 	component.uiComponent = textField;
 	
 	XCTAssertTrue(rule.allowDefault);

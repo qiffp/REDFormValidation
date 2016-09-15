@@ -8,7 +8,7 @@
 
 #import "REDValidationRuleType.h"
 
-@class REDValidator, REDValidationTree;
+@class REDValidator, REDValidationTree, REDValidationComponent;
 @protocol REDValidatableComponent;
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
@@ -20,7 +20,6 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 /*!
  * @brief Delegate protocol for the @c REDValidator @c that informs the delegate of validation events.
  * @discussion If the delegate (generally a controller) handles the view/component changes when a validation occurs, the methods in this protocol should be implemented.
- * @see @c REDValidatorComponent @c
  */
 @protocol REDValidatorDelegate <NSObject>
 @optional
@@ -71,6 +70,11 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, strong) REDValidationTree *validationTree;
 
 /*!
+ * @brief A dictionary containing the identifier-to-validation relationships that are currently being tracked.
+ */
+@property (nonatomic, readonly) NSDictionary<id, REDValidationComponent *> *validationComponents;
+
+/*!
  * @brief The current validity of the form.
  */
 @property (nonatomic, assign, readonly) REDValidationResult valid;
@@ -98,44 +102,17 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 - (REDValidationResult)validate;
 
 /*!
- * @brief Creates a new validation.
- * @param identifier The identifier that will be assigned to the validation.
- * @param event The event upon which the UI component will be validated.
- * @param rule The rule used to validate the UI component.
+ * @brief Starts tracking the given validation.
+ * @param validationComponent The validation that will be tracked and evaluated.
  */
-- (void)addValidation:(id)identifier validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
+- (void)addValidation:(REDValidationComponent *)validationComponent;
 
 /*!
- * @brief Creates a new validation.
- * @param identifier The identifier that will be assigned to the validation.
- * @param initialValue An initial value for the rule to validate.
- * @param event The event upon which the UI component will be validated.
- * @param rule The rule used to validate the UI component.
- */
-- (void)addValidation:(id)identifier initialValue:(id)initialValue validateOn:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
-
-/*!
- * @brief Removes the validation with the given identifier.
- * @discussion The validation will not be removed if it is still being used in the @c validatorBlock @c.
+ * @brief Stops tracking the validation with the given identifier.
+ * @discussion The validation will not be removed if it is still being used in the @c validationTree @c.
  * @param identifier The identifier for the validation that will be removed.
  * @return Returns whether the validation was removed successfully.
- * @see @c validatorBlock @c
  */
-- (BOOL)removeValidation:(id)identifier;
-
-/*!
- * @brief Allows temporarily enabing and disabling the given validation.
- * @param shouldValidate Whether the validation with the given identifier should be validated.
- * @param identifier The identifier for the validation that will be removed.
- */
-- (void)setShouldValidate:(BOOL)shouldValidate forValidation:(id)identifier;
-
-/*!
- * @brief Sets the UI component that should be validated with the given validation.
- * @note All @c UIView @c objects conform to @c REDValidatorComponent @c.
- * @param component The UI component that should be validated.
- * @param identifier The identifier of the desired validation.
- */
-- (void)setComponent:(NSObject<REDValidatableComponent> *)component forValidation:(id)identifier;
+- (BOOL)removeValidationWithIdentifier:(id)identifier;
 
 @end

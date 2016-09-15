@@ -121,20 +121,20 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	REDValidationRule *lengthRule = [REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 0;
 	}];
-	[_validator addValidation:@(FormCellFirstName) validateOn:REDValidationEventDefault rule:lengthRule];
-	[_validator addValidation:@(FormCellLastName) validateOn:REDValidationEventDefault rule:lengthRule];
-	[_validator addValidation:@(FormCellEmail) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
-		return text.length > 0 && [text containsString:@"@"];
-	}]];
-	[_validator addValidation:@(FormCellAddress) validateOn:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellFirstName) rule:lengthRule]];
+	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellLastName) rule:lengthRule]];
+	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellEmail) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+		return [text containsString:@"@"];
+	}]]];
+	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellAddress) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 5;
-	}]];
+	}]]];
 	
 	REDValidationRule *noteRule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
 	noteRule.allowDefault = YES;
-	[_validator addValidation:@(FormCellNote) validateOn:REDValidationEventDefault rule:noteRule];
+	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellNote) rule:noteRule]];
 	
 	_validator.validationTree = [REDValidationTree and:@[
 														 [REDValidationTree or:@[
@@ -204,7 +204,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 			break;
 	}
 	
-	[_validator setComponent:cell.textField forValidation:@(indexPath.row)];
+	_validator.validationComponents[@(indexPath.row)].uiComponent = cell.textField;
 	cell.textField.tag = indexPath.row;
 	
 	return cell;

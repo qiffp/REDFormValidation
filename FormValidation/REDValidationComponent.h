@@ -6,8 +6,6 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 #import "REDValidator.h"
 #import "REDValidatableComponent.h"
 
@@ -18,6 +16,12 @@
  * @brief Delegate protocol for the @c REDValidationComponent @c that informs the delegate of validation events.
  */
 @protocol REDValidationComponentDelegate <NSObject>
+
+/*!
+ * @brief Notifies the delegate when the UI component has been changed.
+ * @param validationComponent The object handling validation.
+ */
+- (void)validationComponentDidUpdateUIComponent:(REDValidationComponent *)validationComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component has received an input.
@@ -78,7 +82,6 @@
 /*!
  * @brief Describes whether the UI component is being used in the validation tree of the @c REDValidator @c.
  * @discussion If false, the component's validation will be ANDed with the rest of the components that are false.
- * @see @c REDValidator.validationTree @c
  */
 @property (nonatomic, assign) BOOL validatedInValidationTree;
 
@@ -96,13 +99,29 @@
 @property (nonatomic, readonly) id initialValue;
 
 /*!
+ * @brief A unique value used to identify the validation component.
+ */
+@property (nonatomic, readonly) id identifier;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/*!
  * @brief Initializes and returns a new @c REDValidationComponent @c.
+ * @param identifier A unique value used to identify the validation component.
+ * @param rule The rule used to validate the UI component.
+ * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
+ */
+- (instancetype)initWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule;
+
+/*!
+ * @brief Initializes and returns a new @c REDValidationComponent @c.
+ * @param identifier A unique value used to identify the validation component.
  * @param initialValue An initial value for the rule to validate.
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
  */
-- (instancetype)initWithInitialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
 
 /*!
  * @brief Programmatically execute a validation.
