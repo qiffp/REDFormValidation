@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidation.h"
+#import "REDValidation+Private.h"
 
 @interface REDValidation () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
 @end
@@ -14,6 +14,12 @@
 @implementation REDValidation {
 	REDValidationEvent _event;
 }
+
+@synthesize delegate = _delegate;
+@synthesize validatedInValidationTree = _validatedInValidationTree;
+@synthesize rule = _rule;
+@synthesize initialValue = _initialValue;
+@synthesize identifier = _identifier;
 
 + (instancetype)validationWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule
 {

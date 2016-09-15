@@ -6,9 +6,8 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
-#import "REDValidation.h"
+#import "REDValidation+Private.h"
 
 @implementation REDValidationTree {
 	NSNumber *_operation;

@@ -6,6 +6,8 @@
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
+#import "REDValidationTree.h"
+
 typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 	REDValidationOperationNone = 1,
 	REDValidationOperationAND,
@@ -13,7 +15,7 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 };
 
 
-@interface REDValidationTree (Private)
+@interface REDValidationTree ()
 
 /*!
  * @brief Evaluates whether the tree uses the given validations.

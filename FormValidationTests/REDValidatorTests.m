@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "REDFormValidation.h"
-#import "REDValidation.h"
+#import "REDValidation+Private.h"
 
 static NSInteger const kTestValidationTextField1 = 1;
 static NSInteger const kTestValidationTextField2 = 2;

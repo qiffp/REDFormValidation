@@ -7,9 +7,8 @@
 //
 
 #import "REDValidator.h"
-#import "REDValidation.h"
+#import "REDValidation+Private.h"
 #import "REDValidatableComponent.h"
-#import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
 #import "REDValidationRuleType.h"
 

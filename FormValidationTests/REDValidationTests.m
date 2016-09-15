@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
 
-#import "REDValidation.h"
+#import "REDValidation+Private.h"
 
 @interface REDValidation (TestExpose)
 - (void)uiComponentTextDidChange:(NSNotification *)notification;

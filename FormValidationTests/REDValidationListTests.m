@@ -8,9 +8,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
-#import "REDValidation.h"
+#import "REDValidation+Private.h"
 
 @interface REDValidationTreeTests : XCTestCase
 @end
