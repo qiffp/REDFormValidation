@@ -8,7 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "REDFormValidation.h"
-#import "REDValidationComponent.h"
+#import "REDValidation.h"
 
 static NSInteger const kTestValidationTextField1 = 1;
 static NSInteger const kTestValidationTextField2 = 2;
@@ -31,12 +31,12 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	return self;
 }
 
-- (void)validatorWillValidateComponent:(REDValidator *)validator
+- (void)validatorWillValidateUIComponent:(REDValidator *)validator
 {
 	_willValidate = YES;
 }
 
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result error:(NSError *)error
+- (void)validator:(REDValidator *)validator didValidateUIComponentWithResult:(REDValidationResult)result error:(NSError *)error
 {
 	_didValidate  = YES;
 }
@@ -71,8 +71,8 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 @property (nonatomic, strong) REDValidator *validator;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, assign) REDValidationResult valid;
-@property (nonatomic, assign) BOOL willValidateComponent;
-@property (nonatomic, assign) BOOL didValidateComponent;
+@property (nonatomic, assign) BOOL willValidateUIComponent;
+@property (nonatomic, assign) BOOL didValidateUIComponent;
 @end
 
 @implementation TestTableViewForm
@@ -106,9 +106,9 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TestTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kTestTableViewCellIdentifier forIndexPath:indexPath];
-	_validator.validationComponents[@(kTestValidationTextField1)].uiComponent = cell.textField1;
-	_validator.validationComponents[@(kTestValidationTextField2)].uiComponent = cell.textField2;
-	_validator.validationComponents[@(kTestValidationTextField3)].uiComponent = cell.textField3;
+	_validator.validations[@(kTestValidationTextField1)].uiComponent = cell.textField1;
+	_validator.validations[@(kTestValidationTextField2)].uiComponent = cell.textField2;
+	_validator.validations[@(kTestValidationTextField3)].uiComponent = cell.textField3;
 	return cell;
 }
 
@@ -117,31 +117,31 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	_valid = result;
 }
 
-- (void)validator:(REDValidator *)validator willValidateComponent:(UIView *)component
+- (void)validator:(REDValidator *)validator willValidateUIComponent:(UIView *)uiComponent
 {
-	_willValidateComponent = YES;
+	_willValidateUIComponent = YES;
 }
 
-- (void)validator:(REDValidator *)validator didValidateComponent:(UIView *)component result:(REDValidationResult)result error:(NSError *)error
+- (void)validator:(REDValidator *)validator didValidateUIComponent:(UIView *)uiComponent result:(REDValidationResult)result error:(NSError *)error
 {
-	_didValidateComponent = YES;
+	_didValidateUIComponent = YES;
 }
 
 @end
 
-@interface REDValidator (TestExpose) <REDValidationComponentDelegate>
+@interface REDValidator (TestExpose) <REDValidationDelegate>
 - (BOOL)evaluateValidationTree:(REDValidationTree *)tree revalidate:(BOOL)revalidate;
 @end
 
 @interface REDValidator (TestHelper)
-@property (nonatomic, strong, readonly) NSDictionary<NSNumber *, REDValidationComponent *> *validationComponents;
+@property (nonatomic, strong, readonly) NSDictionary<NSNumber *, REDValidation *> *validations;
 @end
 
 @implementation REDValidator (TestHelper)
 
-- (NSDictionary *)validationComponents
+- (NSDictionary *)validations
 {
-	return [[self valueForKey:@"_validationComponents"] copy];
+	return [[self valueForKey:@"_validations"] copy];
 }
 
 @end
@@ -178,11 +178,11 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testPassingValidationTree
 {
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
@@ -195,11 +195,11 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 - (void)testFailingValidationTree
 {
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]]];
 	
@@ -210,19 +210,19 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.valid, REDValidationResultInvalid);
 }
 
-- (void)testComponentValidationsNotIncludedInValidationTreeAreANDed
+- (void)testValidationsNotIncludedInValidationTreeAreANDed
 {
 	_testForm.validator.validationTree = [REDValidationTree single:@(kTestValidationTextField3)];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField3) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField3) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
@@ -230,7 +230,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultValid);
 	XCTAssertEqual(_testForm.valid, REDValidationResultValid);
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]]];
 	
@@ -239,15 +239,15 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.valid, REDValidationResultInvalid);
 }
 
-- (void)testComponentValidationsAreANDedIfValidationTreeIsNil
+- (void)testValidationsAreANDedIfValidationTreeIsNil
 {
 	_testForm.validator.validationTree = nil;
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	
@@ -255,7 +255,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual([_testForm.validator validate], REDValidationResultValid);
 	XCTAssertEqual(_testForm.valid, REDValidationResultValid);
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]]];
 	
@@ -264,10 +264,10 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	XCTAssertEqual(_testForm.valid, REDValidationResultInvalid);
 }
 
-- (void)testPassingNetworkComponentValidation
+- (void)testPassingNetworkValidation
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(YES, nil);
 			[validationExpectation fulfill];
@@ -287,7 +287,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 - (void)testFailingNetworkComponentValidation
 {
 	XCTestExpectation *validationExpectation = [self expectationWithDescription:@"validated"];
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(id value, REDNetworkValidationRuleResultBlock completion) {
 		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"http://localhost"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 			completion(NO, nil);
 			[validationExpectation fulfill];
@@ -308,7 +308,7 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 {
 	_testForm.validator.shouldValidate = NO;
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return NO;
 	}]]];
 	
@@ -318,83 +318,69 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 
 #pragma mark - evaluateValidationTree
 
-- (void)testValidationTreeComponentsEvaluation
+- (void)testEvaluateValidationTree
 {
 	REDValidationRule *rule = [REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}];
 	
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:rule]];
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField2) rule:rule]];
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:rule]];
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField2) rule:rule]];
 	
 	[self loadCells];
 	
-	REDValidationComponent *textFieldComponent = _testForm.validator.validationComponents[@(kTestValidationTextField1)];
-	REDValidationComponent *sliderComponent = _testForm.validator.validationComponents[@(kTestValidationTextField2)];
+	REDValidation *textFieldValidation = _testForm.validator.validations[@(kTestValidationTextField1)];
+	REDValidation *sliderValidation = _testForm.validator.validations[@(kTestValidationTextField2)];
 	
 	_testForm.validator.validationTree = nil;
-	XCTAssertFalse(textFieldComponent.validatedInValidationTree);
-	XCTAssertFalse(sliderComponent.validatedInValidationTree);
+	XCTAssertFalse(textFieldValidation.validatedInValidationTree);
+	XCTAssertFalse(sliderValidation.validatedInValidationTree);
 	
 	_testForm.validator.validationTree = [REDValidationTree single:@(kTestValidationTextField1)];
-	XCTAssertTrue(textFieldComponent.validatedInValidationTree);
-	XCTAssertFalse(sliderComponent.validatedInValidationTree);
+	XCTAssertTrue(textFieldValidation.validatedInValidationTree);
+	XCTAssertFalse(sliderValidation.validatedInValidationTree);
 	
 	_testForm.validator.validationTree = [REDValidationTree or:@[@(kTestValidationTextField1), @(kTestValidationTextField2)]];
-	XCTAssertTrue(textFieldComponent.validatedInValidationTree);
-	XCTAssertTrue(sliderComponent.validatedInValidationTree);
+	XCTAssertTrue(textFieldValidation.validatedInValidationTree);
+	XCTAssertTrue(sliderValidation.validatedInValidationTree);
 }
 
 #pragma mark - removeValidation:
 
 - (void)testRemoveValidationRemovesValidation
 {
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
-	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField1)]);
+	XCTAssertNotNil(_testForm.validator.validations[@(kTestValidationTextField1)]);
 	
 	XCTAssertTrue([_testForm.validator removeValidationWithIdentifier:@(kTestValidationTextField1)]);
-	XCTAssertNil(_testForm.validator.validationComponents[@(kTestValidationTextField1)]);
+	XCTAssertNil(_testForm.validator.validations[@(kTestValidationTextField1)]);
 }
 
 - (void)testRemoveValidationDoesNotRemoveValidationIfItIsInValidationTree
 {
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]]];
 	_testForm.validator.validationTree = [REDValidationTree single:@(kTestValidationTextField1)];
-	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField1)]);
+	XCTAssertNotNil(_testForm.validator.validations[@(kTestValidationTextField1)]);
 	
 	XCTAssertFalse([_testForm.validator removeValidationWithIdentifier:@(kTestValidationTextField1)]);
-	XCTAssertNotNil(_testForm.validator.validationComponents[@(kTestValidationTextField1)]);
-}
-
-#pragma mark - setShouldValidate:forValidation:
-
-- (void)testFormIsReEvaluatedAfterSettingShouldValidateComponent
-{
-	[_testForm.validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
-		return YES;
-	}]]];
-	XCTAssertEqual([_testForm.validator validate], REDValidationResultInvalid, @"Initial validation should fail");
-	XCTAssertEqual(_testForm.valid, REDValidationResultInvalid);
-	
-	_testForm.validator.validationComponents[@(kTestValidationTextField1)].shouldValidate = NO;
-	XCTAssertEqual(_testForm.valid, REDValidationResultValid, @"Validation after disabling shouldValidate on component should be successful");
+	XCTAssertNotNil(_testForm.validator.validations[@(kTestValidationTextField1)]);
 }
 
 #pragma mark - Delegate notifications
 
 - (void)testDelegateIsNotifiedWhenComponentsAreValidated
 {
-	XCTAssertFalse(_testForm.willValidateComponent, @"willValidate should not have fired yet");
-	[_testForm.validator validationComponent:nil willValidateUIComponent:nil];
-	XCTAssertTrue(_testForm.willValidateComponent, @"willValidate should have fired");
+	XCTAssertFalse(_testForm.willValidateUIComponent, @"willValidate should not have fired yet");
+	[_testForm.validator validation:nil willValidateUIComponent:nil];
+	XCTAssertTrue(_testForm.willValidateUIComponent, @"willValidate should have fired");
 	
-	XCTAssertFalse(_testForm.didValidateComponent, @"didValidate should not have fired yet");
-	[_testForm.validator validationComponent:nil didValidateUIComponent:nil result:0 error:nil];
-	XCTAssertTrue(_testForm.didValidateComponent, @"didValidate should have fired");
+	XCTAssertFalse(_testForm.didValidateUIComponent, @"didValidate should not have fired yet");
+	[_testForm.validator validation:nil didValidateUIComponent:nil result:0 error:nil];
+	XCTAssertTrue(_testForm.didValidateUIComponent, @"didValidate should have fired");
 }
 
 - (void)testComponentIsNotifiedWhenItIsValidated
@@ -403,12 +389,24 @@ static NSString *const kTestTableViewCellIdentifier = @"TestTableViewCell";
 	TestTextField *textField = cell.textField1;
 	
 	XCTAssertFalse(textField.willValidate, @"willValidate should not have fired yet");
-	[_testForm.validator validationComponent:nil willValidateUIComponent:textField];
+	[_testForm.validator validation:nil willValidateUIComponent:textField];
 	XCTAssertTrue(textField.willValidate, @"willValidate should have fired");
 	
 	XCTAssertFalse(textField.didValidate, @"didValidate should not have fired yet");
-	[_testForm.validator validationComponent:nil didValidateUIComponent:textField result:0 error:nil];
+	[_testForm.validator validation:nil didValidateUIComponent:textField result:0 error:nil];
 	XCTAssertTrue(textField.didValidate, @"didValidate should have fired");
+}
+
+- (void)testFormIsReEvaluatedAfterSettingValidationShouldValidate
+{
+	[_testForm.validator addValidation:[REDValidation validationWithIdentifier:@(kTestValidationTextField1) rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]]];
+	XCTAssertEqual([_testForm.validator validate], REDValidationResultInvalid, @"Initial validation should fail");
+	XCTAssertEqual(_testForm.valid, REDValidationResultInvalid);
+	
+	_testForm.validator.validations[@(kTestValidationTextField1)].shouldValidate = NO;
+	XCTAssertEqual(_testForm.valid, REDValidationResultValid, @"Validation after disabling shouldValidate on component should be successful");
 }
 
 @end

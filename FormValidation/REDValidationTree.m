@@ -8,7 +8,7 @@
 
 #import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
-#import "REDValidationComponent.h"
+#import "REDValidation.h"
 
 @implementation REDValidationTree {
 	NSNumber *_operation;
@@ -47,58 +47,58 @@
 	return [[REDValidationTree alloc] initWithOperation:REDValidationOperationOR objects:objects];
 }
 
-- (REDValidationResult)validateComponents:(NSDictionary<id, REDValidationComponent *> *)components revalidate:(BOOL)revalidate
+- (REDValidationResult)validateValidations:(NSDictionary<id, REDValidation *> *)validations revalidate:(BOOL)revalidate
 {
 	if (_identifiers) {
-		REDValidationResult result = [self validateComponents:components withIdentifiers:_identifiers revalidate:revalidate];
+		REDValidationResult result = [self validateValidations:validations withIdentifiers:_identifiers revalidate:revalidate];
 		return [REDValidationTree resultForMask:result operation:_operation.unsignedIntegerValue];
 	} else {
 		REDValidationResult result = 0;
 		
 		for (REDValidationTree *tree in _trees) {
-			result |= [tree validateComponents:components revalidate:revalidate];
+			result |= [tree validateValidations:validations revalidate:revalidate];
 		}
 		
 		return [REDValidationTree resultForMask:result operation:_operation.unsignedIntegerValue];
 	}
 }
 
-- (REDValidationResult)validateComponents:(NSDictionary<id, REDValidationComponent *> *)components withIdentifiers:(NSArray *)identifiers revalidate:(BOOL)revalidate
+- (REDValidationResult)validateValidations:(NSDictionary<id, REDValidation *> *)validations withIdentifiers:(NSArray *)identifiers revalidate:(BOOL)revalidate
 {
 	REDValidationResult result = 0;
 	
 	for (id identifier in identifiers) {
-		REDValidationComponent *component = components[identifier];
-		if (component == nil) {
-			NSLog(@"<REDFormValidation WARNING> Identifier '%@' used in the validation tree is not associated with a component. This will always validate as REDValidationResultUnvalidated", identifier);
+		REDValidation *validation = validations[identifier];
+		if (validation == nil) {
+			NSLog(@"<REDFormValidation WARNING> Identifier '%@' used in the validation tree is not associated with a validation. This will always validate as REDValidationResultUnvalidated", identifier);
 		}
 		
-		result |= revalidate ? [component validate] : component.valid;
+		result |= revalidate ? [validation validate] : validation.valid;
 	}
 	
 	return result;
 }
 
-- (void)evaluateComponents:(NSDictionary<id, REDValidationComponent *> *)components
+- (void)evaluateValidations:(NSDictionary<id, REDValidation *> *)validations
 {
-	[self evaluateComponents:components resetValues:YES];
+	[self evaluateValidations:validations resetValues:YES];
 }
 
-- (void)evaluateComponents:(NSDictionary<id, REDValidationComponent *> *)components resetValues:(BOOL)resetValues
+- (void)evaluateValidations:(NSDictionary<id, REDValidation *> *)validations resetValues:(BOOL)resetValues
 {
 	if (resetValues) {
-		for (REDValidationComponent *component in components.allValues) {
-			component.validatedInValidationTree = NO;
+		for (REDValidation *validation in validations.allValues) {
+			validation.validatedInValidationTree = NO;
 		}
 	}
 	
 	if (_identifiers) {
 		for (id identifier in _identifiers) {
-			components[identifier].validatedInValidationTree = YES;
+			validations[identifier].validatedInValidationTree = YES;
 		}
 	} else {
 		for (REDValidationTree *tree in _trees) {
-			[tree evaluateComponents:components resetValues:NO];
+			[tree evaluateValidations:validations resetValues:NO];
 		}
 	}
 }

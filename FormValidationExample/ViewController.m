@@ -24,7 +24,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 
 @implementation REDTextField : UITextField
 
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result error:(NSError *)error
+- (void)validator:(REDValidator *)validator didValidateUIComponentWithResult:(REDValidationResult)result error:(NSError *)error
 {
 	self.textColor = result == REDValidationResultValid ? [UIColor greenColor] : validator.valid == REDValidationResultValid ? [UIColor grayColor] : [UIColor redColor];
 }
@@ -121,12 +121,12 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	REDValidationRule *lengthRule = [REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 0;
 	}];
-	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellFirstName) rule:lengthRule]];
-	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellLastName) rule:lengthRule]];
-	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellEmail) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellFirstName) rule:lengthRule]];
+	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellLastName) rule:lengthRule]];
+	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellEmail) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return [text containsString:@"@"];
 	}]]];
-	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellAddress) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
+	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellAddress) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 5;
 	}]]];
 	
@@ -134,7 +134,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 		return YES;
 	}];
 	noteRule.allowDefault = YES;
-	[_validator addValidation:[[REDValidationComponent alloc] initWithIdentifier:@(FormCellNote) rule:noteRule]];
+	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellNote) rule:noteRule]];
 	
 	_validator.validationTree = [REDValidationTree and:@[
 														 [REDValidationTree or:@[
@@ -204,7 +204,7 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 			break;
 	}
 	
-	_validator.validationComponents[@(indexPath.row)].uiComponent = cell.textField;
+	_validator.validations[@(indexPath.row)].uiComponent = cell.textField;
 	cell.textField.tag = indexPath.row;
 	
 	return cell;

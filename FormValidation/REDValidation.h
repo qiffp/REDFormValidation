@@ -1,5 +1,5 @@
 //
-//  REDValidationComponent.h
+//  REDValidation.h
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-03-04.
@@ -9,47 +9,47 @@
 #import "REDValidator.h"
 #import "REDValidatableComponent.h"
 
-@class REDValidationComponent;
+@class REDValidation;
 
 
 /*!
- * @brief Delegate protocol for the @c REDValidationComponent @c that informs the delegate of validation events.
+ * @brief Delegate protocol for the @c REDValidation @c that informs the delegate of validation events.
  */
-@protocol REDValidationComponentDelegate <NSObject>
+@protocol REDValidationDelegate <NSObject>
 
 /*!
  * @brief Notifies the delegate when the UI component has been changed.
- * @param validationComponent The object handling validation.
+ * @param validatin The object handling validation.
  */
-- (void)validationComponentDidUpdateUIComponent:(REDValidationComponent *)validationComponent;
+- (void)validationDidUpdateUIComponent:(REDValidation *)validation;
 
 /*!
  * @brief Notifies the delegate when a UI component has received an input.
- * @param validationComponent The object handling validation.
+ * @param validation The object handling validation.
  */
-- (void)validationComponentDidReceiveInput:(REDValidationComponent *)validationComponent;
+- (void)validationUIComponentDidReceiveInput:(REDValidation *)validation;
 
 /*!
  * @brief Notifies the delegate when a UI component has resigned first responder status.
- * @param validationComponent The object handling validation.
+ * @param validation The object handling validation.
  */
-- (void)validationComponentDidEndEditing:(REDValidationComponent *)validationComponent;
+- (void)validationUIComponentDidEndEditing:(REDValidation *)validation;
 
 /*!
  * @brief Notifies the delegate when a UI component is about to be validated.
- * @param validationComponent The object handling validation.
+ * @param validation The object handling validation.
  * @param uiComponent The UI component whose value is being validated.
  */
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent;
+- (void)validation:(REDValidation *)validation willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component has been validated
- * @param validationComponent The object handling validation.
+ * @param validation The object handling validation.
  * @param uiComponent The UI component whose value is being validated.
  * @param error Error from network validation, if there is one.
  * @param result The result of the validation.
  */
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error;
+- (void)validation:(REDValidation *)validation didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error;
 
 @end
 
@@ -57,7 +57,7 @@
 /*!
  * @brief Object that performs validation for and keeps track of validation state of individual UI components.
  */
-@interface REDValidationComponent : NSObject
+@interface REDValidation : NSObject
 
 /*!
  * @brief The UI component being validated.
@@ -67,7 +67,7 @@
 /*!
  * @brief Delegate that gets notified when the UI component is being validated.
  */
-@property (nonatomic, weak) id<REDValidationComponentDelegate> delegate;
+@property (nonatomic, weak) id<REDValidationDelegate> delegate;
 
 /*!
  * @brief The current validity of the UI component based on the validation rule.
@@ -81,7 +81,7 @@
 
 /*!
  * @brief Describes whether the UI component is being used in the validation tree of the @c REDValidator @c.
- * @discussion If false, the component's validation will be ANDed with the rest of the components that are false.
+ * @discussion If false, the validation result will be ANDed with the rest of the validations are not validated in the validation tree.
  */
 @property (nonatomic, assign) BOOL validatedInValidationTree;
 
@@ -99,29 +99,29 @@
 @property (nonatomic, readonly) id initialValue;
 
 /*!
- * @brief A unique value used to identify the validation component.
+ * @brief A unique value used to identify the validation.
  */
 @property (nonatomic, readonly) id identifier;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /*!
- * @brief Initializes and returns a new @c REDValidationComponent @c.
- * @param identifier A unique value used to identify the validation component.
+ * @brief Initializes and returns a new @c REDValidation @c.
+ * @param identifier A unique value used to identify the validation.
  * @param rule The rule used to validate the UI component.
- * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
+ * @return The initialized @c REDValidation @c or nil if there was an error during initialization.
  */
-- (instancetype)initWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule;
++ (instancetype)validationWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule;
 
 /*!
- * @brief Initializes and returns a new @c REDValidationComponent @c.
- * @param identifier A unique value used to identify the validation component.
+ * @brief Initializes and returns a new @c REDValidation @c.
+ * @param identifier A unique value used to identify the validation.
  * @param initialValue An initial value for the rule to validate.
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
- * @return The initialized @c REDValidationComponent @c or nil if there was an error during initialization.
+ * @return The initialized @c REDValidation @c or nil if there was an error during initialization.
  */
-- (instancetype)initWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
++ (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
 
 /*!
  * @brief Programmatically execute a validation.
@@ -130,8 +130,8 @@
 - (REDValidationResult)validate;
 
 /*!
- * @brief Determines whether the component is valid upon creation.
- * @return Whether the component is unvalidated and has the default value of its class.
+ * @brief Determines whether the validation is valid upon creation.
+ * @return Whether the validation is unvalidated and has the default value of its class.
  */
 - (REDValidationResult)evaluateDefaultValidity;
 

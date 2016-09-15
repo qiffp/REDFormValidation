@@ -16,10 +16,10 @@ typedef NS_ENUM(NSUInteger, REDValidationOperation) {
 @interface REDValidationTree (Private)
 
 /*!
- * @brief Evaluates whether the tree uses the given validation components.
- * @param components The validation components to be evaluated.
+ * @brief Evaluates whether the tree uses the given validations.
+ * @param validations The validations to be evaluated.
  */
-- (void)evaluateComponents:(NSDictionary<id, REDValidationComponent *> *)components;
+- (void)evaluateValidations:(NSDictionary<id, REDValidation *> *)validations;
 
 /*!
  * @brief Determines a single REDValidationResult based on a REDValidationResult mask's value.

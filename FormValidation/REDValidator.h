@@ -8,7 +8,7 @@
 
 #import "REDValidationRuleType.h"
 
-@class REDValidator, REDValidationTree, REDValidationComponent;
+@class REDValidator, REDValidationTree, REDValidation;
 @protocol REDValidatableComponent;
 
 typedef NS_ENUM(NSInteger, REDValidationEvent) {
@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param validator The validator object managing the form.
  * @param uiComponent The UI component whose value is being validated.
  */
-- (void)validator:(REDValidator *)validator willValidateComponent:(NSObject<REDValidatableComponent> *)component;
+- (void)validator:(REDValidator *)validator willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component has been validated.
@@ -38,7 +38,7 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @param error Error from network validation, if there is one.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateComponent:(NSObject<REDValidatableComponent> *)component result:(REDValidationResult)result error:(NSError *)error;
+- (void)validator:(REDValidator *)validator didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error;
 
 /*!
  * @brief Notifies the delegate when the entire form has been validated.
@@ -64,15 +64,15 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 /*!
  * @brief Object that contains logic that determines whether the form is valid. Not required.
  * @discussion
- *	If this is nil, all of the component validations are ANDed.
- *	If this is not nil but doesn't include all of the component validations, the remaining ones are ANDed.
+ *	If this is nil, all of the validations are ANDed.
+ *	If this is not nil but doesn't include all of the validations, the remaining ones are ANDed.
  */
 @property (nonatomic, strong) REDValidationTree *validationTree;
 
 /*!
  * @brief A dictionary containing the identifier-to-validation relationships that are currently being tracked.
  */
-@property (nonatomic, readonly) NSDictionary<id, REDValidationComponent *> *validationComponents;
+@property (nonatomic, readonly) NSDictionary<id, REDValidation *> *validations;
 
 /*!
  * @brief The current validity of the form.
@@ -103,9 +103,9 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 
 /*!
  * @brief Starts tracking the given validation.
- * @param validationComponent The validation that will be tracked and evaluated.
+ * @param validation The validation that will be tracked and evaluated.
  */
-- (void)addValidation:(REDValidationComponent *)validationComponent;
+- (void)addValidation:(REDValidation *)validation;
 
 /*!
  * @brief Stops tracking the validation with the given identifier.

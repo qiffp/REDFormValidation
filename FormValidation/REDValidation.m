@@ -1,23 +1,28 @@
 //
-//  REDValidationComponent.m
+//  REDValidation.m
 //  REDFormValidation
 //
 //  Created by Sam Dye on 2016-03-04.
 //  Copyright © 2016 Sam Dye. All rights reserved.
 //
 
-#import "REDValidationComponent.h"
+#import "REDValidation.h"
 
-@interface REDValidationComponent () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
+@interface REDValidation () <REDNetworkValidationRuleDelegate, UITextFieldDelegate, UITextViewDelegate>
 @end
 
-@implementation REDValidationComponent {
+@implementation REDValidation {
 	REDValidationEvent _event;
 }
 
-- (instancetype)initWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule
++ (instancetype)validationWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule
 {
-	return [self initWithIdentifier:identifier initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	return [self validationWithIdentifier:identifier initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+}
+
++ (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
+{
+	return [[self alloc] initWithIdentifier:identifier initialValue:initialValue validationEvent:event rule:rule];
 }
 
 - (instancetype)initWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
@@ -49,11 +54,11 @@
 		return;
 	}
 	
-	[self removeComponentEventActions];
+	[self removeUIComponentEventActions];
 	_uiComponent = uiComponent;
-	[self setupComponentEventActions];
+	[self setupUIComponentEventActions];
 	
-	[_delegate validationComponentDidUpdateUIComponent:self];
+	[_delegate validationDidUpdateUIComponent:self];
 }
 
 - (void)setShouldValidate:(BOOL)shouldValidate
@@ -66,7 +71,7 @@
 	[self validate];
 }
 
-- (void)removeComponentEventActions
+- (void)removeUIComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]] || [_uiComponent isKindOfClass:[UITextView class]]) {
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:nil object:_uiComponent];
@@ -75,30 +80,30 @@
 	}
 }
 
-- (void)setupComponentEventActions
+- (void)setupUIComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
 		if (_event == REDValidationEventDefault) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
 		}
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_uiComponent];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
 		if (_event == REDValidationEventDefault) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextViewTextDidChangeNotification object:_uiComponent];
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidChange:) name:UITextViewTextDidChangeNotification object:_uiComponent];
 		}
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UIControl class]]) {
 		UIControl *component = (UIControl *)_uiComponent;
 		if (_event == REDValidationEventDefault) {
-			[component addTarget:self action:@selector(componentValueChanged:) forControlEvents:UIControlEventValueChanged];
+			[component addTarget:self action:@selector(uiComponentValueChanged:) forControlEvents:UIControlEventValueChanged];
 		}
-		[component addTarget:self action:@selector(componentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
+		[component addTarget:self action:@selector(uiComponentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
 	}
 }
 
 - (REDValidationResult)validate
 {
-	[_delegate validationComponent:self willValidateUIComponent:_uiComponent];
+	[_delegate validation:self willValidateUIComponent:_uiComponent];
 	
 	if (_shouldValidate) {
 		REDValidationResult result = _valid;
@@ -112,11 +117,11 @@
 		_valid = result;
 		
 		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-			[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid error:nil];
+			[_delegate validation:self didValidateUIComponent:_uiComponent result:_valid error:nil];
 		}
 	} else {
 		_valid = REDValidationResultValid;
-		[_delegate validationComponent:self didValidateUIComponent:_uiComponent result:_valid error:nil];
+		[_delegate validation:self didValidateUIComponent:_uiComponent result:_valid error:nil];
 	}
 	
 	return _valid;
@@ -133,28 +138,28 @@
 
 #pragma mark - Actions
 
-- (void)componentValueChanged:(NSObject<REDValidatableComponent> *)component
+- (void)uiComponentValueChanged:(NSObject<REDValidatableComponent> *)component
 {
-	[_delegate validationComponentDidReceiveInput:self];
+	[_delegate validationUIComponentDidReceiveInput:self];
 }
 
-- (void)componentDidEndEditing:(NSObject<REDValidatableComponent> *)component
+- (void)uiComponentDidEndEditing:(NSObject<REDValidatableComponent> *)component
 {
 	[self validate];
-	[_delegate validationComponentDidEndEditing:self];
+	[_delegate validationUIComponentDidEndEditing:self];
 }
 
 #pragma mark - Notifications
 
-- (void)textDidChange:(NSNotification *)notification
+- (void)uiComponentTextDidChange:(NSNotification *)notification
 {
-	[_delegate validationComponentDidReceiveInput:self];
+	[_delegate validationUIComponentDidReceiveInput:self];
 }
 
-- (void)textDidEndEditing:(NSNotification *)notification
+- (void)uiComponentTextDidEndEditing:(NSNotification *)notification
 {
 	[self validate];
-	[_delegate validationComponentDidEndEditing:self];
+	[_delegate validationUIComponentDidEndEditing:self];
 }
 
 #pragma mark - NetworkValidationRuleDelegate
@@ -162,7 +167,7 @@
 - (void)validationRule:(id<REDValidationRuleType>)rule completedNetworkValidationOfComponent:(NSObject<REDValidatableComponent> *)component withResult:(REDValidationResult)result error:(NSError *)error
 {
 	_valid = result;
-	[_delegate validationComponent:self didValidateUIComponent:component result:result error:error];
+	[_delegate validation:self didValidateUIComponent:component result:result error:error];
 }
 
 @end

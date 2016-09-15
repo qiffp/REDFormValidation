@@ -39,7 +39,7 @@ OBJC_EXTERN NSString *const kUITextViewDefaultValue;
  * @brief Notifies the component when it is about to be validated.
  * @param validator The validator object managing the form.
  */
-- (void)validatorWillValidateComponent:(REDValidator *)validator;
+- (void)validatorWillValidateUIComponent:(REDValidator *)validator;
 
 /*!
  * @brief Notifies the component when it has been validated.
@@ -47,7 +47,7 @@ OBJC_EXTERN NSString *const kUITextViewDefaultValue;
  * @param error Error from network validation, if there is one.
  * @param result The result of the validation.
  */
-- (void)validator:(REDValidator *)validator didValidateComponentWithResult:(REDValidationResult)result error:(NSError *)error;
+- (void)validator:(REDValidator *)validator didValidateUIComponentWithResult:(REDValidationResult)result error:(NSError *)error;
 
 @end
 

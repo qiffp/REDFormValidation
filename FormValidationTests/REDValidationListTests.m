@@ -10,7 +10,7 @@
 
 #import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
-#import "REDValidationComponent.h"
+#import "REDValidation.h"
 
 @interface REDValidationTreeTests : XCTestCase
 @end
@@ -55,71 +55,70 @@
 
 #define returnYES [REDValidationRule ruleWithBlock:^BOOL(id value) { return YES; }]
 #define returnNO [REDValidationRule ruleWithBlock:^BOOL(id value) { return NO; }]
-
-- (REDValidationComponent *)componentWithUIComponent:(id<REDValidatableComponent>)uiComponent rule:(id<REDValidationRuleType>)rule
+	- (REDValidation *)validationWithUIComponent:(id<REDValidatableComponent>)uiComponent rule:(id<REDValidationRuleType>)rule
 {
-	REDValidationComponent *component = [[REDValidationComponent alloc] initWithIdentifier:@0 rule:rule];
-	component.uiComponent = uiComponent;
-	return component;
+	REDValidation *validation = [REDValidation validationWithIdentifier:@0 rule:rule];
+	validation.uiComponent = uiComponent;
+	return validation;
 }
 
-#pragma mark - validateComponents:revalidate:
+#pragma mark - validateValidations:revalidate:
 
 - (void)testEvaluateANDIdentifiersSuccess
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
-								 @2 : [self componentWithUIComponent:_textField2 rule:returnYES],
-								 };
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnYES],
+								  @2 : [self validationWithUIComponent:_textField2 rule:returnYES],
+								  };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateANDIdentifiersFailure
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
-								 @2 : [self componentWithUIComponent:_textField2 rule:returnYES],
-								 };
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
+								  @2 : [self validationWithUIComponent:_textField2 rule:returnYES],
+								  };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateORIdentifiersSuccess
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
-								 @2 : [self componentWithUIComponent:_unvalidatedTextField rule:nil],
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnYES],
+								  @2 : [self validationWithUIComponent:_unvalidatedTextField rule:nil],
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree or:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateORIdentifiersFailure
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
-								 @2 : [self componentWithUIComponent:_unvalidatedTextField rule:nil],
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
+								  @2 : [self validationWithUIComponent:_unvalidatedTextField rule:nil],
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree or:@[@1, @2]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateSimpleANDTreesSuccess
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
-								 @2 : [self componentWithUIComponent:_unvalidatedTextField rule:nil],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnYES]
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnYES],
+								  @2 : [self validationWithUIComponent:_unvalidatedTextField rule:nil],
+								  @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+								  @4 : [self validationWithUIComponent:_textField4 rule:returnYES]
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[
@@ -127,16 +126,16 @@
 													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateSimpleANDTreesFailure
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
-								 @2 : [self componentWithUIComponent:_unvalidatedTextField rule:nil],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnYES]
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
+								  @2 : [self validationWithUIComponent:_unvalidatedTextField rule:nil],
+								  @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+								  @4 : [self validationWithUIComponent:_textField4 rule:returnYES]
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[
@@ -144,16 +143,16 @@
 													   [REDValidationTree or:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateSimpleORTreesSuccess
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
-								 @2 : [self componentWithUIComponent:_textField2 rule:returnYES],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnYES]
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnYES],
+								  @2 : [self validationWithUIComponent:_textField2 rule:returnYES],
+								  @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+								  @4 : [self validationWithUIComponent:_textField4 rule:returnYES]
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree or:@[
@@ -161,16 +160,16 @@
 													   [REDValidationTree and:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateSimpleORTreesFailure
 {
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
-								 @2 : [self componentWithUIComponent:_textField2 rule:returnYES],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnYES]
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
+								  @2 : [self validationWithUIComponent:_textField2 rule:returnYES],
+								  @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+								  @4 : [self validationWithUIComponent:_textField4 rule:returnYES]
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree or:@[
@@ -178,7 +177,7 @@
 													   [REDValidationTree and:@[@3, @4]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultInvalid);
 }
 
 - (void)testEvaluateComplexTreesSuccess
@@ -200,19 +199,19 @@
 	UITextField *textField12 = [UITextField new];
 	textField12.text = @"test";
 	
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
-								 @2 : [self componentWithUIComponent:_unvalidatedTextField rule:nil],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnYES],
-								 @5 : [self componentWithUIComponent:textField5 rule:returnYES],
-								 @6 : [self componentWithUIComponent:textField6 rule:returnYES],
-								 @7 : [self componentWithUIComponent:textField7 rule:returnYES],
-								 @8 : [self componentWithUIComponent:textField8 rule:returnYES],
-								 @9 : [self componentWithUIComponent:textField9 rule:returnYES],
-								 @10 : [self componentWithUIComponent:textField10 rule:returnYES],
-								 @11 : [self componentWithUIComponent:textField11 rule:returnYES],
-								 @12 : [self componentWithUIComponent:textField12 rule:returnYES]
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnYES],
+								  @2 : [self validationWithUIComponent:_unvalidatedTextField rule:nil],
+								  @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+								  @4 : [self validationWithUIComponent:_textField4 rule:returnYES],
+								  @5 : [self validationWithUIComponent:textField5 rule:returnYES],
+								  @6 : [self validationWithUIComponent:textField6 rule:returnYES],
+								  @7 : [self validationWithUIComponent:textField7 rule:returnYES],
+								  @8 : [self validationWithUIComponent:textField8 rule:returnYES],
+								  @9 : [self validationWithUIComponent:textField9 rule:returnYES],
+								  @10 : [self validationWithUIComponent:textField10 rule:returnYES],
+								  @11 : [self validationWithUIComponent:textField11 rule:returnYES],
+								  @12 : [self validationWithUIComponent:textField12 rule:returnYES]
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[
@@ -230,7 +229,7 @@
 																			   ]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultValid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultValid);
 }
 
 - (void)testEvaluateComplexTreesFailure
@@ -252,19 +251,19 @@
 	UITextField *textField12 = [UITextField new];
 	textField12.text = @"test";
 	
-	NSDictionary *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
-								 @2 : [self componentWithUIComponent:_unvalidatedTextField rule:nil],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO],
-								 @5 : [self componentWithUIComponent:textField5 rule:returnYES],
-								 @6 : [self componentWithUIComponent:textField6 rule:returnNO],
-								 @7 : [self componentWithUIComponent:textField7 rule:returnYES],
-								 @8 : [self componentWithUIComponent:textField8 rule:returnNO],
-								 @9 : [self componentWithUIComponent:textField9 rule:returnYES],
-								 @10 : [self componentWithUIComponent:textField10 rule:returnYES],
-								 @11 : [self componentWithUIComponent:textField11 rule:returnYES],
-								 @12 : [self componentWithUIComponent:textField12 rule:returnYES]
+	NSDictionary *validations = @{
+								  @1 : [self validationWithUIComponent:_textField1 rule:returnNO], // changed to cause failure
+								  @2 : [self validationWithUIComponent:_unvalidatedTextField rule:nil],
+								  @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+								  @4 : [self validationWithUIComponent:_textField4 rule:returnNO],
+								  @5 : [self validationWithUIComponent:textField5 rule:returnYES],
+								  @6 : [self validationWithUIComponent:textField6 rule:returnNO],
+								  @7 : [self validationWithUIComponent:textField7 rule:returnYES],
+								  @8 : [self validationWithUIComponent:textField8 rule:returnNO],
+								  @9 : [self validationWithUIComponent:textField9 rule:returnYES],
+								  @10 : [self validationWithUIComponent:textField10 rule:returnYES],
+								  @11 : [self validationWithUIComponent:textField11 rule:returnYES],
+								  @12 : [self validationWithUIComponent:textField12 rule:returnYES]
 								 };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[
@@ -282,22 +281,22 @@
 																			   ]]
 													   ]];
 	
-	XCTAssertEqual([tree validateComponents:components revalidate:YES], REDValidationResultInvalid);
+	XCTAssertEqual([tree validateValidations:validations revalidate:YES], REDValidationResultInvalid);
 }
 
-#pragma mark - evaluateComponents:
+#pragma mark - evaluateValidations:
 
-- (void)testEvaluateComponents
+- (void)testEvaluateValidations
 {
 	UITextField *textField5 = [UITextField new];
 	
-	NSDictionary<id, REDValidationComponent *> *components = @{
-								 @1 : [self componentWithUIComponent:_textField1 rule:returnYES],
-								 @2 : [self componentWithUIComponent:_textField2 rule:returnNO],
-								 @3 : [self componentWithUIComponent:_textField3 rule:returnYES],
-								 @4 : [self componentWithUIComponent:_textField4 rule:returnNO],
-								 @5 : [self componentWithUIComponent:textField5 rule:returnYES]
-								 };
+	NSDictionary<id, REDValidation *> *validations = @{
+													   @1 : [self validationWithUIComponent:_textField1 rule:returnYES],
+													   @2 : [self validationWithUIComponent:_textField2 rule:returnNO],
+													   @3 : [self validationWithUIComponent:_textField3 rule:returnYES],
+													   @4 : [self validationWithUIComponent:_textField4 rule:returnNO],
+													   @5 : [self validationWithUIComponent:textField5 rule:returnYES]
+													   };
 	
 	REDValidationTree *tree = [REDValidationTree and:@[
 														 [REDValidationTree or:@[
@@ -307,13 +306,13 @@
 														 [REDValidationTree single:@4]
 														 ]];
 	
-	[tree evaluateComponents:components];
+	[tree evaluateValidations:validations];
 	
-	XCTAssertTrue(components[@1].validatedInValidationTree);
-	XCTAssertTrue(components[@2].validatedInValidationTree);
-	XCTAssertTrue(components[@3].validatedInValidationTree);
-	XCTAssertTrue(components[@4].validatedInValidationTree);
-	XCTAssertFalse(components[@5].validatedInValidationTree);
+	XCTAssertTrue(validations[@1].validatedInValidationTree);
+	XCTAssertTrue(validations[@2].validatedInValidationTree);
+	XCTAssertTrue(validations[@3].validatedInValidationTree);
+	XCTAssertTrue(validations[@4].validatedInValidationTree);
+	XCTAssertFalse(validations[@5].validatedInValidationTree);
 }
 
 #pragma mark - resultForMask:operation:

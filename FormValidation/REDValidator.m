@@ -7,20 +7,20 @@
 //
 
 #import "REDValidator.h"
-#import "REDValidationComponent.h"
+#import "REDValidation.h"
 #import "REDValidatableComponent.h"
 #import "REDValidationTree.h"
 #import "REDValidationTree+Private.h"
 #import "REDValidationRuleType.h"
 
-@interface REDValidator () <REDValidationComponentDelegate>
+@interface REDValidator () <REDValidationDelegate>
 @end
 
 @implementation REDValidator {
-	NSMutableDictionary<id, REDValidationComponent *> *_validationComponents;
+	NSMutableDictionary<id, REDValidation *> *_validations;
 	
 	dispatch_block_t _delayedValidationBlock;
-	REDValidationComponent *_firstResponderComponent;
+	REDValidation *_firstResponderValidation;
 }
 
 - (instancetype)init
@@ -28,7 +28,7 @@
 	self = [super init];
 	if (self) {
 		_shouldValidate = YES;
-		_validationComponents = [NSMutableDictionary dictionary];
+		_validations = [NSMutableDictionary dictionary];
 	}
 	return self;
 }
@@ -36,29 +36,29 @@
 - (void)setValidationTree:(REDValidationTree *)validationTree
 {
 	_validationTree = validationTree;
-	[self evaluateComponents];
+	[self evaluateValidations];
 }
 
-- (NSDictionary<id, REDValidationComponent *> *)validationComponents
+- (NSDictionary<id, REDValidation *> *)validations
 {
-	return [_validationComponents copy];
+	return [_validations copy];
 }
 
 - (BOOL)removeValidationWithIdentifier:(id)identifier
 {
-	if (_validationComponents[identifier].validatedInValidationTree) {
+	if (_validations[identifier].validatedInValidationTree) {
 		return NO;
 	} else {
-		[_validationComponents removeObjectForKey:identifier];
+		[_validations removeObjectForKey:identifier];
 		return YES;
 	}
 }
 
-- (void)addValidation:(REDValidationComponent *)validationComponent
+- (void)addValidation:(REDValidation *)validation
 {
-	validationComponent.delegate = self;
-	_validationComponents[validationComponent.identifier] = validationComponent;
-	[self evaluateComponent:validationComponent];
+	validation.delegate = self;
+	_validations[validation.identifier] = validation;
+	[self evaluateValidation:validation];
 }
 
 - (REDValidationResult)valid
@@ -75,9 +75,9 @@
 {
 	REDValidationResult result = [self revalidateValidationTree:revalidate];
 	
-	for (REDValidationComponent *component in _validationComponents.allValues) {
-		if (component.validatedInValidationTree == NO) {
-			result |= revalidate ? [component validate] : component.valid;
+	for (REDValidation *validation in _validations.allValues) {
+		if (validation.validatedInValidationTree == NO) {
+			result |= revalidate ? [validation validate] : validation.valid;
 		}
 	}
 	
@@ -92,15 +92,15 @@
 
 #pragma mark - Helpers
 
-- (void)evaluateComponent:(REDValidationComponent *)component
+- (void)evaluateValidation:(REDValidation *)validation
 {
-	[_validationTree evaluateComponents:@{ component.identifier : component }];
-	[self evaluateDefaultValidity:@[component]];
+	[_validationTree evaluateValidations:@{ validation.identifier : validation }];
+	[self evaluateDefaultValidity:@[validation]];
 }
 
-- (void)evaluateComponents
+- (void)evaluateValidations
 {
-	[_validationTree evaluateComponents:_validationComponents];
+	[_validationTree evaluateValidations:_validations];
 	[self evaluateDefaultValidity];
 }
 
@@ -110,75 +110,75 @@
 		return REDValidationResultValid;
 	}
 	
-	return [_validationTree validateComponents:_validationComponents revalidate:revalidate];
+	return [_validationTree validateValidations:_validations revalidate:revalidate];
 }
 
 - (void)evaluateDefaultValidity
 {
-	[self evaluateDefaultValidity:_validationComponents.allValues];
+	[self evaluateDefaultValidity:_validations.allValues];
 }
 
-- (void)evaluateDefaultValidity:(NSArray<REDValidationComponent *> *)components
+- (void)evaluateDefaultValidity:(NSArray<REDValidation *> *)validations
 {
-	for (REDValidationComponent *validationComponent in components) {
-		[validationComponent evaluateDefaultValidity];
+	for (REDValidation *validation in validations) {
+		[validation evaluateDefaultValidity];
 	}
 }
 
-#pragma mark - REDValidationComponentDelegate
+#pragma mark - REDValidationDelegate
 
-- (void)validationComponentDidUpdateUIComponent:(REDValidationComponent *)validationComponent
+- (void)validationDidUpdateUIComponent:(REDValidation *)validation
 {
-	[self evaluateComponent:validationComponent];
+	[self evaluateValidation:validation];
 }
 
-- (void)validationComponentDidReceiveInput:(REDValidationComponent *)validationComponent
+- (void)validationUIComponentDidReceiveInput:(REDValidation *)validation
 {
 	if (_delayedValidationBlock) {
 		dispatch_block_cancel(_delayedValidationBlock);
 	}
 	
-	_firstResponderComponent = validationComponent;
+	_firstResponderValidation = validation;
 	_delayedValidationBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
-		[_firstResponderComponent validate];
+		[_firstResponderValidation validate];
 	});
 	
-	NSTimeInterval delay = [validationComponent.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
+	NSTimeInterval delay = [validation.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
 	if (delay > 0.0) {
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), _delayedValidationBlock);
 	} else {
-		[_firstResponderComponent validate];
+		[_firstResponderValidation validate];
 	}
 }
 
-- (void)validationComponentDidEndEditing:(REDValidationComponent *)validationComponent
+- (void)validationUIComponentDidEndEditing:(REDValidation *)validation
 {
-	_firstResponderComponent = nil;
+	_firstResponderValidation = nil;
 	if (_delayedValidationBlock) {
 		dispatch_block_cancel(_delayedValidationBlock);
 		_delayedValidationBlock = nil;
 	}
 }
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent
+- (void)validation:(REDValidation *)validation willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent
 {
-	if ([_delegate respondsToSelector:@selector(validator:willValidateComponent:)]) {
-		[_delegate validator:self willValidateComponent:uiComponent];
+	if ([_delegate respondsToSelector:@selector(validator:willValidateUIComponent:)]) {
+		[_delegate validator:self willValidateUIComponent:uiComponent];
 	}
 	
-	if ([uiComponent respondsToSelector:@selector(validatorWillValidateComponent:)]) {
-		[uiComponent validatorWillValidateComponent:self];
+	if ([uiComponent respondsToSelector:@selector(validatorWillValidateUIComponent:)]) {
+		[uiComponent validatorWillValidateUIComponent:self];
 	}
 }
 
-- (void)validationComponent:(REDValidationComponent *)validationComponent didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error
+- (void)validation:(REDValidation *)validation didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error
 {
-	if ([_delegate respondsToSelector:@selector(validator:didValidateComponent:result:error:)]) {
-		[_delegate validator:self didValidateComponent:uiComponent result:result error:error];
+	if ([_delegate respondsToSelector:@selector(validator:didValidateUIComponent:result:error:)]) {
+		[_delegate validator:self didValidateUIComponent:uiComponent result:result error:error];
 	}
 	
-	if ([uiComponent respondsToSelector:@selector(validator:didValidateComponentWithResult:error:)]) {
-		[uiComponent validator:self didValidateComponentWithResult:result error:error];
+	if ([uiComponent respondsToSelector:@selector(validator:didValidateUIComponentWithResult:error:)]) {
+		[uiComponent validator:self didValidateUIComponentWithResult:result error:error];
 	}
 	
 	[self revalidate:NO];
