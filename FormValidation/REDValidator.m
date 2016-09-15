@@ -17,6 +17,7 @@
 
 @implementation REDValidator {
 	NSMutableDictionary<id, REDValidation *> *_validations;
+	NSMutableDictionary<NSString *, id> *_uiComponents;
 	
 	dispatch_block_t _delayedValidationBlock;
 	REDValidation *_firstResponderValidation;
@@ -27,7 +28,8 @@
 	self = [super init];
 	if (self) {
 		_shouldValidate = YES;
-		_validations = [NSMutableDictionary dictionary];
+		_validations = [NSMutableDictionary new];
+		_uiComponents = [NSMutableDictionary new];
 	}
 	return self;
 }
@@ -128,6 +130,17 @@
 
 - (void)validationDidUpdateUIComponent:(REDValidation *)validation
 {
+	id<REDValidatableComponent> uiComponent = validation.uiComponent;
+	if (uiComponent) {
+		NSString *uiComponentAddress = [NSString stringWithFormat:@"%p", uiComponent];
+		id validationIdentifier = _uiComponents[uiComponentAddress];
+		if (validationIdentifier) {
+			_validations[validationIdentifier].uiComponent = nil;
+		}
+		
+		_uiComponents[uiComponentAddress] = validation.identifier;
+	}
+	
 	[self evaluateValidation:validation];
 }
 
