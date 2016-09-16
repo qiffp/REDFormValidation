@@ -70,18 +70,9 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
 @property (nonatomic, strong) REDValidationTree *validationTree;
 
 /*!
- * @brief A dictionary containing the identifier-to-validation relationships that are currently being tracked.
- */
-@property (nonatomic, readonly) NSDictionary<id, REDValidation *> *validations;
-
-/*!
- * @brief The current validity of the form.
- */
-@property (nonatomic, assign, readonly) REDValidationResult valid;
-
-/*!
- * @brief Whether the form should be validated. Default is YES.
- * @discussion When false, no further form validations will occur (the individual components will still be validated).
+ * @brief Whether the form should be validated. Allows temporarily enabling and disabling the validation. Default is YES.
+ * @discussion Disabling this will fire one @c didValidateForm @c (with a Success result), but will not notify the delegate of any
+ * further validations until it's re-enabled.
  */
 @property (nonatomic, assign) BOOL shouldValidate;
 
@@ -94,6 +85,16 @@ typedef NS_ENUM(NSInteger, REDValidationEvent) {
  * @brief A time to delay prior to performing network validation of a component when it is changed. This only applies to network validations. Default is 0.0.
  */
 @property (nonatomic, assign) NSTimeInterval networkInputDelay;
+
+/*!
+ * @brief A dictionary containing the identifier-to-validation relationships that are currently being tracked.
+ */
+@property (nonatomic, readonly) NSDictionary<id, REDValidation *> *validations;
+
+/*!
+ * @brief The current validity of the form.
+ */
+@property (nonatomic, assign, readonly) REDValidationResult valid;
 
 /*!
  * @brief Programmatically execute a validation. Generally not necessary.

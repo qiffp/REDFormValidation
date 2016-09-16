@@ -21,7 +21,9 @@
 @property (nonatomic, weak) NSObject<REDValidatableComponent> *uiComponent;
 
 /*!
- * @brief Whether the UI component should be validated. Allows temporary enabling and disabling the validation. Default is YES.
+ * @brief Whether the UI component should be validated. Allows temporarily enabling and disabling the validation. Default is YES.
+ * @discussion If this validation has shouldValidate == YES, but the validator tracking this validation has shouldValidate == NO,
+ * the validator's delegate methods will not be fired.
  */
 @property (nonatomic, assign) BOOL shouldValidate;
 

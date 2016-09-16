@@ -40,6 +40,16 @@
 	[self evaluateValidations];
 }
 
+- (void)setShouldValidate:(BOOL)shouldValidate
+{
+	_shouldValidate = shouldValidate; // should this be before or after setting all of the validations?
+	for (REDValidation *validation in _validations.allValues) {
+		validation.shouldValidate = shouldValidate;
+	}
+	
+	[self revalidate:NO notifyDelegate:YES];
+}
+
 - (NSDictionary<id, REDValidation *> *)validations
 {
 	return [_validations copy];
@@ -64,16 +74,20 @@
 
 - (REDValidationResult)valid
 {
-	return [self revalidate:NO];
+	return [self revalidate:NO notifyDelegate:_shouldValidate];
 }
 
 - (REDValidationResult)validate
 {
-	return _shouldValidate ? [self revalidate:YES] : REDValidationResultValid;
+	return [self revalidate:YES notifyDelegate:_shouldValidate];
 }
 
-- (REDValidationResult)revalidate:(BOOL)revalidate
+- (REDValidationResult)revalidate:(BOOL)revalidate notifyDelegate:(BOOL)notifyDelegate
 {
+	if (_shouldValidate == NO) {
+		return REDValidationResultValid;
+	}
+	
 	REDValidationResult result = [self revalidateValidationTree:revalidate];
 	
 	for (REDValidation *validation in _validations.allValues) {
@@ -145,20 +159,22 @@
 
 - (void)validationUIComponentDidReceiveInput:(REDValidation *)validation
 {
-	if (_delayedValidationBlock) {
-		dispatch_block_cancel(_delayedValidationBlock);
-	}
-	
-	_firstResponderValidation = validation;
-	_delayedValidationBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
-		[_firstResponderValidation validate];
-	});
-	
-	NSTimeInterval delay = [validation.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
-	if (delay > 0.0) {
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), _delayedValidationBlock);
-	} else {
-		[_firstResponderValidation validate];
+	if (_shouldValidate) {
+		if (_delayedValidationBlock) {
+			dispatch_block_cancel(_delayedValidationBlock);
+		}
+		
+		_firstResponderValidation = validation;
+		_delayedValidationBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
+			[_firstResponderValidation validate];
+		});
+		
+		NSTimeInterval delay = [validation.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
+		if (delay > 0.0) {
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), _delayedValidationBlock);
+		} else {
+			[_firstResponderValidation validate];
+		}
 	}
 }
 
@@ -173,26 +189,30 @@
 
 - (void)validation:(REDValidation *)validation willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent
 {
-	if ([_delegate respondsToSelector:@selector(validator:willValidateUIComponent:)]) {
-		[_delegate validator:self willValidateUIComponent:uiComponent];
-	}
-	
-	if ([uiComponent respondsToSelector:@selector(validatorWillValidateUIComponent:)]) {
-		[uiComponent validatorWillValidateUIComponent:self];
+	if (_shouldValidate) {
+		if ([_delegate respondsToSelector:@selector(validator:willValidateUIComponent:)]) {
+			[_delegate validator:self willValidateUIComponent:uiComponent];
+		}
+		
+		if ([uiComponent respondsToSelector:@selector(validatorWillValidateUIComponent:)]) {
+			[uiComponent validatorWillValidateUIComponent:self];
+		}
 	}
 }
 
 - (void)validation:(REDValidation *)validation didValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent result:(REDValidationResult)result error:(NSError *)error
 {
-	if ([_delegate respondsToSelector:@selector(validator:didValidateUIComponent:result:error:)]) {
-		[_delegate validator:self didValidateUIComponent:uiComponent result:result error:error];
+	if (_shouldValidate) {
+		if ([_delegate respondsToSelector:@selector(validator:didValidateUIComponent:result:error:)]) {
+			[_delegate validator:self didValidateUIComponent:uiComponent result:result error:error];
+		}
+		
+		if ([uiComponent respondsToSelector:@selector(validator:didValidateUIComponentWithResult:error:)]) {
+			[uiComponent validator:self didValidateUIComponentWithResult:result error:error];
+		}
 	}
 	
-	if ([uiComponent respondsToSelector:@selector(validator:didValidateUIComponentWithResult:error:)]) {
-		[uiComponent validator:self didValidateUIComponentWithResult:result error:error];
-	}
-	
-	[self revalidate:NO];
+	[self revalidate:NO notifyDelegate:_shouldValidate];
 }
 
 @end
