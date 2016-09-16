@@ -15,9 +15,10 @@
 
 /*!
  * @brief Notifies the delegate when the UI component has been changed.
- * @param validatin The object handling validation.
+ * @param validation The object handling validation.
+ * @param uiComponent The validation's new uiComponent object.
  */
-- (void)validationDidUpdateUIComponent:(REDValidation *)validation;
+- (void)validation:(REDValidation *)validation didUpdateWithUIComponent:(NSObject<REDValidatableComponent> *)uiComponent;
 
 /*!
  * @brief Notifies the delegate when a UI component has received an input.

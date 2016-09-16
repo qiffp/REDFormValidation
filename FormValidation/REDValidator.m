@@ -128,9 +128,8 @@
 
 #pragma mark - REDValidationDelegate
 
-- (void)validationDidUpdateUIComponent:(REDValidation *)validation
+- (void)validation:(REDValidation *)validation didUpdateWithUIComponent:(NSObject<REDValidatableComponent> *)uiComponent
 {
-	id<REDValidatableComponent> uiComponent = validation.uiComponent;
 	if (uiComponent) {
 		NSString *uiComponentAddress = [NSString stringWithFormat:@"%p", uiComponent];
 		id validationIdentifier = _uiComponents[uiComponentAddress];

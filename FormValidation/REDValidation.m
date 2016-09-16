@@ -64,7 +64,7 @@
 	_uiComponent = uiComponent;
 	[self setupUIComponentEventActions];
 	
-	[_delegate validationDidUpdateUIComponent:self];
+	[_delegate validation:self didUpdateWithUIComponent:uiComponent];
 }
 
 - (void)setShouldValidate:(BOOL)shouldValidate
