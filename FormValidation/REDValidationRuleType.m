@@ -31,9 +31,9 @@
 
 - (REDValidationResult)validate:(id<REDValidatableComponent>)uiComponent allowDefault:(BOOL)allowDefault
 {
-	id value = [uiComponent validatedValue];
+	id value = uiComponent.validatedValue;
 	
-	if ([value isEqual:[uiComponent defaultValue]]) {
+	if ([value isEqual:uiComponent.defaultValue]) {
 		return allowDefault ? REDValidationResultDefaultValid : REDValidationResultUnvalidated;
 	}
 	
@@ -81,9 +81,9 @@
 {
 	[self cancel];
 	
-	id value = [uiComponent validatedValue];
+	id value = uiComponent.validatedValue;
 	
-	if (allowDefault && [value isEqual:[uiComponent defaultValue]]) {
+	if (allowDefault && [value isEqual:uiComponent.defaultValue]) {
 		REDValidationResult result = REDValidationResultDefaultValid;
 		[_delegate validationRule:self completedNetworkValidationOfUIComponent:uiComponent withResult:result error:nil];
 		return result;

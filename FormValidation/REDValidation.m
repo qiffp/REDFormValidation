@@ -137,7 +137,7 @@
 
 - (REDValidationResult)evaluateDefaultValidity
 {
-	if (_allowDefault && (_uiComponent == nil || [[_uiComponent validatedValue] isEqual:[_uiComponent defaultValue]])) {
+	if (_allowDefault && (_uiComponent == nil || [_uiComponent.validatedValue isEqual:_uiComponent.defaultValue])) {
 		_valid = REDValidationResultDefaultValid;
 	}
 	

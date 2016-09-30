@@ -25,13 +25,13 @@ OBJC_EXTERN NSString *const kUITextViewDefaultValue;
  * @brief Provides access to the validated property of the component.
  * @return The value of the validated property of the component.
  */
-- (id)validatedValue;
+@property (nonatomic, strong, readonly) id validatedValue;
 
 /*!
  * @brief Provides access to the default value of the validated property of the component.
  * @return The default value of the validated property of the component.
  */
-- (id)defaultValue;
+@property (nonatomic, strong, readonly) id defaultValue;
 
 @optional
 

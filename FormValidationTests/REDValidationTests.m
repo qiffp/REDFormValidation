@@ -227,7 +227,7 @@
 	validation.uiComponent = textField;
 	
 	XCTAssertTrue(validation.allowDefault);
-	XCTAssertEqualObjects([validation.uiComponent validatedValue], kUITextFieldDefaultValue);
+	XCTAssertEqualObjects(validation.uiComponent.validatedValue, kUITextFieldDefaultValue);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], REDValidationResultDefaultValid);
 }
@@ -254,7 +254,7 @@
 	validation.uiComponent = textField;
 	
 	XCTAssertFalse(validation.allowDefault);
-	XCTAssertEqualObjects([validation.uiComponent validatedValue], kUITextFieldDefaultValue);
+	XCTAssertEqualObjects(validation.uiComponent.validatedValue, kUITextFieldDefaultValue);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], validation.valid);
 }
@@ -270,7 +270,7 @@
 	validation.uiComponent = textField;
 	
 	XCTAssertTrue(validation.allowDefault);
-	XCTAssertNotEqualObjects([validation.uiComponent validatedValue], kUITextFieldDefaultValue);
+	XCTAssertNotEqualObjects(validation.uiComponent.validatedValue, kUITextFieldDefaultValue);
 	
 	XCTAssertEqual([validation evaluateDefaultValidity], validation.valid);
 }
