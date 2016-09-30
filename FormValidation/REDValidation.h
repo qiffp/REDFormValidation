@@ -28,13 +28,6 @@
 @property (nonatomic, assign) BOOL shouldValidate;
 
 /*!
- * @brief If enabled, the component value can be its default value and the component is considered valid. Default is NO for REDValidationRule and REDNetworkValidationRule.
- * @discussion This is used for fields that do not require a value. Generally  all of the fields of the form are not validated
- * at once, so this allows determining the validity of the form by evaluating fields without performing their validations.
- */
-@property (nonatomic, assign) BOOL allowDefault;
-
-/*!
  * @brief The current validity of the UI component based on the validation rule.
  */
 @property (nonatomic, assign, readonly) REDValidationResult valid;
@@ -43,6 +36,11 @@
 
 /*!
  * @brief Initializes and returns a new @c REDValidation @c.
+ * @discussion
+ *	Default values of full initializer parameters:
+ *	initialValue: nil
+ *	allowDefault: NO
+ *	validationEvent: REDValidationEventDefault
  * @param identifier A unique value used to identify the validation.
  * @param rule The rule used to validate the UI component.
  * @return The initialized @c REDValidation @c or nil if there was an error during initialization.
@@ -53,10 +51,11 @@
  * @brief Initializes and returns a new @c REDValidation @c.
  * @param identifier A unique value used to identify the validation.
  * @param initialValue An initial value for the rule to validate.
+ * @param allowDefault Whether the component's default value is considered valid.
  * @param event The event upon which the UI component will be validated.
  * @param rule The rule used to validate the UI component.
  * @return The initialized @c REDValidation @c or nil if there was an error during initialization.
  */
-+ (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
++ (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue allowDefault:(BOOL)allowDefault validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule;
 
 @end

@@ -19,19 +19,20 @@
 @synthesize validatedInValidationTree = _validatedInValidationTree;
 @synthesize rule = _rule;
 @synthesize initialValue = _initialValue;
+@synthesize allowDefault = _allowDefault;
 @synthesize identifier = _identifier;
 
 + (instancetype)validationWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule
 {
-	return [self validationWithIdentifier:identifier initialValue:nil validationEvent:REDValidationEventDefault rule:rule];
+	return [self validationWithIdentifier:identifier initialValue:nil allowDefault:NO validationEvent:REDValidationEventDefault rule:rule];
 }
 
-+ (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
++ (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue allowDefault:(BOOL)allowDefault validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
 {
-	return [[self alloc] initWithIdentifier:identifier initialValue:initialValue validationEvent:event rule:rule];
+	return [[self alloc] initWithIdentifier:identifier initialValue:initialValue allowDefault:allowDefault validationEvent:event rule:rule];
 }
 
-- (instancetype)initWithIdentifier:(id)identifier initialValue:(id)initialValue validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
+- (instancetype)initWithIdentifier:(id)identifier initialValue:(id)initialValue allowDefault:(BOOL)allowDefault validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
 {
 	self = [super init];
 	if (self ) {
@@ -39,6 +40,7 @@
 		_shouldValidate = YES;
 		_identifier = [identifier copy];
 		_initialValue = [initialValue copy];
+		_allowDefault = allowDefault;
 		_event = event;
 		
 		_rule = rule;

@@ -94,13 +94,13 @@
 
 - (void)testValidateValidatesInitialValueIfValidationHasNoUIComponentAndIsUnvalidated
 {
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_validation.valid = REDValidationResultUnvalidated;
 	XCTAssertEqual([_validation validate], REDValidationResultInvalid);
 	
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hello" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hello" allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_validation.valid = REDValidationResultUnvalidated;
@@ -109,7 +109,7 @@
 
 - (void)testValidateDoesNotValidateInitialValueIfValidationHasNoUIComponentAndIsValidated
 {
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_validation.valid = REDValidationResultValid;
@@ -120,7 +120,7 @@
 
 - (void)testTextFieldValidatesOnEndEditingWithValidationEventEndEditing
 {
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_validation.uiComponent = _textField;
@@ -151,7 +151,7 @@
 {
 	UITextView *textView = [UITextView new];
 	textView.text = @"test";
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_validation.uiComponent = textView;
@@ -185,7 +185,7 @@
 - (void)testControlValidatesOnEndEditingWithValidationEventEndEditing
 {
 	UISlider *slider = [UISlider new];
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_validation.uiComponent = slider;
@@ -221,10 +221,9 @@
 {
 	UITextField *textField = [UITextField new];
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
-	validation.allowDefault = YES;
 	validation.uiComponent = textField;
 	
 	XCTAssertTrue(validation.allowDefault);
@@ -235,10 +234,9 @@
 
 - (void)testEvaluateDefaultValidityReturnsDefaultValidIfValidationAllowsDefaultValidAndUIComponentIsNil
 {
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
-	validation.allowDefault = YES;
 	
 	XCTAssertTrue(validation.allowDefault);
 	XCTAssertNil(validation.uiComponent);
@@ -250,7 +248,7 @@
 {
 	UITextField *textField = [UITextField new];
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	validation.uiComponent = textField;
@@ -266,10 +264,9 @@
 	UITextField *textField = [UITextField new];
 	textField.text = @"test";
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
-	validation.allowDefault = YES;
 	validation.uiComponent = textField;
 	
 	XCTAssertTrue(validation.allowDefault);

@@ -78,6 +78,13 @@
 @property (nonatomic, strong, readonly) id initialValue;
 
 /*!
+ * @brief If enabled, the component value can be its default value and the component is considered valid.
+ * @discussion This is used for fields that do not require a value. Generally  all of the fields of the form are not validated
+ * at once, so this allows determining the validity of the form by evaluating fields without performing their validations.
+ */
+@property (nonatomic, assign, readonly) BOOL allowDefault;
+
+/*!
  * @brief A unique value used to identify the validation.
  */
 @property (nonatomic, strong, readonly) id identifier;
