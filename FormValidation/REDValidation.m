@@ -13,6 +13,7 @@
 
 @implementation REDValidation {
 	REDValidationEvent _event;
+	BOOL _requiresValidation;
 }
 
 @synthesize delegate = _delegate;
@@ -91,20 +92,14 @@
 - (void)setupUIComponentEventActions
 {
 	if ([_uiComponent isKindOfClass:[UITextField class]]) {
-		if (_event == REDValidationEventDefault) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
-		}
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidChange:) name:UITextFieldTextDidChangeNotification object:_uiComponent];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UITextView class]]) {
-		if (_event == REDValidationEventDefault) {
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidChange:) name:UITextViewTextDidChangeNotification object:_uiComponent];
-		}
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidChange:) name:UITextViewTextDidChangeNotification object:_uiComponent];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UIControl class]]) {
 		UIControl *component = (UIControl *)_uiComponent;
-		if (_event == REDValidationEventDefault) {
-			[component addTarget:self action:@selector(uiComponentValueChanged:) forControlEvents:UIControlEventValueChanged];
-		}
+		[component addTarget:self action:@selector(uiComponentValueChanged:) forControlEvents:UIControlEventValueChanged];
 		[component addTarget:self action:@selector(uiComponentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
 	}
 }
@@ -112,6 +107,8 @@
 - (REDValidationResult)validate
 {
 	[_delegate validation:self willValidateUIComponent:_uiComponent];
+	
+	_requiresValidation = NO;
 	
 	if (_shouldValidate) {
 		REDValidationResult result = _valid;
@@ -148,12 +145,17 @@
 
 - (void)uiComponentValueChanged:(NSObject<REDValidatableComponent> *)component
 {
-	[_delegate validationUIComponentDidReceiveInput:self];
+	_requiresValidation = YES;
+	if (_event == REDValidationEventDefault) {
+		[_delegate validationUIComponentDidReceiveInput:self];
+	}
 }
 
 - (void)uiComponentDidEndEditing:(NSObject<REDValidatableComponent> *)component
 {
-	[self validate];
+	if (_requiresValidation) {
+		[self validate];
+	}
 	[_delegate validationUIComponentDidEndEditing:self];
 }
 
@@ -161,12 +163,17 @@
 
 - (void)uiComponentTextDidChange:(NSNotification *)notification
 {
-	[_delegate validationUIComponentDidReceiveInput:self];
+	_requiresValidation = YES;
+	if (_event == REDValidationEventDefault) {
+		[_delegate validationUIComponentDidReceiveInput:self];
+	}
 }
 
 - (void)uiComponentTextDidEndEditing:(NSNotification *)notification
 {
-	[self validate];
+	if (_requiresValidation) {
+		[self validate];
+	}
 	[_delegate validationUIComponentDidEndEditing:self];
 }
 
