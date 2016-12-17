@@ -83,8 +83,8 @@
 	
 	id value = uiComponent.validatedValue;
 	
-	if (allowDefault && [value isEqual:uiComponent.defaultValue]) {
-		REDValidationResult result = REDValidationResultDefaultValid;
+	if ([value isEqual:uiComponent.defaultValue]) {
+		REDValidationResult result = allowDefault ? REDValidationResultDefaultValid : REDValidationResultUnvalidated;
 		[_delegate validationRule:self completedNetworkValidationOfUIComponent:uiComponent withResult:result error:nil];
 		return result;
 	}
