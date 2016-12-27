@@ -25,7 +25,7 @@
 
 + (instancetype)validationWithIdentifier:(id)identifier rule:(id<REDValidationRuleType>)rule
 {
-	return [self validationWithIdentifier:identifier initialValue:nil allowDefault:NO validationEvent:REDValidationEventDefault rule:rule];
+	return [self validationWithIdentifier:identifier initialValue:nil allowDefault:NO validationEvent:REDValidationEventAll rule:rule];
 }
 
 + (instancetype)validationWithIdentifier:(id)identifier initialValue:(id)initialValue allowDefault:(BOOL)allowDefault validationEvent:(REDValidationEvent)event rule:(id<REDValidationRuleType>)rule
@@ -146,7 +146,7 @@
 - (void)uiComponentValueChanged
 {
 	_requiresValidation = YES;
-	if (_event == REDValidationEventDefault) {
+	if (_event == REDValidationEventAll) {
 		[_delegate validationUIComponentDidReceiveInput:self];
 	}
 }

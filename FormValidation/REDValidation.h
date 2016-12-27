@@ -40,7 +40,7 @@
  *	Default values of full initializer parameters:
  *	initialValue: nil
  *	allowDefault: NO
- *	validationEvent: REDValidationEventDefault
+ *	validationEvent: REDValidationEventAll
  * @param identifier A unique value used to identify the validation.
  * @param rule The rule used to validate the UI component.
  * @return The initialized @c REDValidation @c or nil if there was an error during initialization.

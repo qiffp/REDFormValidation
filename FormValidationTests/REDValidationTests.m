@@ -12,6 +12,8 @@
 #import "REDValidation+Private.h"
 
 @interface REDValidation (TestExpose)
+- (void)uiComponentValueChanged;
+- (void)uiComponentDidEndEditing;
 - (void)uiComponentValueChanged:(NSObject<REDValidatableComponent> *)component;
 - (void)uiComponentDidEndEditing:(NSObject<REDValidatableComponent> *)component;
 - (void)uiComponentTextDidChange:(NSNotification *)notification;
@@ -20,6 +22,7 @@
 
 @interface REDValidation (TestHelper)
 @property (nonatomic, assign, readwrite) REDValidationResult valid;
+@property (nonatomic, assign, readwrite) BOOL requiresValidation;
 @end
 
 @implementation REDValidation (TestHelper)
@@ -27,6 +30,16 @@
 - (void)setValid:(REDValidationResult)valid
 {
 	[self setValue:@(valid) forKey:@"_valid"];
+}
+
+- (BOOL)requiresValidation
+{
+	return [self valueForKey:@"_requiresValidation"];
+}
+
+- (void)setRequiresValidation:(BOOL)requiresValidation
+{
+	[self setValue:@(requiresValidation) forKey:@"_requiresValidation"];
 }
 
 @end
@@ -96,13 +109,13 @@
 
 - (void)testValidateValidatesInitialValueIfValidationHasNoUIComponentAndIsUnvalidated
 {
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" allowDefault:NO validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_validation.valid = REDValidationResultUnvalidated;
 	XCTAssertEqual([_validation validate], REDValidationResultInvalid);
 	
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hello" allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hello" allowDefault:NO validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_validation.valid = REDValidationResultUnvalidated;
@@ -111,7 +124,7 @@
 
 - (void)testValidateDoesNotValidateInitialValueIfValidationHasNoUIComponentAndIsValidated
 {
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:@"hi" allowDefault:NO validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *value) {
 		return value.length > 4;
 	}]];
 	_validation.valid = REDValidationResultValid;
@@ -137,7 +150,7 @@
 	[validationMock verify];
 }
 
-- (void)testTextFieldWithValidationEventDefaultRespondsToAllNotifications
+- (void)testTextFieldWithValidationEventAllRespondsToAllNotifications
 {
 	id validationMock = [OCMockObject partialMockForObject:_validation];
 	[[validationMock expect] uiComponentTextDidChange:[OCMArg any]];
@@ -168,7 +181,7 @@
 	[validationMock verify];
 }
 
-- (void)testTextViewWithValidationEventDefaultRespondsToAllNotifications
+- (void)testTextViewWithValidationEventAllRespondsToAllNotifications
 {
 	UITextView *textView = [UITextView new];
 	textView.text = @"test";
@@ -206,10 +219,10 @@
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
 }
 
-- (void)testControlWithValidationEventDefaultHasActionsForAllEvents
+- (void)testControlWithValidationEventAllHasActionsForAllEvents
 {
 	UISlider *slider = [UISlider new];
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	_validation.uiComponent = slider;
@@ -226,13 +239,87 @@
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
 }
 
+#pragma mark - uiComponentValueChanged
+
+- (void)testValueChangedSetsRequiresValidation
+{
+	_validation.requiresValidation = NO;
+	[_validation uiComponentValueChanged];
+	XCTAssertTrue(_validation.requiresValidation);
+}
+
+- (void)testValueChangedNotifiesDelegateWithValidationEventAll
+{
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventAll rule:nil];
+	
+	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	[[validationDelegateMock expect] validationUIComponentDidReceiveInput:_validation];
+	_validation.delegate = validationDelegateMock;
+	
+	[_validation uiComponentValueChanged];
+	
+	[validationDelegateMock verify];
+}
+
+- (void)testValueChangedDoesNotNotifyDelegateWithValidationEventEndEditing
+{
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventEndEditing rule:nil];
+	
+	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	[[validationDelegateMock reject] validationUIComponentDidReceiveInput:_validation];
+	_validation.delegate = validationDelegateMock;
+	
+	[_validation uiComponentValueChanged];
+	
+	[validationDelegateMock verify];
+}
+
+#pragma mark - uiComponentDidEndEditing
+
+- (void)testDidEndEditingValidatesIfRequiresValidation
+{
+	_validation.requiresValidation = YES;
+	
+	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	[[validationDelegateMock expect] validation:_validation didValidateUIComponent:_textField result:REDValidationResultValid error:[OCMArg any]];
+	_validation.delegate = validationDelegateMock;
+	
+	[_validation uiComponentDidEndEditing];
+	
+	[validationDelegateMock verify];
+}
+
+- (void)testDidEndEditingDoesNotValidateIfDoesNotRequireValidation
+{
+	_validation.requiresValidation = NO;
+	
+	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	[[validationDelegateMock reject] validation:_validation didValidateUIComponent:_textField result:REDValidationResultValid error:[OCMArg any]];
+	_validation.delegate = validationDelegateMock;
+	
+	[_validation uiComponentDidEndEditing];
+	
+	[validationDelegateMock verify];
+}
+
+- (void)testDidEndEditingNotifiesDelegate
+{
+	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	[[validationDelegateMock expect] validationUIComponentDidEndEditing:_validation];
+	_validation.delegate = validationDelegateMock;
+	
+	[_validation uiComponentDidEndEditing];
+	
+	[validationDelegateMock verify];
+}
+
 #pragma mark - evaluateDefaultValidity
 
 - (void)testEvaluateDefaultValidityReturnsDefaultValidIfValidationAllowsDefaultAndUIComponentValueIsDefaultValue
 {
 	UITextField *textField = [UITextField new];
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	validation.uiComponent = textField;
@@ -245,7 +332,7 @@
 
 - (void)testEvaluateDefaultValidityReturnsDefaultValidIfValidationAllowsDefaultValidAndUIComponentIsNil
 {
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	
@@ -259,7 +346,7 @@
 {
 	UITextField *textField = [UITextField new];
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	validation.uiComponent = textField;
@@ -275,7 +362,7 @@
 	UITextField *textField = [UITextField new];
 	textField.text = @"test";
 	
-	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+	REDValidation *validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventAll rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
 	}]];
 	validation.uiComponent = textField;
