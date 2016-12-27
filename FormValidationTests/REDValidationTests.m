@@ -12,6 +12,8 @@
 #import "REDValidation+Private.h"
 
 @interface REDValidation (TestExpose)
+- (void)uiComponentValueChanged:(NSObject<REDValidatableComponent> *)component;
+- (void)uiComponentDidEndEditing:(NSObject<REDValidatableComponent> *)component;
 - (void)uiComponentTextDidChange:(NSNotification *)notification;
 - (void)uiComponentTextDidEndEditing:(NSNotification *)notification;
 @end
@@ -118,7 +120,7 @@
 
 #pragma mark - validationEvent
 
-- (void)testTextFieldValidatesOnEndEditingWithValidationEventEndEditing
+- (void)testTextFieldWithValidationEventEndEditingRespondsToAllNotifications
 {
 	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
 		return YES;
@@ -126,7 +128,7 @@
 	_validation.uiComponent = _textField;
 	
 	id validationMock = [OCMockObject partialMockForObject:_validation];
-	[[validationMock reject] uiComponentTextDidChange:[OCMArg any]];
+	[[validationMock expect] uiComponentTextDidChange:[OCMArg any]];
 	[[validationMock expect] uiComponentTextDidEndEditing:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification object:_validation.uiComponent];
@@ -135,7 +137,7 @@
 	[validationMock verify];
 }
 
-- (void)testTextFieldValidatesOnAllEventsWithValidationEventDefault
+- (void)testTextFieldWithValidationEventDefaultRespondsToAllNotifications
 {
 	id validationMock = [OCMockObject partialMockForObject:_validation];
 	[[validationMock expect] uiComponentTextDidChange:[OCMArg any]];
@@ -147,7 +149,7 @@
 	[validationMock verify];
 }
 
-- (void)testTextViewValidatesOnEndEditingWithValidationEventEndEditing
+- (void)testTextViewWithValidationEventEndEditingRespondsToAllNotifications
 {
 	UITextView *textView = [UITextView new];
 	textView.text = @"test";
@@ -157,7 +159,7 @@
 	_validation.uiComponent = textView;
 	
 	id validationMock = [OCMockObject partialMockForObject:_validation];
-	[[validationMock reject] uiComponentTextDidChange:[OCMArg any]];
+	[[validationMock expect] uiComponentTextDidChange:[OCMArg any]];
 	[[validationMock expect] uiComponentTextDidEndEditing:[OCMArg any]];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidEndEditingNotification object:_validation.uiComponent];
@@ -166,7 +168,7 @@
 	[validationMock verify];
 }
 
-- (void)testTextViewValidatesOnAllEventsWithValidationEventDefault
+- (void)testTextViewWithValidationEventDefaultRespondsToAllNotifications
 {
 	UITextView *textView = [UITextView new];
 	textView.text = @"test";
@@ -182,7 +184,9 @@
 	[validationMock verify];
 }
 
-- (void)testControlValidatesOnEndEditingWithValidationEventEndEditing
+// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+
+- (void)testControlWithValidationEventEndEditingHasActionsForAllEvents
 {
 	UISlider *slider = [UISlider new];
 	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventEndEditing rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
@@ -190,22 +194,29 @@
 	}]];
 	_validation.uiComponent = slider;
 	
-	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+	id validationDelegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	_validation.delegate = validationDelegate;
+	
 	NSSet *targets = slider.allTargets;
 	XCTAssertEqual(targets.count, 1);
-	
+
 	id target = targets.allObjects.firstObject;
 	XCTAssertEqualObjects(target, _validation);
 	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventEditingDidEnd].count, 1);
-	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 0);
+	XCTAssertEqual([slider actionsForTarget:target forControlEvent:UIControlEventValueChanged].count, 1);
 }
 
-- (void)testControlValidatesOnAllEventsWithValidationEventDefault
+- (void)testControlWithValidationEventDefaultHasActionsForAllEvents
 {
 	UISlider *slider = [UISlider new];
+	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:NO validationEvent:REDValidationEventDefault rule:[REDValidationRule ruleWithBlock:^BOOL(id value) {
+		return YES;
+	}]];
 	_validation.uiComponent = slider;
 	
-	// sendActionsForControlEvents: doesn't work while unit testing, so verify target/events instead
+	id validationDelegate = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
+	_validation.delegate = validationDelegate;
+	
 	NSSet *targets = slider.allTargets;
 	XCTAssertEqual(targets.count, 1);
 	

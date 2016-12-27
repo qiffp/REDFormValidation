@@ -99,8 +99,8 @@
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(uiComponentTextDidEndEditing:) name:UITextViewTextDidEndEditingNotification object:_uiComponent];
 	} else if ([_uiComponent isKindOfClass:[UIControl class]]) {
 		UIControl *component = (UIControl *)_uiComponent;
-		[component addTarget:self action:@selector(uiComponentValueChanged:) forControlEvents:UIControlEventValueChanged];
-		[component addTarget:self action:@selector(uiComponentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
+		[component addTarget:self action:@selector(validatableComponentValueChanged:) forControlEvents:UIControlEventValueChanged];
+		[component addTarget:self action:@selector(validatableComponentDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
 	}
 }
 
@@ -141,9 +141,9 @@
 	return _valid;
 }
 
-#pragma mark - Actions
+#pragma mark - Helpers
 
-- (void)uiComponentValueChanged:(NSObject<REDValidatableComponent> *)component
+- (void)uiComponentValueChanged
 {
 	_requiresValidation = YES;
 	if (_event == REDValidationEventDefault) {
@@ -151,30 +151,36 @@
 	}
 }
 
-- (void)uiComponentDidEndEditing:(NSObject<REDValidatableComponent> *)component
+- (void)uiComponentDidEndEditing
 {
 	if (_requiresValidation) {
 		[self validate];
 	}
 	[_delegate validationUIComponentDidEndEditing:self];
+}
+
+#pragma mark - Actions
+
+- (void)validatableComponentValueChanged:(NSObject<REDValidatableComponent> *)component
+{
+	[self uiComponentValueChanged];
+}
+
+- (void)validatableComponentDidEndEditing:(NSObject<REDValidatableComponent> *)component
+{
+	[self uiComponentDidEndEditing];
 }
 
 #pragma mark - Notifications
 
 - (void)uiComponentTextDidChange:(NSNotification *)notification
 {
-	_requiresValidation = YES;
-	if (_event == REDValidationEventDefault) {
-		[_delegate validationUIComponentDidReceiveInput:self];
-	}
+	[self uiComponentValueChanged];
 }
 
 - (void)uiComponentTextDidEndEditing:(NSNotification *)notification
 {
-	if (_requiresValidation) {
-		[self validate];
-	}
-	[_delegate validationUIComponentDidEndEditing:self];
+	[self uiComponentDidEndEditing];
 }
 
 #pragma mark - NetworkValidationRuleDelegate
