@@ -21,16 +21,10 @@
 - (void)validation:(REDValidation *)validation didUpdateWithUIComponent:(NSObject<REDValidatableComponent> *)uiComponent;
 
 /*!
- * @brief Notifies the delegate when a UI component has received an input.
+ * @brief Requests the amount of time to delay a validation.
  * @param validation The object handling validation.
  */
-- (void)validationUIComponentDidReceiveInput:(REDValidation *)validation;
-
-/*!
- * @brief Notifies the delegate when a UI component has resigned first responder status.
- * @param validation The object handling validation.
- */
-- (void)validationUIComponentDidEndEditing:(REDValidation *)validation;
+- (NSTimeInterval)delayForValidation:(REDValidation *)validation;
 
 /*!
  * @brief Notifies the delegate when a UI component is about to be validated.

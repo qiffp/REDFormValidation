@@ -248,32 +248,6 @@
 	XCTAssertTrue(_validation.requiresValidation);
 }
 
-- (void)testValueChangedNotifiesDelegateWithValidationEventAll
-{
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventAll rule:nil];
-	
-	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
-	[[validationDelegateMock expect] validationUIComponentDidReceiveInput:_validation];
-	_validation.delegate = validationDelegateMock;
-	
-	[_validation uiComponentValueChanged];
-	
-	[validationDelegateMock verify];
-}
-
-- (void)testValueChangedDoesNotNotifyDelegateWithValidationEventEndEditing
-{
-	_validation = [REDValidation validationWithIdentifier:nil initialValue:nil allowDefault:YES validationEvent:REDValidationEventEndEditing rule:nil];
-	
-	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
-	[[validationDelegateMock reject] validationUIComponentDidReceiveInput:_validation];
-	_validation.delegate = validationDelegateMock;
-	
-	[_validation uiComponentValueChanged];
-	
-	[validationDelegateMock verify];
-}
-
 #pragma mark - uiComponentDidEndEditing
 
 - (void)testDidEndEditingValidatesIfRequiresValidation
@@ -295,17 +269,6 @@
 	
 	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
 	[[validationDelegateMock reject] validation:_validation didValidateUIComponent:_textField result:REDValidationResultValid error:[OCMArg any]];
-	_validation.delegate = validationDelegateMock;
-	
-	[_validation uiComponentDidEndEditing];
-	
-	[validationDelegateMock verify];
-}
-
-- (void)testDidEndEditingNotifiesDelegate
-{
-	id validationDelegateMock = [OCMockObject niceMockForProtocol:@protocol(REDValidationDelegate)];
-	[[validationDelegateMock expect] validationUIComponentDidEndEditing:_validation];
 	_validation.delegate = validationDelegateMock;
 	
 	[_validation uiComponentDidEndEditing];

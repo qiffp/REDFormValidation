@@ -18,9 +18,6 @@
 @implementation REDValidator {
 	NSMutableDictionary<id, REDValidation *> *_validations;
 	NSMutableDictionary<NSString *, id> *_uiComponents;
-	
-	dispatch_block_t _delayedValidationBlock;
-	REDValidation *_firstResponderValidation;
 }
 
 - (instancetype)init
@@ -157,34 +154,9 @@
 	[self evaluateValidation:validation];
 }
 
-- (void)validationUIComponentDidReceiveInput:(REDValidation *)validation
+- (NSTimeInterval)delayForValidation:(REDValidation *)validation
 {
-	if (_shouldValidate) {
-		if (_delayedValidationBlock) {
-			dispatch_block_cancel(_delayedValidationBlock);
-		}
-		
-		_firstResponderValidation = validation;
-		_delayedValidationBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
-			[_firstResponderValidation validate];
-		});
-		
-		NSTimeInterval delay = [validation.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
-		if (delay > 0.0) {
-			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), _delayedValidationBlock);
-		} else {
-			[_firstResponderValidation validate];
-		}
-	}
-}
-
-- (void)validationUIComponentDidEndEditing:(REDValidation *)validation
-{
-	_firstResponderValidation = nil;
-	if (_delayedValidationBlock) {
-		dispatch_block_cancel(_delayedValidationBlock);
-		_delayedValidationBlock = nil;
-	}
+	return [validation.rule isKindOfClass:[REDValidationRule class]] ? _inputDelay : _networkInputDelay;
 }
 
 - (void)validation:(REDValidation *)validation willValidateUIComponent:(NSObject<REDValidatableComponent> *)uiComponent

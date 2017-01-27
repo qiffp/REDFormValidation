@@ -147,16 +147,23 @@
 {
 	_requiresValidation = YES;
 	if (_event == REDValidationEventAll) {
-		[_delegate validationUIComponentDidReceiveInput:self];
+		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(validate) object:nil];
+		
+		NSTimeInterval delay = [_delegate delayForValidation:self];
+		if (delay) {
+			[self performSelector:@selector(validate) withObject:nil afterDelay:delay];
+		} else {
+			[self validate];
+		}
 	}
 }
 
 - (void)uiComponentDidEndEditing
 {
 	if (_requiresValidation) {
+		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(validate) object:nil];
 		[self validate];
 	}
-	[_delegate validationUIComponentDidEndEditing:self];
 }
 
 #pragma mark - Actions
