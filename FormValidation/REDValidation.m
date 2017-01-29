@@ -120,14 +120,11 @@
 		}
 		
 		_valid = result;
-		
-		if ([_rule isKindOfClass:[REDNetworkValidationRule class]] == NO) {
-			[_delegate validation:self didValidateUIComponent:_uiComponent result:_valid error:nil];
-		}
 	} else {
 		_valid = REDValidationResultValid;
-		[_delegate validation:self didValidateUIComponent:_uiComponent result:_valid error:nil];
 	}
+	
+	[_delegate validation:self didValidateUIComponent:_uiComponent result:_valid error:nil];
 	
 	return _valid;
 }
