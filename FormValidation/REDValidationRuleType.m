@@ -102,9 +102,11 @@
 	if (_block) {
 		__weak typeof(self) weakSelf = self;
 		_task = _block(value, ^void(BOOL result, NSError *error) {
-			__strong typeof(weakSelf) strongSelf = weakSelf;
-			REDValidationResult validationResult = result ? REDValidationResultValid : REDValidationResultInvalid;
-			[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfUIComponent:component withResult:validationResult error:error];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				__strong typeof(weakSelf) strongSelf = weakSelf;
+				REDValidationResult validationResult = result ? REDValidationResultValid : REDValidationResultInvalid;
+				[strongSelf.delegate validationRule:strongSelf completedNetworkValidationOfUIComponent:component withResult:validationResult error:error];
+			});
 		});
 		
 		return REDValidationResultPending;

@@ -26,7 +26,17 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 
 - (void)validator:(REDValidator *)validator didValidateUIComponentWithResult:(REDValidationResult)result error:(NSError *)error
 {
-	self.textColor = result == REDValidationResultValid ? [UIColor greenColor] : validator.valid == REDValidationResultValid ? [UIColor grayColor] : [UIColor redColor];
+	if (result == REDValidationResultValid) {
+		self.textColor = [UIColor greenColor];
+	} else if (result == REDValidationResultPending) {
+		self.textColor = [UIColor purpleColor];
+	} else {
+		if (validator.valid == REDValidationResultValid) {
+			self.textColor = [UIColor grayColor];
+		} else {
+			self.textColor = [UIColor redColor];
+		}
+	}
 }
 
 @end
@@ -123,8 +133,12 @@ typedef NS_ENUM(NSUInteger, FormCell) {
 	}];
 	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellFirstName) rule:lengthRule]];
 	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellLastName) rule:lengthRule]];
-	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellEmail) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
-		return [text containsString:@"@"];
+	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellEmail) rule:[REDNetworkValidationRule ruleWithBlock:^NSURLSessionTask *(NSString *text, REDNetworkValidationRuleResultBlock completion) {
+		NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:@"https://www.github.com/qiffp"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+			completion([text containsString:@"@"], nil);
+		}];
+		[task resume];
+		return task;
 	}]]];
 	[_validator addValidation:[REDValidation validationWithIdentifier:@(FormCellAddress) rule:[REDValidationRule ruleWithBlock:^BOOL(NSString *text) {
 		return text.length > 5;
