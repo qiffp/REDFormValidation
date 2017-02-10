@@ -100,6 +100,7 @@ _validator.networkInputDelay = 0.5;
 ### Creating the form validation logic
 
 ```objc
+// equivalent to ((FormCellFirstName && FormCellLastName) || FormCellEmail) && FormCellAddress
 _validator.validationTree = [REDValidationTree and:@[
     [REDValidationTree or:@[
         [REDValidationTree and:@[@(FormCellFirstName), @(FormCellLastName)]],
